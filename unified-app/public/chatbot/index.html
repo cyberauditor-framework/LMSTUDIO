@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>English Chatbot — LM Studio Hub</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0e1117;
+  --bg-sidebar:  #262730;
+  --bg-card:     #1e2130;
+  --bg-input:    #31333f;
+  --bg-user:     #1a3a5c;
+  --accent:      #ff4b4b;
+  --accent2:     #4b8bff;
+  --success:     #21c55d;
+  --text:        #fafafa;
+  --text-muted:  #a3a8b4;
+  --border:      #3d4155;
+  --radius:      8px;
+  --font:        'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+/* ── HUB BAR ── */
+.hub-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px;
+  background: #0d1117;
+  border-bottom: 1px solid #21262d;
+  font-size: 12px;
+  color: #8b949e;
+  flex-shrink: 0;
+}
+.hub-bar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #58a6ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.hub-bar a:hover { opacity: .75; }
+.hub-bar .sep { color: #30363d; }
+.hub-bar .app-name { color: #fafafa; font-weight: 600; }
+
+.app-shell {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 270px;
+  min-width: 270px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-splitter {
+  width: 10px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: linear-gradient(180deg, #2a2f40 0%, #222636 100%);
+  border-left: 1px solid #2e3348;
+  border-right: 1px solid #1b1f2d;
+}
+.panel-splitter:hover,
+.panel-splitter.dragging {
+  background: linear-gradient(180deg, #3f5d97 0%, #2f4f84 100%);
+}
+
+.sidebar-top {
+  padding: 16px 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-top h2 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; letter-spacing: 0.3px; }
+.sidebar-top h2 span { color: var(--accent); }
+
+#new-chat-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+#new-chat-btn:hover { opacity: 0.85; }
+
+.search-wrap { padding: 10px 12px 6px; }
+#search-input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+#search-input::placeholder { color: var(--text-muted); }
+#search-input:focus { border-color: var(--accent2); }
+
+#conv-list { flex: 1; overflow-y: auto; padding: 4px 8px 16px; }
+#conv-list::-webkit-scrollbar { width: 4px; }
+#conv-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+#phrase-rail {
+  width: 340px;
+  min-width: 300px;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.phrase-bank {
+  padding: 12px 10px 12px;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.phrase-bank h3 {
+  font-size: 12px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+.phrase-bank-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.phrase-bank-link {
+  font-size: 11px;
+  color: var(--accent2);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.phrase-bank-link:hover { text-decoration: underline; }
+.phrase-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+.phrase-chip {
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.phrase-chip.active { border-color: var(--accent2); color: var(--accent2); }
+.phrase-list {
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-right: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.phrase-item {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+}
+.phrase-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.phrase-cat { font-size: 10px; color: var(--accent2); font-weight: 700; }
+.seen-badge { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 20px; flex-shrink: 0; }
+.seen-new  { background: rgba(163,168,180,.12); color: var(--text-muted); border: 1px solid var(--border); }
+.seen-low  { background: rgba(75,139,255,.12);  color: var(--accent2);    border: 1px solid rgba(75,139,255,.3); }
+.seen-mid  { background: rgba(33,197,93,.12);   color: var(--success);    border: 1px solid rgba(33,197,93,.3); }
+.seen-high { background: rgba(255,75,75,.12);   color: var(--accent);     border: 1px solid rgba(255,75,75,.3); }
+.phrase-en { font-size: 12px; color: var(--text); line-height: 1.45; }
+.phrase-es { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.45; }
+.phrase-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 10px 8px; }
+
+.conv-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px; border-radius: var(--radius); cursor: pointer;
+  transition: background 0.12s; position: relative;
+}
+.conv-item:hover { background: var(--bg-input); }
+.conv-item.active { background: var(--bg-input); border-left: 3px solid var(--accent); padding-left: 5px; }
+.conv-icon { font-size: 14px; flex-shrink: 0; color: var(--text-muted); }
+.conv-info { flex: 1; min-width: 0; }
+.conv-title { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.conv-date  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.conv-del   { opacity: 0; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 2px 4px; border-radius: 4px; flex-shrink: 0; }
+.conv-item:hover .conv-del { opacity: 1; }
+.conv-del:hover { color: var(--accent); }
+#conv-empty { color: var(--text-muted); font-size: 13px; text-align: center; padding: 24px 12px; }
+
+@media (max-width: 1200px) {
+  #sidebar { width: 240px; min-width: 240px; }
+  #phrase-rail { width: 300px; min-width: 280px; }
+}
+
+@media (max-width: 920px) {
+  .app-shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  #sidebar {
+    width: 100%;
+    min-width: 0;
+    max-height: 34vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  #main {
+    min-height: 40vh;
+  }
+  #phrase-rail {
+    width: 100%;
+    min-width: 0;
+    max-height: 34vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .panel-splitter {
+    display: none;
+  }
+}
+
+/* ── MAIN ── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+#chat-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; min-height: 52px;
+}
+#chat-title { font-size: 15px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#chat-subtitle { font-size: 12px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+
+.voice-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.voice-controls label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.voice-controls input[type="range"] {
+  width: 90px;
+}
+.voice-controls .voice-value {
+  font-size: 11px;
+  color: var(--text);
+  min-width: 28px;
+  text-align: right;
+}
+
+@media (max-width: 980px) {
+  #chat-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .voice-controls {
+    order: 3;
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  #chat-subtitle {
+    margin-left: 0;
+  }
+}
+
+/* ── MESSAGES ── */
+#messages-area {
+  flex: 1; overflow-y: auto; padding: 20px 20px 8px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+#messages-area::-webkit-scrollbar { width: 10px; height: 10px; }
+#messages-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+#placeholder {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--text-muted); text-align: center; gap: 10px;
+}
+#placeholder .ph-icon { font-size: 42px; }
+#placeholder h3 { font-size: 17px; color: var(--text); }
+#placeholder p { font-size: 13px; max-width: 380px; line-height: 1.6; }
+
+.user-row { display: flex; justify-content: flex-end; }
+.user-bubble {
+  background: var(--bg-user); border-radius: 16px 16px 4px 16px;
+  padding: 10px 16px; font-size: 14px; max-width: 70%; white-space: pre-wrap; word-break: break-word; line-height: 1.55;
+}
+
+.assistant-row { display: flex; justify-content: flex-start; }
+.assistant-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 4px 16px 16px 16px; padding: 14px 16px;
+  font-size: 14px; max-width: 82%; display: flex; flex-direction: column; gap: 12px;
+}
+
+.lang-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.badge-en { background: rgba(75, 139, 255, 0.15); color: var(--accent2); border: 1px solid rgba(75, 139, 255, 0.3); }
+.badge-es { background: rgba(255, 75, 75, 0.12); color: #ff8c4b; border: 1px solid rgba(255, 75, 75, 0.3); }
+
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 700px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-card {
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px;
+}
+.opt-1 { border-left: 3px solid var(--accent2); }
+.opt-2 { border-left: 3px solid var(--accent);  }
+
+.option-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.option-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.copy-btn {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text-muted); font-size: 11px; padding: 3px 8px; cursor: pointer;
+  transition: all 0.12s;
+}
+.copy-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+.copy-btn.copied { background: rgba(33, 197, 93, 0.15); border-color: var(--success); color: var(--success); }
+
+.option-text { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+
+.audio-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.audio-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.audio-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+details { margin-top: 4px; }
+summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; list-style: none; padding: 4px 0; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: '▶ '; display: inline-block; transition: transform .15s; }
+details[open] summary::before { transform: rotate(90deg); }
+
+.changes-body, .tips-body { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.change-item { background: var(--bg-input); border-radius: var(--radius); padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; }
+.change-row { display: flex; align-items: baseline; gap: 6px; }
+.change-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; }
+.tag-before { background: rgba(255,75,75,.15); color: var(--accent); }
+.tag-after  { background: rgba(33,197,93,.15);  color: var(--success); }
+.change-text { font-size: 12px; color: var(--text); }
+.change-why  { font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 4px; margin-top: 2px; }
+
+.tip-item { padding: 8px 12px; background: var(--bg-input); border-radius: var(--radius); }
+.tip-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.tip-desc  { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.tip-link  { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--accent2); text-decoration: none; margin-top: 2px; }
+.tip-link:hover { text-decoration: underline; }
+.rag-bar { font-size: 11px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding-top: 6px; }
+.rag-pill { background: rgba(75,139,255,.1); border: 1px solid rgba(75,139,255,.25); color: var(--accent2); border-radius: 20px; padding: 1px 7px; font-size: 10px; font-weight: 600; cursor: default; }
+.rag-pill-mastered { background: rgba(33,197,93,.1); border-color: rgba(33,197,93,.3); color: var(--success); }
+.rag-bank-total { font-size: 10px; color: var(--text-muted); opacity: .7; margin-left: 4px; }
+.summary-bar { font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 8px; }
+.summary-bar strong { color: var(--text); }
+.raw-response { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+
+.typing-indicator {
+  display: flex; gap: 5px; padding: 14px 16px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 4px 16px 16px 16px; width: fit-content;
+}
+.typing-dot { width: 7px; height: 7px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-6px);opacity:1} }
+
+.error-msg {
+  color: var(--accent); background: rgba(255,75,75,.08);
+  border: 1px solid rgba(255,75,75,.25); border-radius: var(--radius);
+  padding: 10px 14px; font-size: 13px;
+}
+
+#input-area { padding: 12px 20px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end; }
+
+#user-input {
+  flex: 1; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-family: var(--font); font-size: 14px;
+  padding: 10px 14px; resize: none; outline: none;
+  min-height: 44px; max-height: 160px; overflow-y: auto; line-height: 1.5;
+  transition: border-color 0.15s;
+}
+#user-input::placeholder { color: var(--text-muted); }
+#user-input:focus { border-color: var(--accent2); }
+
+#send-btn {
+  background: var(--accent); border: none; border-radius: 10px;
+  color: #fff; font-size: 18px; width: 44px; height: 44px;
+  cursor: pointer; transition: opacity 0.15s;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+#send-btn:hover:not(:disabled) { opacity: 0.85; }
+#send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- Hub nav bar -->
+<div class="hub-bar">
+  <a href="/">🧠 LM Studio Hub</a>
+  <span class="sep">/</span>
+  <span class="app-name">💬 English Chatbot</span>
+  <span class="sep">/</span>
+  <a href="/app/chatbot/phrase-bank.html">📚 Phrase Bank</a>
+  <span class="sep">/</span>
+  <a href="/app/chatbot/dictionary.html">📖 Dictionary</a>
+  <span class="sep">/</span>
+  <a href="/app/chatbot/verbs.html">🧩 Verb Engine</a>
+</div>
+
+<div class="app-shell">
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-top">
+    <h2>English <span>Improver</span></h2>
+    <button id="new-chat-btn" onclick="newChat()">+ New Chat</button>
+  </div>
+  <div class="search-wrap">
+    <input id="search-input" type="text" placeholder="Search conversations…" oninput="filterConvs(this.value)">
+  </div>
+  <div id="conv-list"></div>
+</aside>
+
+<div class="panel-splitter" id="split-left" title="Resize panels"></div>
+
+<!-- MAIN -->
+<main id="main">
+  <div id="chat-header">
+    <span id="chat-title">English Improver</span>
+    <div class="voice-controls" id="voice-controls">
+      <label for="voice-rate">Rate</label>
+      <input id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="0.95">
+      <span class="voice-value" id="voice-rate-value">0.95</span>
+      <label for="voice-pitch">Pitch</label>
+      <input id="voice-pitch" type="range" min="0.8" max="1.2" step="0.05" value="1.00">
+      <span class="voice-value" id="voice-pitch-value">1.00</span>
+    </div>
+    <span id="chat-subtitle">Powered by LM Studio Hub</span>
+  </div>
+
+  <div id="messages-area">
+    <div id="placeholder">
+      <div class="ph-icon">🌐</div>
+      <h3>Improve your English</h3>
+      <p>Type any English text to get grammar, spelling and style improvements — or write in Spanish to get a high-quality English translation.</p>
+    </div>
+  </div>
+
+  <div id="input-area">
+    <textarea
+      id="user-input"
+      placeholder="Type English to improve, or write in Spanish to translate… (Enter to send, Shift+Enter for new line)"
+      rows="1"
+    ></textarea>
+    <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+  </div>
+</main>
+
+<div class="panel-splitter" id="split-right" title="Resize panels"></div>
+
+<aside id="phrase-rail">
+  <div class="phrase-bank">
+    <div class="phrase-bank-top">
+      <h3>Phrase Bank</h3>
+      <a class="phrase-bank-link" href="/app/chatbot/phrase-bank.html">Open full page →</a>
+    </div>
+    <div class="phrase-filters" id="phrase-filters"></div>
+    <div class="phrase-list" id="phrase-list"></div>
+  </div>
+</aside>
+</div>
+
+<script>
+// ── API base (unified server) ─────────────────────────────────────────────────
+const API = '/api/chatbot';
+const VOICE_PREFS_KEY = 'chatbot_voice_settings';
+
+const state = {
+  conversations: [],
+  activeId: null,
+  loading: false,
+  searchQuery: '',
+  phraseBank: [],
+  phraseCategories: [],
+  phraseCategory: 'ALL',
+  speechRate: 0.95,
+  speechPitch: 1.0,
+};
+
+let speechReady = false;
+
+function waitForVoices(timeoutMs = 1200) {
+  return new Promise((resolve) => {
+    const synth = window.speechSynthesis;
+    if (!synth) return resolve([]);
+    const start = Date.now();
+
+    const tryGet = () => {
+      const voices = synth.getVoices();
+      if (voices.length || Date.now() - start > timeoutMs) {
+        resolve(voices);
+      }
+    };
+
+    tryGet();
+    synth.onvoiceschanged = tryGet;
+    setTimeout(tryGet, timeoutMs);
+  });
+}
+
+function pickVoice(accent) {
+  const voices = window.speechSynthesis?.getVoices?.() || [];
+  const wanted = accent === 'british' ? ['en-GB', 'en_GB'] : ['en-US', 'en_US'];
+  const preferred = voices.find(v => wanted.some(code => String(v.lang || '').startsWith(code)));
+  if (preferred) return preferred;
+  return voices.find(v => String(v.lang || '').toLowerCase().startsWith('en')) || null;
+}
+
+async function speakPhrase(text, accent = 'british') {
+  if (!text || !window.speechSynthesis) return;
+  if (!speechReady) {
+    await waitForVoices();
+    speechReady = true;
+  }
+  const utterance = new SpeechSynthesisUtterance(String(text));
+  const normalized = String(accent || '').toLowerCase();
+  const targetAccent = normalized === 'us' || normalized === 'american' ? 'american' : 'british';
+  const voice = pickVoice(targetAccent);
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = targetAccent === 'american' ? 'en-US' : 'en-GB';
+  }
+  utterance.rate = state.speechRate;
+  utterance.pitch = state.speechPitch;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function loadVoicePreferences() {
+  try {
+    const raw = localStorage.getItem(VOICE_PREFS_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    const rate = Number(saved.rate);
+    const pitch = Number(saved.pitch);
+    if (Number.isFinite(rate)) state.speechRate = clamp(rate, 0.7, 1.3);
+    if (Number.isFinite(pitch)) state.speechPitch = clamp(pitch, 0.8, 1.2);
+  } catch (_) {}
+}
+
+function saveVoicePreferences() {
+  try {
+    localStorage.setItem(VOICE_PREFS_KEY, JSON.stringify({ rate: state.speechRate, pitch: state.speechPitch }));
+  } catch (_) {}
+}
+
+function syncVoiceLabels() {
+  const rateOut = document.getElementById('voice-rate-value');
+  const pitchOut = document.getElementById('voice-pitch-value');
+  if (rateOut) rateOut.textContent = state.speechRate.toFixed(2);
+  if (pitchOut) pitchOut.textContent = state.speechPitch.toFixed(2);
+}
+
+function setupVoiceControls() {
+  loadVoicePreferences();
+  const rateEl = document.getElementById('voice-rate');
+  const pitchEl = document.getElementById('voice-pitch');
+  if (!rateEl || !pitchEl) return;
+
+  rateEl.value = String(state.speechRate);
+  pitchEl.value = String(state.speechPitch);
+  syncVoiceLabels();
+
+  rateEl.addEventListener('input', () => {
+    state.speechRate = clamp(Number(rateEl.value), 0.7, 1.3);
+    syncVoiceLabels();
+    saveVoicePreferences();
+  });
+
+  pitchEl.addEventListener('input', () => {
+    state.speechPitch = clamp(Number(pitchEl.value), 0.8, 1.2);
+    syncVoiceLabels();
+    saveVoicePreferences();
+  });
+}
+
+async function runLLMToolCalls(toolCalls) {
+  if (!Array.isArray(toolCalls) || !toolCalls.length) return;
+  for (const call of toolCalls) {
+    if (!call || call.name !== 'play_phrase_audio') continue;
+    const args = call.arguments || {};
+    const text = typeof args.text === 'string' ? args.text.trim() : '';
+    const accent = typeof args.accent === 'string' ? args.accent : 'british';
+    if (!text) continue;
+    await speakPhrase(text, accent);
+    break;
+  }
+}
+
+async function readJsonResponse(res, contextLabel) {
+  const raw = await res.text();
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    const trimmed = String(raw || '').trim();
+    const looksHtml = /^<!DOCTYPE\s+html|^<html/i.test(trimmed);
+    if (looksHtml) {
+      throw new Error(`${contextLabel}: server returned HTML instead of JSON. Open this app from the same LM Studio Hub URL/port.`);
+    }
+    throw new Error(`${contextLabel}: invalid JSON response (HTTP ${res.status}).`);
+  }
+}
+
+async function init() {
+  setupVoiceControls();
+  await loadConversations();
+  await loadPhraseBank();
+  setupTextarea();
+  setupPanelSplitters();
+}
+
+function setupPanelSplitters() {
+  const left = document.getElementById('sidebar');
+  const right = document.getElementById('phrase-rail');
+  const splitLeft = document.getElementById('split-left');
+  const splitRight = document.getElementById('split-right');
+
+  if (!left || !right || !splitLeft || !splitRight) return;
+
+  splitLeft.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 920) return;
+    e.preventDefault();
+    splitLeft.classList.add('dragging');
+    const startX = e.clientX;
+    const startW = left.getBoundingClientRect().width;
+
+    const onMove = (ev) => {
+      const next = Math.min(430, Math.max(210, startW + (ev.clientX - startX)));
+      left.style.width = `${next}px`;
+      left.style.minWidth = `${next}px`;
+    };
+    const onUp = () => {
+      splitLeft.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  splitRight.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 920) return;
+    e.preventDefault();
+    splitRight.classList.add('dragging');
+    const startX = e.clientX;
+    const startW = right.getBoundingClientRect().width;
+
+    const onMove = (ev) => {
+      const next = Math.min(560, Math.max(240, startW - (ev.clientX - startX)));
+      right.style.width = `${next}px`;
+      right.style.minWidth = `${next}px`;
+    };
+    const onUp = () => {
+      splitRight.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+async function loadPhraseBank() {
+  const cat = state.phraseCategory === 'ALL' ? '' : `?category=${encodeURIComponent(state.phraseCategory)}`;
+  const res = await fetch(`${API}/phrase-bank${cat}`);
+  const data = await readJsonResponse(res, 'Phrase bank load');
+  state.phraseBank = Array.isArray(data.items) ? data.items : [];
+  state.phraseCategories = Array.isArray(data.categories) ? data.categories : [];
+  renderPhraseBank();
+}
+
+function renderPhraseBank() {
+  const filters = document.getElementById('phrase-filters');
+  const list = document.getElementById('phrase-list');
+  const total = state.phraseCategories.reduce((s, c) => s + (c.total || 0), 0);
+  const defs = [
+    { key: 'ALL', label: `All (${total})` },
+    ...state.phraseCategories.map(c => ({ key: c.category, label: `${c.category} (${c.total})` })),
+  ];
+  filters.innerHTML = defs.map(d => `<button class="phrase-chip ${state.phraseCategory===d.key?'active':''}" onclick="setPhraseCategory('${escAttr(d.key)}')">${esc(d.label)}</button>`).join('');
+
+  if (!state.phraseBank.length) {
+    list.innerHTML = `<div class="phrase-empty">No phrases yet.<br>Send messages to build your catalog.</div>`;
+    return;
+  }
+
+  list.innerHTML = state.phraseBank.slice(0, 120).map(p => {
+    const seen = Number(p.times_seen) || 0;
+    const seenLabel = seen === 0 ? 'new' : seen === 1 ? '1×' : `${seen}×`;
+    const seenClass = seen === 0 ? 'seen-new' : seen < 3 ? 'seen-low' : seen < 8 ? 'seen-mid' : 'seen-high';
+    return `
+    <div class="phrase-item">
+      <div class="phrase-item-header">
+        <div class="phrase-cat">${esc(p.category)}</div>
+        <span class="seen-badge ${seenClass}" title="Seen in context ${seen} time(s)">${seenLabel}</span>
+      </div>
+      <div class="phrase-en">${esc(p.phrase_en)}</div>
+      <div class="phrase-es">${esc(p.phrase_es)}</div>
+      <div class="audio-row">
+        <button class="audio-btn phrase-audio-btn" data-text="${escAttr(p.phrase_en)}" data-accent="british">🔊 UK</button>
+        <button class="audio-btn phrase-audio-btn" data-text="${escAttr(p.phrase_en)}" data-accent="american">🔊 US</button>
+      </div>
+      ${p.style ? `<div class="phrase-es" style="opacity:.9"><strong>Style:</strong> ${esc(p.style)}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.phrase-audio-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await speakPhrase(btn.dataset.text || '', btn.dataset.accent || 'british');
+    });
+  });
+}
+
+function setPhraseCategory(category) {
+  state.phraseCategory = category;
+  loadPhraseBank();
+}
+
+async function loadConversations() {
+  const res = await fetch(`${API}/conversations`);
+  state.conversations = await readJsonResponse(res, 'Conversations load');
+  renderSidebar();
+}
+
+function renderSidebar() {
+  const list = document.getElementById('conv-list');
+  const q = state.searchQuery.toLowerCase();
+  const filtered = q ? state.conversations.filter(c => c.title.toLowerCase().includes(q)) : state.conversations;
+
+  if (!filtered.length) {
+    list.innerHTML = `<div id="conv-empty">${q ? 'No results found.' : 'No conversations yet.<br>Click + New Chat to start.'}</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(c => {
+    const active = c.id === state.activeId ? 'active' : '';
+    return `
+      <div class="conv-item ${active}" onclick="selectConv(${c.id})" data-id="${c.id}">
+        <span class="conv-icon">💬</span>
+        <div class="conv-info">
+          <div class="conv-title">${esc(c.title)}</div>
+          <div class="conv-date">${formatDate(c.updated_at)}</div>
+        </div>
+        <button class="conv-del" onclick="deleteConv(event,${c.id})" title="Delete">✕</button>
+      </div>`;
+  }).join('');
+}
+
+function filterConvs(q) { state.searchQuery = q; renderSidebar(); }
+
+async function newChat() {
+  const res = await fetch(`${API}/conversations`, { method: 'POST' });
+  const conv = await readJsonResponse(res, 'Create conversation');
+  state.conversations.unshift(conv);
+  await selectConv(conv.id);
+}
+
+async function selectConv(id) {
+  state.activeId = id;
+  renderSidebar();
+  const conv = state.conversations.find(c => c.id === id);
+  document.getElementById('chat-title').textContent = conv?.title || 'Conversation';
+  const res = await fetch(`${API}/conversations/${id}/messages`);
+  const messages = await readJsonResponse(res, 'Load messages');
+  renderAllMessages(messages);
+}
+
+async function deleteConv(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this conversation?')) return;
+  await fetch(`${API}/conversations/${id}`, { method: 'DELETE' });
+  state.conversations = state.conversations.filter(c => c.id !== id);
+  if (state.activeId === id) { state.activeId = null; clearChat(); }
+  renderSidebar();
+}
+
+function clearChat() {
+  const area = document.getElementById('messages-area');
+  area.innerHTML = `<div id="placeholder"><div class="ph-icon">🌐</div><h3>Improve your English</h3><p>Type any English text to get grammar, spelling and style improvements — or write in Spanish to get a high-quality English translation.</p></div>`;
+  document.getElementById('chat-title').textContent = 'English Improver';
+}
+
+function renderAllMessages(messages) {
+  const area = document.getElementById('messages-area');
+  area.innerHTML = '';
+  const pairs = [];
+  for (let i = 0; i < messages.length; i++) {
+    if (messages[i].role === 'user') {
+      const assistant = messages[i + 1]?.role === 'assistant' ? messages[i + 1] : null;
+      pairs.push({ user: messages[i], assistant });
+      if (assistant) i++;
+    }
+  }
+  for (const pair of pairs) {
+    appendUserMsg(pair.user.content_raw);
+    if (pair.assistant) appendAssistantCard(parseJSON(pair.assistant.content_raw));
+  }
+  scrollBottom();
+}
+
+function appendUserMsg(text) {
+  hidePlaceholder();
+  const area = document.getElementById('messages-area');
+  const div = document.createElement('div');
+  div.className = 'user-row';
+  div.innerHTML = `<div class="user-bubble">${esc(text)}</div>`;
+  area.appendChild(div);
+}
+
+function appendAssistantCard(parsed) {
+  const area = document.getElementById('messages-area');
+  const row = document.createElement('div');
+  row.className = 'assistant-row';
+  if (parsed.raw || !parsed.option_1) {
+    row.innerHTML = `<div class="assistant-card"><div class="raw-response">${esc(parsed.summary||'')}</div></div>`;
+    area.appendChild(row); return;
+  }
+  const lang      = parsed.detected_language || 'english';
+  const isSpanish = lang === 'spanish';
+  const badgeClass = isSpanish ? 'badge-es' : 'badge-en';
+  const badgeText  = isSpanish ? '🇪🇸 Spanish → English' : '🇬🇧 English Improved';
+  row.innerHTML = `
+    <div class="assistant-card">
+      <span class="lang-badge ${badgeClass}">${badgeText}</span>
+      <div class="options-grid">
+        <div class="option-card opt-1">
+          <div class="option-header"><span class="option-label">${esc(parsed.option_1?.label||'Option 1')}</span>
+            <button class="copy-btn" data-copy="${esc(parsed.option_1?.text||'')}">📋 Copy</button></div>
+          <div class="option-text">${esc(parsed.option_1?.text||'')}</div>
+          <div class="audio-row">
+            <button class="audio-btn" data-speak="${escAttr(parsed.option_1?.text||'')}" data-accent="british">🔊 UK</button>
+            <button class="audio-btn" data-speak="${escAttr(parsed.option_1?.text||'')}" data-accent="american">🔊 US</button>
+          </div>
+        </div>
+        <div class="option-card opt-2">
+          <div class="option-header"><span class="option-label">${esc(parsed.option_2?.label||'Option 2')}</span>
+            <button class="copy-btn" data-copy="${esc(parsed.option_2?.text||'')}">📋 Copy</button></div>
+          <div class="option-text">${esc(parsed.option_2?.text||'')}</div>
+          <div class="audio-row">
+            <button class="audio-btn" data-speak="${escAttr(parsed.option_2?.text||'')}" data-accent="british">🔊 UK</button>
+            <button class="audio-btn" data-speak="${escAttr(parsed.option_2?.text||'')}" data-accent="american">🔊 US</button>
+          </div>
+        </div>
+      </div>
+      ${buildBilingualBlock(parsed.bilingual_block)}
+      ${buildChanges(parsed.changes)}
+      ${buildTips(parsed.tips)}
+      ${buildRAGInfo(parsed.rag_context)}
+      ${parsed.summary ? `<div class="summary-bar"><strong>Summary:</strong> ${esc(parsed.summary)}</div>` : ''}
+    </div>`;
+  row.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        btn.textContent = '✓ Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 1800);
+      } catch (_) {}
+    });
+  });
+  row.querySelectorAll('.audio-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.speak || '';
+      const accent = btn.dataset.accent || 'british';
+      await speakPhrase(text, accent);
+    });
+  });
+  area.appendChild(row);
+  runLLMToolCalls(parsed.tool_calls);
+}
+
+function buildChanges(changes) {
+  if (!changes?.length) return '';
+  const items = changes.map(c => `
+    <div class="change-item">
+      <div class="change-row"><span class="change-tag tag-before">Before</span><span class="change-text">${esc(c.original||'')}</span></div>
+      <div class="change-row"><span class="change-tag tag-after">After</span><span class="change-text">${esc(c.improved||c.corrected||'')}</span></div>
+      <div class="change-why">${esc(c.explanation||'')}</div>
+    </div>`).join('');
+  return `<details><summary>📝 Changes (${changes.length})</summary><div class="changes-body">${items}</div></details>`;
+}
+
+function buildTips(tips) {
+  if (!tips?.length) return '';
+  const items = tips.map(t => `
+    <div class="tip-item">
+      <div class="tip-title">${esc(t.title||'')}</div>
+      <div class="tip-desc">${esc(t.description||t.explanation||'')}</div>
+      ${t.url ? `<a class="tip-link" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer">🔗 Learn more →</a>` : ''}
+    </div>`).join('');
+  return `<details><summary>💡 Tips & Resources (${tips.length})</summary><div class="tips-body">${items}</div></details>`;
+}
+
+function buildRAGInfo(ragContext) {
+  if (!ragContext || typeof ragContext !== 'object') return '';
+  const t1 = Array.isArray(ragContext.tier1) ? ragContext.tier1 : [];
+  const t2 = Array.isArray(ragContext.tier2) ? ragContext.tier2 : [];
+  const total = ragContext.bank_total || 0;
+  if (t1.length === 0 && t2.length === 0) return '';
+
+  const makePill = (p, cls) =>
+    `<span class="rag-pill ${cls}" title="${escAttr(p.phrase_en)}">${esc(p.category)} ×${p.times_seen || 0}</span>`;
+
+  const t1Pills = t1.map(p => makePill(p, '')).join('');
+  const t2Pills = t2.map(p => makePill(p, 'rag-pill-mastered')).join('');
+  const bankInfo = total > 0
+    ? `<span class="rag-bank-total">${total} phrases in bank</span>`
+    : '';
+
+  return `<div class="rag-bar">
+    🔍 Context used: ${t1Pills}${t2Pills}${bankInfo}
+  </div>`;
+}
+
+function buildBilingualBlock(text) {
+  if (!text || typeof text !== 'string' || !text.trim()) return '';
+  return `
+    <details open>
+      <summary>🌍 Bilingual Fluency Block</summary>
+      <div class="tips-body">
+        <div class="tip-item" style="white-space:pre-wrap;line-height:1.6">${esc(text)}</div>
+      </div>
+    </details>`;
+}
+
+function formatNetworkError(err) {
+  const msg = String(err?.message || 'Network error');
+  if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) {
+    return 'Cannot connect to the chatbot API. Ensure LM Studio Hub is running and open this app from the same server URL.';
+  }
+  return msg;
+}
+
+async function sendMessage() {
+  if (state.loading) return;
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!state.activeId) {
+    const res = await fetch(`${API}/conversations`, { method: 'POST' });
+    const conv = await readJsonResponse(res, 'Create conversation');
+    state.conversations.unshift(conv);
+    state.activeId = conv.id;
+    renderSidebar();
+  }
+
+  input.value = '';
+  autoResize(input);
+  setLoading(true);
+  appendUserMsg(text);
+
+  const area = document.getElementById('messages-area');
+  const typingRow = document.createElement('div');
+  typingRow.className = 'assistant-row';
+  typingRow.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  area.appendChild(typingRow);
+  scrollBottom();
+
+  try {
+    const res = await fetch(`${API}/conversations/${state.activeId}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    typingRow.remove();
+    const data = await readJsonResponse(res, 'Send message');
+    if (!res.ok || data.error) { appendError(data.error || 'Unknown error'); }
+    else {
+      appendAssistantCard(data.response);
+      await loadConversations();
+      await loadPhraseBank();
+      const conv = state.conversations.find(c => c.id === state.activeId);
+      if (conv) document.getElementById('chat-title').textContent = conv.title;
+    }
+  } catch (err) { typingRow.remove(); appendError(formatNetworkError(err)); }
+
+  setLoading(false);
+  scrollBottom();
+}
+
+function appendError(msg) {
+  const area = document.getElementById('messages-area');
+  const div = document.createElement('div');
+  div.className = 'assistant-row';
+  div.innerHTML = `<div class="error-msg">⚠️ ${esc(msg)}</div>`;
+  area.appendChild(div);
+}
+
+function hidePlaceholder() { document.getElementById('placeholder')?.remove(); }
+function setLoading(v) { state.loading = v; document.getElementById('send-btn').disabled = v; document.getElementById('user-input').disabled = v; }
+function scrollBottom() { const a = document.getElementById('messages-area'); a.scrollTo({ top: a.scrollHeight, behavior: 'smooth' }); }
+function normalizeJ(t) {
+  return String(t||'')
+    .replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/i,'')
+    .replace(/[\u201c\u201d]/g,'"').replace(/[\u2018\u2019]/g,"'")
+    .replace(/,\s*([}\]])/g,'$1').trim();
+}
+function parseJSON(text) {
+  if (!text) return {raw:true,summary:''};
+  // 1 direct
+  try { return JSON.parse(text); } catch(_){}
+  // 2 normalize (fences, smart-quotes, trailing commas)
+  try { return JSON.parse(normalizeJ(text)); } catch(_){}
+  // 3 fenced block
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fence?.[1]) { try { return JSON.parse(fence[1]); } catch(_){} try { return JSON.parse(normalizeJ(fence[1])); } catch(_){} }
+  // 4 first balanced { … } via depth tracking
+  const fi = text.indexOf('{');
+  if (fi !== -1) {
+    let d=0,inS=false,esc=false;
+    for (let i=fi;i<text.length;i++) {
+      const c=text[i];
+      if(inS){if(esc){esc=false;}else if(c==='\\'){esc=true;}else if(c==='"'){inS=false;} continue;}
+      if(c==='"'){inS=true;continue;}
+      if(c==='{')d++; if(c==='}'){d--;if(d===0){const b=text.slice(fi,i+1);try{return JSON.parse(b);}catch(_){}try{return JSON.parse(normalizeJ(b));}catch(_){}break;}}
+    }
+  }
+  // 5 greedy fallback
+  const m=text.match(/\{[\s\S]*\}/);
+  if(m){try{return JSON.parse(m[0]);}catch(_){}try{return JSON.parse(normalizeJ(m[0]));}catch(_){}}
+  return {raw:true,summary:text||''};
+}
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return esc(s).replace(/'/g,'&#39;'); }
+function formatDate(ts) { if(!ts)return''; const d=new Date(ts), now=new Date(), diff=now-d; if(diff<60000)return'Just now'; if(diff<3600000)return`${Math.floor(diff/60000)}m ago`; if(diff<86400000)return`${Math.floor(diff/3600000)}h ago`; return d.toLocaleDateString(); }
+function setupTextarea() {
+  const ta = document.getElementById('user-input');
+  ta.addEventListener('input', () => autoResize(ta));
+  ta.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+}
+function autoResize(ta) { ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,160)+'px'; }
+
+init();
+</script>
+</body>
+</html>

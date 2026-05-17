@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"c:/Users/DanielAusin\\(CPES\\)/Downloads/github-my/LMSTUDIO/unified-app\" rev-parse --show-toplevel)",
+      "Bash(node server.js)",
+      "Bash(pkill -f \"node server.js\")"
+    ]
+  }
+}

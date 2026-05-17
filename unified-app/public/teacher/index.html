@@ -1,0 +1,4139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>English Teacher App - LM Studio Hub</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f7f4ee;
+  --paper: #fffdfa;
+  --ink: #1f2933;
+  --muted: #51606e;
+  --line: #d2c9b7;
+  --accent: #c66b3d;
+  --accent-2: #1f7a8c;
+  --ok: #1f9d55;
+  --warn: #c05621;
+  --danger: #b83232;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(44, 54, 67, 0.12);
+  --font: "Trebuchet MS", "Segoe UI", sans-serif;
+  --mono: "Consolas", "Courier New", monospace;
+}
+
+body {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(31, 122, 140, 0.11), transparent 36%),
+    radial-gradient(circle at 90% 15%, rgba(198, 107, 61, 0.15), transparent 30%),
+    linear-gradient(180deg, #f8f2e5 0%, #f4efe7 100%);
+  color: var(--ink);
+}
+
+.topbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(31, 41, 51, 0.15);
+  background: rgba(255, 253, 250, 0.92);
+  backdrop-filter: blur(6px);
+  z-index: 20;
+}
+
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.breadcrumb a {
+  color: var(--accent-2);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.breadcrumb .sep { color: var(--muted); }
+.breadcrumb .here { color: var(--ink); font-weight: 700; }
+
+.voice-status {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.layout {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  padding: 12px 14px 14px;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.left {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 21px;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #27323d;
+}
+
+input, textarea, select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+textarea { min-height: 90px; resize: vertical; }
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.14);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #1f7a8c, #2a9eb4);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--accent-2);
+  border-color: rgba(31, 122, 140, 0.35);
+}
+
+.btn-ghost {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn-warn {
+  background: #fff;
+  color: var(--warn);
+  border-color: rgba(192, 86, 33, 0.38);
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.score-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  background: #fff;
+}
+
+.score-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.score-val {
+  font-size: 21px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.progress {
+  height: 7px;
+  border-radius: 999px;
+  background: #ece3d3;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #c66b3d, #1f7a8c);
+}
+
+.notice {
+  font-size: 12px;
+  line-height: 1.5;
+  background: #fff;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--muted);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.headline {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stage-title {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.stage-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.workspace {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.question {
+  border: 1px solid #e6ddcf;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+  background: #fffdfa;
+}
+
+.question strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: #fff;
+}
+
+.report {
+  flex-shrink: 0;
+  border-top: 1px solid var(--line);
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.report pre {
+  border: 1px solid var(--line);
+  background: #faf8f4;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  font-family: var(--mono);
+  overflow: auto;
+  max-height: 240px;
+}
+
+.feedback-block {
+  border: 1px solid #d6e9dd;
+  background: #f6fffa;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.resource-links {
+  margin-top: 10px;
+  border-top: 1px dashed #bdd9c8;
+  padding-top: 8px;
+}
+
+.resource-links strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: #215f41;
+}
+
+.resource-links a {
+  display: inline-block;
+  font-size: 12px;
+  color: #1f7a8c;
+  margin-right: 10px;
+  margin-bottom: 4px;
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(31, 122, 140, 0.5);
+}
+
+.resource-links a:hover {
+  color: #155564;
+  border-bottom-color: rgba(21, 85, 100, 0.7);
+}
+
+.deck-wrap {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
+}
+
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.flip-card {
+  perspective: 1200px;
+  height: 148px;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #d9cdbb;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+
+.flip-front {
+  background: linear-gradient(140deg, #fff9ef, #fef4e6);
+}
+
+.flip-back {
+  background: linear-gradient(140deg, #ecfbff, #e8f7fb);
+  transform: rotateY(180deg);
+}
+
+.flip-term {
+  font-size: 18px;
+  font-weight: 800;
+  color: #243341;
+}
+
+.flip-hint {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.flip-meaning {
+  font-size: 13px;
+  color: #1f4958;
+  line-height: 1.4;
+}
+
+.flip-example {
+  font-size: 12px;
+  color: #2f3f4d;
+  line-height: 1.45;
+}
+
+.feedback-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #236d48;
+  margin-bottom: 5px;
+}
+
+.bullet-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #274052;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bad {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.good {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.vocab-review-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vocab-review-item {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  border-left: 4px solid transparent;
+}
+
+.vocab-review-item.correct {
+  background: #f0fdf5;
+  border-left-color: var(--ok);
+}
+
+.vocab-review-item.incorrect {
+  background: #fff4f4;
+  border-left-color: var(--danger);
+}
+
+.vocab-review-sentence {
+  font-weight: 600;
+  color: #243341;
+  margin-bottom: 3px;
+}
+
+.vocab-review-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 5px;
+}
+
+.vocab-review-badge.ok  { background: #d4f4e3; color: #1a6e3e; }
+.vocab-review-badge.err { background: #fde0e0; color: #9b1c1c; }
+
+.vocab-review-why {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 3px;
+}
+
+.recording-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 30, 39, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.recording-popup.visible {
+  display: flex;
+}
+
+.generating-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px 18px;
+  text-align: center;
+}
+
+.generating-overlay p { color: var(--muted); font-size: 13px; margin: 0; }
+
+.loading-dots {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.loading-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: bounce-dot 1.2s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1;   }
+}
+
+.recording-card {
+  width: min(420px, 92vw);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.recording-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.recording-title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.recording-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d64545;
+  box-shadow: 0 0 0 0 rgba(214, 69, 69, 0.4);
+  animation: pulseRec 1.1s infinite;
+}
+
+@keyframes pulseRec {
+  0% { box-shadow: 0 0 0 0 rgba(214, 69, 69, 0.45); }
+  70% { box-shadow: 0 0 0 10px rgba(214, 69, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(214, 69, 69, 0); }
+}
+
+.recording-time {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin: 8px 0 10px;
+}
+
+.recording-caption {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.recording-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── Responsive breakpoints ───────────────────────────────── */
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 300px 1fr; gap: 12px; }
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 260px 1fr; gap: 10px; padding: 8px 10px 10px; }
+}
+
+@media (max-width: 640px) {
+  /* On mobile body/html can scroll naturally */
+  body { height: auto; overflow: auto; }
+
+  .layout {
+    flex: none;
+    grid-template-columns: 1fr;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  /* Sidebar hidden by default on mobile, shown when toggled */
+  .left {
+    display: none;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .layout.sidebar-open .left { display: flex; }
+
+  .main { min-height: 70vh; }
+
+  .sidebar-toggle { display: flex; }
+}
+
+/* ── Irregular Verbs section ──────────────────────────────── */
+.verbs-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.verbs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 760px;
+}
+
+.verbs-table th {
+  background: linear-gradient(180deg, #f5efe4, #ede6d6);
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  border-bottom: 2px solid var(--line);
+  white-space: nowrap;
+}
+
+.verbs-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ece5d8;
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+.verbs-table tr:last-child td { border-bottom: none; }
+.verbs-table tr:hover td { background: #fdf8f1; }
+
+.verb-base       { font-weight: 800; font-size: 15px; color: #243341; }
+.verb-form-cell  { font-weight: 600; color: #1f3040; }
+.verb-ipa        { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; font-family: var(--mono); }
+.verb-meaning    { color: #1f4958; font-size: 12px; }
+.verb-example    { font-size: 12px; color: #374151; line-height: 1.45; font-style: italic; }
+.verb-example-es { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.verb-tags       { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.verb-tag        { font-size: 10px; padding: 1px 5px; border-radius: 999px; background: #eee8de; color: var(--muted); border: 1px solid #ddd0bb; }
+
+.tense-pill {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #e8f3f7;
+  color: #1f5a6e;
+  border: 1px solid #c5dfe8;
+  margin: 1px 2px 1px 0;
+  white-space: nowrap;
+}
+
+.btn-uk {
+  background: linear-gradient(90deg, #1f4b8c, #2563c4);
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  width: 60px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.btn-us {
+  background: linear-gradient(90deg, #8c1f1f, #c42525);
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  width: 60px;
+  text-align: center;
+}
+
+.verbs-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="breadcrumb">
+      <a href="/">LM Studio Hub</a>
+      <span class="sep">/</span>
+      <a href="/app/chatbot">Chatbot</a>
+      <span class="sep">/</span>
+      <span class="here">Teacher App</span>
+    </div>
+    <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Toggle sidebar">&#9776; Menu</button>
+    <div class="voice-status" id="voice-status">Audio: checking browser support...</div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel left">
+      <h1>Personal English Teacher</h1>
+      <p class="subtitle">B2 to C1 bridge with speaking, listening, grammar, vocabulary, writing, and pronunciation targets.</p>
+
+      <div class="section-title">Verb Reference</div>
+      <button class="btn-primary" id="open-irregular-verbs" style="width:100%">Irregular Verbs</button>
+      <button class="btn-primary" id="open-regular-verbs" style="width:100%;margin-top:6px">Regular Verbs</button>
+      <button class="btn-primary" id="open-phrasal-verbs" style="width:100%;margin-top:6px">Phrasal Verbs</button>
+      <hr style="border:none;border-top:1px solid var(--line);margin:2px 0">
+
+      <div class="section-title">Session Setup</div>
+      <div class="row">
+        <label for="profile-id">Profile ID (alias)</label>
+        <input id="profile-id" type="text" value="daniel" readonly>
+      </div>
+      <div class="row">
+        <label for="session-number">Session #</label>
+        <input id="session-number" type="text" placeholder="1">
+      </div>
+      <div class="row">
+        <label for="main-goal">Main goal</label>
+        <select id="main-goal">
+          <option value="">Select one</option>
+          <option value="work">Work</option>
+          <option value="interviews">Interviews</option>
+          <option value="travel">Travel</option>
+          <option value="meetings">Meetings</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="content-pack-select">Saved content pack (SQLite)</label>
+        <select id="content-pack-select">
+          <option value="">Loading packs...</option>
+        </select>
+        <div class="inline-actions" style="margin-top:6px">
+          <button class="btn-secondary" id="refresh-packs" type="button">Refresh packs</button>
+        </div>
+      </div>
+      <div class="row">
+        <label for="last-log">Last Learning Log (paste if no memory)</label>
+        <textarea id="last-log" placeholder="Paste your last Learning Log here if available."></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="start-session">Start Session</button>
+        <button class="btn-secondary" id="load-latest">Load latest</button>
+        <button class="btn-secondary" id="open-settings">Settings</button>
+        <button class="btn-secondary" id="open-results">Resultados</button>
+      </div>
+
+      <div class="notice" id="setup-notice">
+        Profile alias is fixed to daniel. Set Session # and goal to start. If there is no memory yet, paste your last Learning Log.
+      </div>
+
+      <div class="section-title">Estimated Scores (0-10)</div>
+      <div class="score-grid" id="score-grid"></div>
+    </aside>
+
+    <section class="panel main">
+      <div class="headline">
+        <div>
+          <div class="stage-title" id="stage-title">Ready to Start</div>
+          <div class="stage-meta" id="stage-meta">Session flow: Speaking -> Grammar -> Vocabulary -> Writing -> Pronunciation -> Listening</div>
+        </div>
+        <div class="pill" id="live-step">Step 0/6</div>
+      </div>
+
+      <div class="workspace" id="workspace">
+        <div class="card">
+          <h3>Session 1 strict order</h3>
+          <p>
+            1) Speaking warm-up with audio prompts. 2) Grammar check (8 items). 3) Vocabulary drill (12 items).
+            4) Writing mini-task (120-150 words). 5) Pronunciation guided drill. 6) Listening mini-podcast and comprehension.
+          </p>
+          <div class="inline-actions">
+            <button class="btn-ghost" id="speak-instruction">🔊 Respond with voice</button>
+            <button class="btn-warn" id="mic-test">🎙️ Speak now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="report">
+        <pre id="session-output" style="display:none">SESSION_STATE will appear here after generating the report.</pre>
+        <div>
+          <div class="section-title">Session Vocabulary Cards</div>
+          <div id="vocab-card-deck"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="recording-popup" id="recording-popup">
+    <div class="recording-card">
+      <div class="recording-head">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="recording-dot"></span>
+          <div class="recording-title">Recording in progress</div>
+        </div>
+        <span class="pill" id="recording-limit">Max 60s</span>
+      </div>
+      <div class="recording-time" id="recording-time">00:00</div>
+      <div class="recording-caption" id="recording-caption">Speak clearly and pause naturally between ideas.</div>
+      <div class="recording-actions">
+        <button class="btn-secondary" id="recording-stop-btn">Stop recording</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const API_STATE = '/api/teacher/session-state';
+const API_VOCAB_CARDS = '/api/teacher/vocabulary-cards';
+const API_GENERATE = '/api/teacher/generate-session';
+const API_GENERATE_SECTION = '/api/teacher/generate-section';
+const API_CONTENT_PACKS = '/api/teacher/content-packs';
+const MAX_RECORDING_MS = 120000;
+const FIXED_PROFILE_ID = 'daniel';
+const PROGRESSIVE_LEVELS = ['B2', 'B2+', 'C1-lite', 'C1'];
+const SECTION_ORDER = ['warmup', 'grammar', 'writing', 'vocab', 'pronunciation', 'listening'];
+
+let warmupQuestions = [
+  'Tell me about your current job or daily routine.',
+  'What communication situation in English feels difficult for you?',
+  'Describe a recent challenge you solved.',
+  'What result would make you proud after 3 months of practice?'
+];
+
+let grammarItems = [
+  { q: 'By next month, I ____ here for two years.', a: 'will have worked', options: ['worked', 'will work', 'will have worked'] },
+  { q: 'If I ____ more time, I would study every day.', a: 'had', options: ['have', 'had', 'would have'] },
+  { q: 'She said she ____ the report the day before.', a: 'had finished', options: ['finished', 'has finished', 'had finished'] },
+  { q: 'The project ____ by an external team last year.', a: 'was completed', options: ['completed', 'was completed', 'is completed'] },
+  { q: 'I need to speak ____ the manager about this issue.', a: 'to', options: ['to', 'with', 'for'] },
+  { q: 'He is good ____ explaining complex ideas.', a: 'at', options: ['in', 'at', 'on'] },
+  { q: 'We discussed ____ possibility of remote work.', a: 'the', options: ['a', 'an', 'the'] },
+  { q: 'If they had prepared better, they ____ missed the deadline.', a: 'would not have', options: ['would not', 'would not have', 'did not'] }
+];
+
+let vocabItems = [
+  { prompt: 'Please ____ me posted.', a: 'keep' },
+  { prompt: 'We need to ____ a decision.', a: 'make' },
+  { prompt: 'Let us ____ this issue.', a: 'address' },
+  { prompt: 'Could you ____ on this point?', a: 'elaborate' },
+  { prompt: 'This plan is not ____ enough.', a: 'feasible' },
+  { prompt: 'We reached a ____ solution.', a: 'mutually beneficial' },
+  { prompt: 'I want to ____ expectations.', a: 'set' },
+  { prompt: 'The rollout was a complete ____.', a: 'success' },
+  { prompt: 'Please ____ your feedback by Friday.', a: 'share' },
+  { prompt: 'Let us ____ resources efficiently.', a: 'allocate' },
+  { prompt: 'We should ____ risks early.', a: 'mitigate' },
+  { prompt: 'I totally ____ your point.', a: 'get' }
+];
+
+let vocabWordBank = [
+  'keep',
+  'make',
+  'address',
+  'elaborate',
+  'feasible',
+  'mutually beneficial',
+  'set',
+  'success',
+  'share',
+  'allocate',
+  'mitigate',
+  'get'
+];
+
+let vocabCardDictionary = {
+  keep: { meaningES: 'mantener o conservar', exampleEN: 'Please keep me posted on any updates.' },
+  make: { meaningES: 'hacer o tomar (una decision)', exampleEN: 'We need to make a decision before noon.' },
+  address: { meaningES: 'abordar un tema o problema', exampleEN: 'Let us address this issue in today\'s meeting.' },
+  elaborate: { meaningES: 'desarrollar una idea con mas detalle', exampleEN: 'Could you elaborate on your proposal?' },
+  feasible: { meaningES: 'viable o realizable', exampleEN: 'This timeline is feasible if we reduce scope.' },
+  'mutually beneficial': { meaningES: 'beneficioso para ambas partes', exampleEN: 'We reached a mutually beneficial solution.' },
+  set: { meaningES: 'establecer', exampleEN: 'I want to set clear expectations for the team.' },
+  success: { meaningES: 'exito', exampleEN: 'The rollout was a complete success.' },
+  share: { meaningES: 'compartir', exampleEN: 'Please share your feedback by Friday.' },
+  allocate: { meaningES: 'asignar recursos', exampleEN: 'Let us allocate resources efficiently.' },
+  mitigate: { meaningES: 'reducir o minimizar un riesgo', exampleEN: 'We should mitigate risks early.' },
+  get: { meaningES: 'entender en contexto informal', exampleEN: 'I totally get your point.' },
+};
+
+let pronunciationPhrases = [
+  'This is the thing they thought about.',
+  'Very busy people build better habits.',
+  'I need to leave this meeting at three.',
+  'We linked all the ideas in one slide.',
+  'I worked, called, and decided quickly.',
+  'The deadline is Thursday, not Tuesday.',
+  'Could you send the revised version?',
+  'I would rather focus on the bigger picture.'
+];
+
+let listeningScript = 'Welcome back to the weekly productivity podcast. Today we are talking about communication habits that make teams stronger. First, clarify outcomes before starting tasks. Moreover, summarize decisions in writing after each meeting. Finally, check assumptions early, rather than waiting for problems to grow. If you build these habits, collaboration becomes smoother and trust grows faster.';
+
+let listeningQuestions = [
+  { q: 'What is the main topic?', options: ['Marketing campaigns', 'Communication habits', 'Interview preparation'], a: 1 },
+  { q: 'What should teams clarify first?', options: ['Outcomes', 'Budgets', 'Personal schedules'], a: 0 },
+  { q: 'What should happen after meetings?', options: ['Cancel follow-up', 'Summarize decisions in writing', 'Switch tools'], a: 1 },
+  { q: 'When should assumptions be checked?', options: ['At the end', 'Only weekly', 'Early'], a: 2 },
+  { q: 'What improves faster according to the audio?', options: ['Trust', 'Hardware', 'Office size'], a: 0 }
+];
+
+let writingPrompt = 'Write a short professional email to request a deadline extension, keeping a polite and confident tone.';
+
+const state = {
+  profileId: FIXED_PROFILE_ID,
+  sessionNumber: '',
+  cefrLevelEstimate: 'C1',
+  mainGoal: '',
+  difficultyLevel: 'C1-lite',
+  progressIndex: 0,
+  sessionHistoryCount: 0,
+  currentStep: 0,
+  scores: {
+    vocab: 0,
+    grammar: 0,
+    writing: 0,
+    pronunciation: 0,
+    listening: 0,
+    fluency: 0
+  },
+  warmupTranscripts: ['', '', '', ''],
+  pronunciationTranscripts: Array(pronunciationPhrases.length).fill(''),
+  recurringErrors: [],
+  newVocabulary: [],
+  pronunciationTargets: [],
+  nextHomework: [],
+  writingText: '',
+  writingCorrection: '',
+  listeningAnswers: [],
+  learningLog: '',
+  vocabularyCards: [],
+  sessionState: null,
+  settings: {
+    targetLevel: 'C1-lite',
+    generationMode: 'chunked',
+    llmAllSections: true,
+    progressiveLevelIndex: 0,
+    progressiveSectionIndex: 0,
+  },
+  selectedContentPackId: '',
+  contentPacks: [],
+  selectedContentPack: null,
+};
+
+function createEmptyScores() {
+  return {
+    vocab: 0,
+    grammar: 0,
+    writing: 0,
+    pronunciation: 0,
+    listening: 0,
+    fluency: 0
+  };
+}
+
+function resetSessionData() {
+  state.currentStep = 0;
+  state.scores = createEmptyScores();
+  state.warmupTranscripts = ['', '', '', ''];
+  state.pronunciationTranscripts = Array(pronunciationPhrases.length).fill('');
+  state.recurringErrors = [];
+  state.newVocabulary = [];
+  state.pronunciationTargets = [];
+  state.nextHomework = [];
+  state.writingText = '';
+  state.writingCorrection = '';
+  state.listeningAnswers = [];
+  state.learningLog = '';
+  state.vocabularyCards = [];
+  state.sessionState = null;
+  renderVocabularyCardDeck([], 'Session reset. New vocabulary cards will be generated for this session.');
+}
+
+function computeAverageScore(scores) {
+  const vals = Object.values(scores || {}).map((x) => Number(x) || 0);
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+}
+
+function recalcDifficultyFromPerformance() {
+  if (state.progressIndex === 0 && computeAverageScore(state.scores) === 0) {
+    state.difficultyLevel = 'C1-lite';
+    state.cefrLevelEstimate = 'C1';
+    return;
+  }
+
+  const avg = computeAverageScore(state.scores);
+  const progressBoost = Math.min(1.2, state.progressIndex * 0.2);
+  const effective = avg + progressBoost;
+
+  if (effective >= 8.7) {
+    state.difficultyLevel = 'C1-lite';
+    state.cefrLevelEstimate = 'C1';
+    return;
+  }
+  if (effective >= 7.4) {
+    state.difficultyLevel = 'B2+';
+    state.cefrLevelEstimate = 'B2+';
+    return;
+  }
+  if (effective >= 6.0) {
+    state.difficultyLevel = 'B2';
+    state.cefrLevelEstimate = 'B2';
+    return;
+  }
+  state.difficultyLevel = 'B1+ reinforcement';
+  state.cefrLevelEstimate = 'B1+';
+}
+
+function currentListeningScript() {
+  return listeningScript;
+}
+
+function applyGeneratedSection(section, data) {
+  if (section === 'warmup' && Array.isArray(data)) {
+    warmupQuestions = data.slice(0, 4);
+    return;
+  }
+  if (section === 'grammar' && Array.isArray(data)) {
+    grammarItems = data.slice(0, 8);
+    return;
+  }
+  if (section === 'writing' && typeof data === 'string') {
+    writingPrompt = data;
+    return;
+  }
+  if (section === 'vocab' && Array.isArray(data)) {
+    vocabItems = data.slice(0, 12);
+    vocabWordBank = vocabItems.map((v) => v.a);
+    vocabCardDictionary = {};
+    vocabItems.forEach((v) => {
+      vocabCardDictionary[v.a] = {
+        meaningES: v.meaningES || '',
+        exampleEN: v.exampleEN || v.prompt.replace('____', v.a),
+      };
+    });
+    return;
+  }
+  if (section === 'pronunciation' && Array.isArray(data)) {
+    pronunciationPhrases = data.slice(0, 8);
+    state.pronunciationTranscripts = Array(pronunciationPhrases.length).fill('');
+    return;
+  }
+  if (section === 'listening' && data && typeof data === 'object') {
+    listeningScript = typeof data.listeningScript === 'string' ? data.listeningScript : listeningScript;
+    listeningQuestions = Array.isArray(data.listeningQuestions) ? data.listeningQuestions.slice(0, 5) : listeningQuestions;
+  }
+}
+
+function getCurrentContentPayload() {
+  return {
+    warmupQuestions: warmupQuestions.slice(0, 4),
+    grammarItems: grammarItems.slice(0, 8),
+    writingPrompt,
+    vocabItems: vocabItems.slice(0, 12),
+    pronunciationPhrases: pronunciationPhrases.slice(0, 8),
+    listeningScript,
+    listeningQuestions: listeningQuestions.slice(0, 5),
+  };
+}
+
+function applyContentPack(content) {
+  if (!content || typeof content !== 'object') return;
+  if (Array.isArray(content.warmupQuestions)) {
+    warmupQuestions = content.warmupQuestions
+      .map((q) => String(q || '').trim())
+      .filter(Boolean)
+      .slice(0, 4);
+  }
+  if (Array.isArray(content.grammarItems)) {
+    grammarItems = content.grammarItems.slice(0, 8).map((it) => {
+      const q = String(it?.q || '').trim();
+      const a = String(it?.a || '').trim();
+      const options = Array.isArray(it?.options) ? it.options.map((o) => String(o || '').trim()).filter(Boolean) : [];
+      if (!q || !a || options.length < 2) return null;
+      if (!options.includes(a)) options.splice(Math.min(1, options.length), 0, a);
+      return { ...it, q, a, options: options.slice(0, 3) };
+    }).filter(Boolean);
+  }
+  if (typeof content.writingPrompt === 'string') writingPrompt = content.writingPrompt;
+  if (Array.isArray(content.vocabItems)) {
+    vocabItems = content.vocabItems.slice(0, 12).map((v, idx) => {
+      const safeA = String(v?.a || '').trim() || `term-${idx + 1}`;
+      const safePrompt = String(v?.prompt || '').trim() || `Use ${safeA} in context: ____.`;
+      const safeMeaning = String(v?.meaningES || '').trim();
+      const safeExample = String(v?.exampleEN || '').trim() || (safePrompt.includes('____') ? safePrompt.replace('____', safeA) : `${safePrompt} ${safeA}`);
+      return { prompt: safePrompt, a: safeA, meaningES: safeMeaning, exampleEN: safeExample };
+    });
+    vocabWordBank = vocabItems.map((v) => v.a);
+    vocabCardDictionary = {};
+    vocabItems.forEach((v) => {
+      vocabCardDictionary[v.a] = {
+        meaningES: v.meaningES || '',
+        exampleEN: v.exampleEN || (v.prompt.includes('____') ? v.prompt.replace('____', v.a) : `${v.prompt} ${v.a}`),
+      };
+    });
+  }
+  if (Array.isArray(content.pronunciationPhrases)) {
+    pronunciationPhrases = content.pronunciationPhrases.map((p) => String(p || '').trim()).filter(Boolean).slice(0, 8);
+    state.pronunciationTranscripts = Array(pronunciationPhrases.length).fill('');
+  }
+  if (typeof content.listeningScript === 'string') listeningScript = content.listeningScript;
+  if (Array.isArray(content.listeningQuestions)) {
+    listeningQuestions = content.listeningQuestions.slice(0, 5).map((q) => {
+      const qq = String(q?.q || '').trim();
+      const options = Array.isArray(q?.options) ? q.options.map((o) => String(o || '').trim()).filter(Boolean) : [];
+      const aNum = Number(q?.a);
+      const a = Number.isFinite(aNum) && aNum >= 0 && aNum < options.length ? aNum : 0;
+      if (!qq || options.length < 2) return null;
+      return { q: qq, options: options.slice(0, 3), a };
+    }).filter(Boolean);
+  }
+
+  // Final guardrails so session can always start
+  if (!Array.isArray(warmupQuestions) || warmupQuestions.length < 4) {
+    warmupQuestions = [
+      'Tell me about your current role and responsibilities.',
+      'What communication challenge do you face most often?',
+      'Describe a recent work situation that required problem-solving.',
+      'What is your English goal for this month?'
+    ];
+  }
+}
+
+async function saveGeneratedContentPack(packNameOverride) {
+  const level = state.settings.targetLevel || state.difficultyLevel || 'C1-lite';
+  const stamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  const packName = packNameOverride || `${level} · Session ${state.sessionNumber || '1'} · ${stamp}`;
+  const payload = {
+    profileId: FIXED_PROFILE_ID,
+    packName,
+    level,
+    sessionNumber: String(state.sessionNumber || '1'),
+    content: getCurrentContentPayload(),
+  };
+
+  const res = await fetch(API_CONTENT_PACKS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  await loadContentPackOptions(data?.pack?.id ? String(data.pack.id) : '');
+  return data.pack;
+}
+
+async function loadContentPackOptions(selectId) {
+  const select = document.getElementById('content-pack-select');
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Loading packs...</option>`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  let res;
+  let data;
+  try {
+    res = await fetch(`${API_CONTENT_PACKS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    data = await res.json().catch(() => ({}));
+  } catch (e) {
+    clearTimeout(timeoutId);
+    select.innerHTML = `<option value="">Could not load packs (timeout/network). Click Refresh packs.</option>`;
+    return;
+  }
+
+  if (!res.ok || !data.ok) {
+    select.innerHTML = `<option value="">Could not load packs. Click Refresh packs.</option>`;
+    return;
+  }
+
+  state.contentPacks = Array.isArray(data.packs) ? data.packs : [];
+  if (!state.contentPacks.length) {
+    select.innerHTML = `<option value="">No saved packs yet (generate from Settings)</option>`;
+    state.selectedContentPackId = '';
+    return;
+  }
+
+  select.innerHTML = `<option value="">Select a saved pack</option>` +
+    state.contentPacks.map((p) => {
+      const label = `${p.packName} | ${p.level || '-'} | S${p.sessionNumber || '-'} | #${p.id}`;
+      return `<option value="${escapeAttr(String(p.id))}">${escapeHtml(label)}</option>`;
+    }).join('');
+
+  const defaultId = selectId || state.selectedContentPackId || String(state.contentPacks[0].id);
+  if (defaultId) {
+    select.value = defaultId;
+    state.selectedContentPackId = defaultId;
+    await previewSelectedContentPack(defaultId);
+  }
+}
+
+async function loadSelectedContentPack() {
+  const select = document.getElementById('content-pack-select');
+  const selectedId = String(select?.value || state.selectedContentPackId || '').trim();
+  if (!selectedId) throw new Error('Select a saved content pack first');
+
+  if (state.selectedContentPack && String(state.selectedContentPack.id) === selectedId) {
+    state.selectedContentPackId = selectedId;
+    applyContentPack(state.selectedContentPack.content || {});
+    return state.selectedContentPack;
+  }
+
+  const res = await fetch(`${API_CONTENT_PACKS}/${encodeURIComponent(selectedId)}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok || !data.pack) throw new Error(data.error || `HTTP ${res.status}`);
+  state.selectedContentPackId = selectedId;
+  state.selectedContentPack = data.pack;
+  applyContentPack(data.pack.content);
+  return data.pack;
+}
+
+async function previewSelectedContentPack(packId) {
+  const selectedId = String(packId || state.selectedContentPackId || '').trim();
+  if (!selectedId) return;
+
+  const ws = document.getElementById('workspace');
+  if (!ws) return;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  let res;
+  let data;
+  try {
+    res = await fetch(`${API_CONTENT_PACKS}/${encodeURIComponent(selectedId)}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    data = await res.json().catch(() => ({}));
+  } catch (_) {
+    clearTimeout(timeoutId);
+    return;
+  }
+  if (!res.ok || !data.ok || !data.pack) return;
+
+  const c = data.pack.content || {};
+  state.selectedContentPack = data.pack;
+  const counts = {
+    warmup: Array.isArray(c.warmupQuestions) ? c.warmupQuestions.length : 0,
+    grammar: Array.isArray(c.grammarItems) ? c.grammarItems.length : 0,
+    vocab: Array.isArray(c.vocabItems) ? c.vocabItems.length : 0,
+    pronunciation: Array.isArray(c.pronunciationPhrases) ? c.pronunciationPhrases.length : 0,
+    listeningQ: Array.isArray(c.listeningQuestions) ? c.listeningQuestions.length : 0,
+  };
+
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Ready to Start — Selected Content Pack</h3>
+      <p><strong>${escapeHtml(data.pack.packName || `Pack #${selectedId}`)}</strong> · Level: ${escapeHtml(data.pack.level || '-')} · Session ref: ${escapeHtml(data.pack.sessionNumber || '-')}</p>
+      <ul class="bullet-list">
+        <li>Warm-up questions: ${counts.warmup}</li>
+        <li>Grammar items: ${counts.grammar}</li>
+        <li>Vocabulary items: ${counts.vocab}</li>
+        <li>Pronunciation phrases: ${counts.pronunciation}</li>
+        <li>Listening questions: ${counts.listeningQ}</li>
+      </ul>
+      <div class="inline-actions">
+        <button class="btn-primary" onclick="startSession(true)">Start Session with this pack</button>
+      </div>
+    </div>
+  `;
+}
+
+async function generateSectionContent(section, levelOverride) {
+  const level = levelOverride || state.settings.targetLevel || state.difficultyLevel;
+  const res = await fetch(API_GENERATE_SECTION, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      section,
+      level,
+      sessionNumber: state.sessionNumber || '1',
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  applyGeneratedSection(section, data.data);
+  return data;
+}
+
+async function generateSessionContentChunked(levelOverride) {
+  const level = levelOverride || state.settings.targetLevel || state.difficultyLevel;
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Generating content (timeout-safe mode)…</h3>
+      <p style="margin:6px 0;color:var(--muted)">Level: ${escapeHtml(level)} · Session #${escapeHtml(state.sessionNumber || '1')}</p>
+      <ul id="chunk-progress" class="bullet-list"></ul>
+    </div>
+  `;
+
+  const progressEl = document.getElementById('chunk-progress');
+  let warnings = 0;
+
+  for (const section of SECTION_ORDER) {
+    progressEl.innerHTML += `<li>Generating ${escapeHtml(section)}…</li>`;
+    try {
+      const result = await generateSectionContent(section, level);
+      if (result.warning) warnings++;
+      progressEl.innerHTML += `<li><span class="good">Done:</span> ${escapeHtml(section)}${result.warning ? ` <span style="color:#c08020">(fallback: ${escapeHtml(result.warning)})</span>` : ''}</li>`;
+    } catch (e) {
+      progressEl.innerHTML += `<li><span class="bad">Error:</span> ${escapeHtml(section)} — ${escapeHtml(e.message)}</li>`;
+      return false;
+    }
+  }
+
+  if (warnings > 0) {
+    const notice = document.getElementById('setup-notice');
+    if (notice) notice.textContent = `Content generated with ${warnings} fallback section(s).`;
+  }
+
+  try {
+    const saved = await saveGeneratedContentPack();
+    const notice = document.getElementById('setup-notice');
+    if (notice) notice.textContent = `Generated and saved in SQLite as pack #${saved.id}.`;
+  } catch (e) {
+    const notice = document.getElementById('setup-notice');
+    if (notice) notice.textContent = `Generated, but could not save pack: ${e.message}`;
+  }
+
+  return true;
+}
+
+async function generateNextProgressiveChunk() {
+  const lIdx = state.settings.progressiveLevelIndex;
+  const sIdx = state.settings.progressiveSectionIndex;
+
+  if (lIdx >= PROGRESSIVE_LEVELS.length) {
+    const progress = document.getElementById('settings-progress');
+    if (progress) progress.textContent = 'Progressive generation complete: B2 -> C1 finished.';
+    return;
+  }
+
+  const level = PROGRESSIVE_LEVELS[lIdx];
+  const section = SECTION_ORDER[sIdx];
+  const progress = document.getElementById('settings-progress');
+  if (progress) progress.textContent = `Generating ${section} at ${level}...`;
+
+  try {
+    const result = await generateSectionContent(section, level);
+    if (progress) {
+      progress.textContent = result.warning
+        ? `Generated ${section} at ${level} (fallback used: ${result.warning}).`
+        : `Generated ${section} at ${level}.`;
+    }
+  } catch (e) {
+    if (progress) progress.textContent = `Failed on ${section} at ${level}: ${e.message}`;
+    return;
+  }
+
+  state.settings.progressiveSectionIndex += 1;
+  if (state.settings.progressiveSectionIndex >= SECTION_ORDER.length) {
+    state.settings.progressiveSectionIndex = 0;
+    state.settings.progressiveLevelIndex += 1;
+  }
+
+  const notice = document.getElementById('setup-notice');
+  if (notice) {
+    const nextLevel = PROGRESSIVE_LEVELS[state.settings.progressiveLevelIndex] || 'Completed';
+    const nextSection = SECTION_ORDER[state.settings.progressiveSectionIndex] || '-';
+    notice.textContent = `Progressive generation: next chunk ${nextLevel} / ${nextSection}.`;
+  }
+}
+
+function openSettingsScreen() {
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Settings — Generate Content Pack</h3>
+      <p class="subtitle">Describe your goal and choose a level. The AI will generate a full content pack which you can preview and save.</p>
+
+      <div class="row" style="margin-top:12px">
+        <label for="settings-target-level">Target CEFR level</label>
+        <select id="settings-target-level">
+          ${PROGRESSIVE_LEVELS.map((l) => `<option value="${escapeAttr(l)}" ${state.settings.targetLevel === l ? 'selected' : ''}>${escapeHtml(l)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="row">
+        <label for="settings-main-goal">Main goal (describe in detail)</label>
+        <textarea id="settings-main-goal" rows="3" placeholder="e.g. I need to improve my English for professional meetings and presentations at a tech company">${escapeHtml(state.mainGoal || '')}</textarea>
+      </div>
+
+      <div class="inline-actions">
+        <button class="btn-primary" onclick="generateAndPreviewPack()">Generate with LLM</button>
+        <button class="btn-secondary" onclick="loadContentPackOptions().then(() => { document.getElementById('settings-status').textContent = 'Packs list refreshed.'; })">Refresh packs list</button>
+      </div>
+
+      <div id="settings-status" class="notice" style="margin-top:8px">Fill in the fields above and click Generate.</div>
+      <div id="settings-preview" style="margin-top:10px"></div>
+    </div>
+  `;
+}
+
+async function generateAndPreviewPack() {
+  const level = document.getElementById('settings-target-level')?.value || 'C1-lite';
+  const mainGoal = (document.getElementById('settings-main-goal')?.value || '').trim();
+  const statusEl = document.getElementById('settings-status');
+  const previewEl = document.getElementById('settings-preview');
+
+  if (!mainGoal) {
+    if (statusEl) statusEl.textContent = 'Please enter your main goal before generating.';
+    return;
+  }
+
+  state.settings.targetLevel = level;
+  state.mainGoal = mainGoal;
+
+  if (statusEl) statusEl.textContent = 'Generating content with LLM… this may take 30-120 seconds.';
+  if (previewEl) previewEl.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p>AI is creating exercises tailored to your goal at level ${escapeHtml(level)}.</p></div>`;
+
+  try {
+    const res = await fetch(API_GENERATE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ level, sessionNumber: state.sessionNumber || '1', mainGoal }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.content) throw new Error(data.error || `HTTP ${res.status}`);
+
+    applyContentPack(data.content);
+    state._pendingPackContent = data.content;
+    state._pendingPackLevel = level;
+
+    renderSettingsPreview(data.content, `Generated — ${escapeHtml(level)} — ${escapeHtml(mainGoal.slice(0, 40))}`);
+    if (statusEl) statusEl.innerHTML = `Content generated. Review below, then <button class="btn-primary" style="display:inline-block;margin-left:8px;padding:4px 12px" onclick="saveGeneratedPack()">Save pack to DB</button>`;
+  } catch (e) {
+    if (statusEl) statusEl.textContent = `Generation failed: ${e.message}`;
+    if (previewEl) previewEl.innerHTML = '';
+  }
+}
+
+async function saveGeneratedPack() {
+  const content = state._pendingPackContent;
+  const level = state._pendingPackLevel || state.settings.targetLevel || 'C1-lite';
+  const mainGoal = state.mainGoal || 'general';
+  const statusEl = document.getElementById('settings-status');
+
+  if (!content) {
+    if (statusEl) statusEl.textContent = 'No generated content to save. Click "Generate with LLM" first.';
+    return;
+  }
+
+  const packName = `${mainGoal.slice(0, 30)} — ${level} — S${state.sessionNumber || '1'}`;
+
+  try {
+    const res = await fetch(API_CONTENT_PACKS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profileId: FIXED_PROFILE_ID,
+        packName,
+        level,
+        sessionNumber: state.sessionNumber || '1',
+        content,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    state._pendingPackContent = null;
+    await loadContentPackOptions(String(data.pack.id));
+
+    if (statusEl) statusEl.innerHTML = `Pack "<strong>${escapeHtml(packName)}</strong>" saved (ID #${data.pack.id}). <button class="btn-secondary" style="display:inline-block;margin-left:8px;padding:4px 10px" onclick="openSettingsScreen()">Generate another</button>`;
+  } catch (e) {
+    if (statusEl) statusEl.textContent = `Could not save pack: ${e.message}`;
+  }
+}
+
+function renderSettingsPreview(content, title) {
+  const host = document.getElementById('settings-preview');
+  if (!host) return;
+  const c = content && typeof content === 'object' ? content : {};
+
+  const warmup = Array.isArray(c.warmupQuestions) ? c.warmupQuestions.slice(0, 4) : [];
+  const grammar = Array.isArray(c.grammarItems) ? c.grammarItems.slice(0, 2) : [];
+  const vocab = Array.isArray(c.vocabItems) ? c.vocabItems.slice(0, 3) : [];
+  const pron = Array.isArray(c.pronunciationPhrases) ? c.pronunciationPhrases.slice(0, 2) : [];
+  const listenQ = Array.isArray(c.listeningQuestions) ? c.listeningQuestions.slice(0, 2) : [];
+
+  host.className = 'card';
+  host.innerHTML = `
+    <h4 style="margin:0 0 8px">Content preview — ${escapeHtml(title || 'Current')}</h4>
+    <div class="grid-two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <strong>Warm-up (sample)</strong>
+        <ul class="bullet-list">${warmup.length ? warmup.map((q) => `<li>${escapeHtml(q)}</li>`).join('') : '<li>-</li>'}</ul>
+      </div>
+      <div>
+        <strong>Grammar (sample)</strong>
+        <ul class="bullet-list">${grammar.length ? grammar.map((g) => `<li>${escapeHtml(g.q || '-')} <em>[${escapeHtml(g.a || '-')}]</em></li>`).join('') : '<li>-</li>'}</ul>
+      </div>
+      <div>
+        <strong>Vocabulary (sample)</strong>
+        <ul class="bullet-list">${vocab.length ? vocab.map((v) => `<li>${escapeHtml(v.prompt || '-')} <em>[${escapeHtml(v.a || '-')} ]</em></li>`).join('') : '<li>-</li>'}</ul>
+      </div>
+      <div>
+        <strong>Writing prompt</strong>
+        <p style="margin:4px 0">${escapeHtml(typeof c.writingPrompt === 'string' ? c.writingPrompt : '-')}</p>
+      </div>
+      <div>
+        <strong>Pronunciation (sample)</strong>
+        <ul class="bullet-list">${pron.length ? pron.map((p) => `<li>${escapeHtml(p)}</li>`).join('') : '<li>-</li>'}</ul>
+      </div>
+      <div>
+        <strong>Listening (sample)</strong>
+        <p style="margin:4px 0">${escapeHtml(typeof c.listeningScript === 'string' ? c.listeningScript.slice(0, 180) + (c.listeningScript.length > 180 ? '…' : '') : '-')}</p>
+        <ul class="bullet-list">${listenQ.length ? listenQ.map((q) => `<li>${escapeHtml(q.q || '-')}</li>`).join('') : '<li>-</li>'}</ul>
+      </div>
+    </div>
+  `;
+}
+
+function previewSettingsCurrentContent() {
+  renderSettingsPreview(getCurrentContentPayload(), 'Current in-memory content');
+}
+
+async function previewSettingsSelectedPack() {
+  try {
+    const selectedId = String(document.getElementById('content-pack-select')?.value || state.selectedContentPackId || '').trim();
+    if (!selectedId) {
+      const host = document.getElementById('settings-preview');
+      if (host) {
+        host.className = 'notice';
+        host.textContent = 'No saved pack selected in Session Setup.';
+      }
+      return;
+    }
+
+    const res = await fetch(`${API_CONTENT_PACKS}/${encodeURIComponent(selectedId)}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok || !data.pack) throw new Error(data.error || `HTTP ${res.status}`);
+    state.selectedContentPack = data.pack;
+    state.selectedContentPackId = selectedId;
+    renderSettingsPreview(data.pack.content || {}, `${data.pack.packName || `Pack #${selectedId}`}`);
+  } catch (e) {
+    const host = document.getElementById('settings-preview');
+    if (host) {
+      host.className = 'notice';
+      host.textContent = `Could not preview selected pack: ${e.message}`;
+    }
+  }
+}
+
+function usePreviewPackForSession() {
+  const selectedId = String(document.getElementById('content-pack-select')?.value || state.selectedContentPackId || '').trim();
+  if (!selectedId) {
+    const host = document.getElementById('settings-preview');
+    if (host) {
+      host.className = 'notice';
+      host.textContent = 'No pack selected. Choose one in Session Setup and preview it first.';
+    }
+    return;
+  }
+
+  state.selectedContentPackId = selectedId;
+
+  const combo = document.getElementById('content-pack-select');
+  if (combo) combo.value = selectedId;
+
+  const notice = document.getElementById('setup-notice');
+  if (notice) notice.textContent = `Pack #${selectedId} selected for the next session start.`;
+
+  const host = document.getElementById('settings-preview');
+  if (host) {
+    host.className = 'notice';
+    host.textContent = `Pack #${selectedId} is now active for Start Session.`;
+  }
+}
+
+function saveSettingsFromScreen() {
+  const level = document.getElementById('settings-target-level')?.value || 'C1-lite';
+  const mode = document.getElementById('settings-generation-mode')?.value || 'chunked';
+  const llmAll = !!document.getElementById('settings-llm-all')?.checked;
+
+  state.settings.targetLevel = level;
+  state.settings.generationMode = mode;
+  state.settings.llmAllSections = llmAll;
+  state.difficultyLevel = level;
+  state.cefrLevelEstimate = level;
+
+  const notice = document.getElementById('setup-notice');
+  if (notice) {
+    notice.textContent = `Settings saved. Level=${level}, mode=${mode}, all-sections=${llmAll ? 'on' : 'off'}.`;
+  }
+}
+
+async function generateSessionContent() {
+  if (state.settings.llmAllSections && state.settings.generationMode === 'chunked') {
+    return generateSessionContentChunked(state.settings.targetLevel);
+  }
+
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Generating session content…</h3>
+      <div class="generating-overlay">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <p>The AI is preparing fresh exercises for session&nbsp;#${escapeHtml(state.sessionNumber)} at level&nbsp;${escapeHtml(state.cefrLevelEstimate)}.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const res = await fetch(API_GENERATE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ level: state.difficultyLevel, sessionNumber: state.sessionNumber }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.content) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const c = data.content;
+    warmupQuestions      = c.warmupQuestions.slice(0, 4);
+    grammarItems         = c.grammarItems.slice(0, 8);
+    vocabItems           = c.vocabItems.slice(0, 12);
+    vocabWordBank        = vocabItems.map((v) => v.a);
+    vocabCardDictionary  = {};
+    vocabItems.forEach((v) => {
+      vocabCardDictionary[v.a] = {
+        meaningES: v.meaningES || '',
+        exampleEN: v.exampleEN || v.prompt.replace('____', v.a),
+      };
+    });
+    pronunciationPhrases   = c.pronunciationPhrases.slice(0, 8);
+    listeningScript        = c.listeningScript;
+    listeningQuestions     = c.listeningQuestions.slice(0, 5);
+    writingPrompt          = c.writingPrompt;
+
+    // sync pronunciation transcript slots to new phrase count
+    state.pronunciationTranscripts = Array(pronunciationPhrases.length).fill('');
+
+    try {
+      const saved = await saveGeneratedContentPack();
+      const notice = document.getElementById('setup-notice');
+      if (notice) notice.textContent = `Content generated and saved in SQLite as pack #${saved.id}.`;
+    } catch (saveErr) {
+      console.warn('could not save generated content pack:', saveErr);
+    }
+
+    return true;
+  } catch (e) {
+    console.warn('generate-session failed, keeping defaults:', e);
+    ws.innerHTML = `
+      <div class="card">
+        <p class="bad">Could not generate new content: ${escapeHtml(e.message)}.</p>
+        <p>The session will use built-in exercises.</p>
+        <div class="inline-actions">
+          <button class="btn-warn" onclick="generateSessionContent().then(ok => { if(ok) buildWarmupStep(); })">Retry</button>
+          <button class="btn-secondary" onclick="buildWarmupStep()">Continue with defaults</button>
+        </div>
+      </div>
+    `;
+    return false;
+  }
+}
+
+function buildVocabularyPromptByDifficulty(basePrompt, idx) {
+  if (state.difficultyLevel === 'C1-lite') {
+    const variants = [
+      'Use one high-precision business collocation.',
+      'Avoid generic verbs; prefer a nuanced alternative.',
+      'Keep register appropriate for executive meetings.',
+    ];
+    return `${basePrompt} (${variants[idx % variants.length]})`;
+  }
+  if (state.difficultyLevel === 'B2+') {
+    return `${basePrompt} (Try a natural workplace collocation.)`;
+  }
+  return basePrompt;
+}
+
+const studyResources = {
+  speaking: [
+    { label: 'BBC Learning English - Speaking', url: 'https://www.bbc.co.uk/learningenglish/english/features/speaking-skills' },
+    { label: 'British Council - Speaking B2', url: 'https://learnenglish.britishcouncil.org/skills/speaking/b2-speaking' },
+    { label: 'TED - Public Speaking Tips', url: 'https://www.ted.com/playlists/226/tips_for_better_public_speaking' },
+  ],
+  grammar: [
+    { label: 'Perfect English Grammar', url: 'https://www.perfect-english-grammar.com/' },
+    { label: 'Cambridge Grammar', url: 'https://dictionary.cambridge.org/grammar/british-grammar/' },
+    { label: 'British Council - Grammar', url: 'https://learnenglish.britishcouncil.org/grammar' },
+  ],
+  vocabulary: [
+    { label: 'Oxford Learner Dictionaries', url: 'https://www.oxfordlearnersdictionaries.com/' },
+    { label: 'Ozdic Collocations', url: 'https://ozdic.com/' },
+    { label: 'Vocabulary.com', url: 'https://www.vocabulary.com/' },
+  ],
+  writing: [
+    { label: 'Purdue OWL - Writing', url: 'https://owl.purdue.edu/owl/general_writing/index.html' },
+    { label: 'British Council - Writing B2', url: 'https://learnenglish.britishcouncil.org/skills/writing/b2-writing' },
+    { label: 'Email Writing Guide', url: 'https://www.grammarly.com/blog/email-writing/' },
+  ],
+  pronunciation: [
+    { label: 'Rachel\'s English', url: 'https://rachelsenglish.com/' },
+    { label: 'YouGlish', url: 'https://youglish.com/' },
+    { label: 'Cambridge Pronunciation', url: 'https://dictionary.cambridge.org/help/pronunciation.html' },
+  ],
+  listening: [
+    { label: 'ELLLO Listening Library', url: 'https://elllo.org/' },
+    { label: 'BBC Learning English - 6 Minute English', url: 'https://www.bbc.co.uk/learningenglish/english/features/6-minute-english' },
+    { label: 'VOA Learning English', url: 'https://learningenglish.voanews.com/' },
+  ],
+};
+
+let speechSupported = !!window.speechSynthesis;
+let recognitionSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+let activeRecognition = null;
+let activeRecordingTimeout = null;
+let activeRecordingTimer = null;
+let activeRecordingStart = 0;
+
+function formatMs(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const mm = String(Math.floor(total / 60)).padStart(2, '0');
+  const ss = String(total % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
+function showRecordingPopup(caption = 'Speak clearly and pause naturally between ideas.') {
+  const popup = document.getElementById('recording-popup');
+  const time = document.getElementById('recording-time');
+  const limit = document.getElementById('recording-limit');
+  const cap = document.getElementById('recording-caption');
+  if (!popup || !time || !limit || !cap) return;
+
+  cap.textContent = caption;
+  time.textContent = '00:00';
+  limit.textContent = `Max ${Math.floor(MAX_RECORDING_MS / 1000)}s`;
+  popup.classList.add('visible');
+
+  activeRecordingStart = Date.now();
+  clearInterval(activeRecordingTimer);
+  activeRecordingTimer = setInterval(() => {
+    time.textContent = formatMs(Date.now() - activeRecordingStart);
+  }, 150);
+}
+
+function hideRecordingPopup() {
+  const popup = document.getElementById('recording-popup');
+  if (popup) popup.classList.remove('visible');
+  clearInterval(activeRecordingTimer);
+  activeRecordingTimer = null;
+}
+
+function stopActiveRecording() {
+  clearTimeout(activeRecordingTimeout);
+  activeRecordingTimeout = null;
+  if (activeRecognition) {
+    try { activeRecognition.stop(); } catch (_) {}
+  }
+}
+
+function scoreCard(label, value) {
+  const pct = Math.max(0, Math.min(100, Number(value || 0) * 10));
+  return `<div class="score-card"><div class="score-label">${label}</div><div class="score-val">${Number(value || 0).toFixed(1)}</div><div class="progress"><span style="width:${pct}%"></span></div></div>`;
+}
+
+function renderScores() {
+  const grid = document.getElementById('score-grid');
+  grid.innerHTML = [
+    scoreCard('Vocab', state.scores.vocab),
+    scoreCard('Grammar', state.scores.grammar),
+    scoreCard('Writing', state.scores.writing),
+    scoreCard('Pronunciation', state.scores.pronunciation),
+    scoreCard('Listening', state.scores.listening),
+    scoreCard('Fluency', state.scores.fluency),
+  ].join('');
+}
+
+function resourceLinksHtml(type) {
+  const links = Array.isArray(studyResources[type]) ? studyResources[type] : [];
+  if (!links.length) return '';
+  const anchors = links
+    .map((r) => `<a href="${escapeAttr(r.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.label)}</a>`)
+    .join('');
+  return `<div class="resource-links"><strong>Study resources</strong>${anchors}</div>`;
+}
+
+function createSessionVocabularyCards() {
+  const cards = vocabWordBank.map((term) => {
+    const key = String(term || '').toLowerCase();
+    const info = vocabCardDictionary[key] || { meaningES: '', exampleEN: '' };
+    return {
+      term,
+      meaningES: info.meaningES || '',
+      exampleEN: info.exampleEN || '',
+    };
+  });
+  state.vocabularyCards = cards;
+  return cards;
+}
+
+function renderVocabularyCardDeck(cards, noticeText = '') {
+  const container = document.getElementById('vocab-card-deck');
+  if (!container) return;
+
+  const safeCards = Array.isArray(cards) ? cards : [];
+  if (!safeCards.length) {
+    container.innerHTML = `<div class="notice">${escapeHtml(noticeText || 'No cards yet. Generate Learning Log to create this session deck.')}</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="deck-wrap">
+      <div class="subtitle">Click a card to flip and see meaning + example.</div>
+      <div class="deck-grid">
+        ${safeCards.map((c, idx) => `
+          <div class="flip-card" data-card-idx="${idx}">
+            <div class="flip-card-inner">
+              <div class="flip-face flip-front">
+                <div class="flip-term">${escapeHtml(c.term || '')}</div>
+                <div class="flip-hint">Tap to reveal</div>
+              </div>
+              <div class="flip-face flip-back">
+                <div class="flip-meaning"><strong>Meaning (ES):</strong> ${escapeHtml(c.meaningES || '-')}</div>
+                <div class="flip-example"><strong>Example:</strong> ${escapeHtml(c.exampleEN || '-')}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  container.querySelectorAll('.flip-card').forEach((el) => {
+    el.addEventListener('click', () => {
+      el.classList.toggle('flipped');
+    });
+  });
+}
+
+async function saveVocabularyCards() {
+  const cards = state.vocabularyCards.length ? state.vocabularyCards : createSessionVocabularyCards();
+  const payload = {
+    profileId: FIXED_PROFILE_ID,
+    sessionNumber: String(state.sessionNumber || '').trim(),
+    cards,
+  };
+
+  const res = await fetch(API_VOCAB_CARDS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ vocabularyCards: payload }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.error) {
+    throw new Error(data.error || `HTTP ${res.status}`);
+  }
+
+  const savedCards = Array.isArray(data?.vocabularyCards?.cards) ? data.vocabularyCards.cards : cards;
+  state.vocabularyCards = savedCards.map((c) => ({
+    term: c.term || '',
+    meaningES: c.meaningES || '',
+    exampleEN: c.exampleEN || '',
+  }));
+  renderVocabularyCardDeck(state.vocabularyCards, `Cards saved for session #${state.sessionNumber}.`);
+}
+
+async function loadVocabularyCards(profileId, sessionNumber) {
+  const base = `${API_VOCAB_CARDS}?profileId=${encodeURIComponent(profileId)}`;
+  const url = sessionNumber
+    ? `${base}&sessionNumber=${encodeURIComponent(sessionNumber)}`
+    : base;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.error) {
+    throw new Error(data.error || `HTTP ${res.status}`);
+  }
+
+  const cards = Array.isArray(data.cards) ? data.cards : [];
+  state.vocabularyCards = cards.map((c) => ({
+    term: c.term || '',
+    meaningES: c.meaningES || c.meaning_es || '',
+    exampleEN: c.exampleEN || c.example_en || '',
+  }));
+
+  return state.vocabularyCards;
+}
+
+function setVoiceStatus() {
+  const el = document.getElementById('voice-status');
+  if (speechSupported && recognitionSupported) {
+    el.textContent = 'Audio: speech output + microphone input available';
+    return;
+  }
+  if (speechSupported && !recognitionSupported) {
+    el.textContent = 'Audio: output available, mic ASR unavailable (use text inputs)';
+    return;
+  }
+  el.textContent = 'Audio: browser audio APIs not fully available';
+}
+
+function speak(text) {
+  if (!speechSupported || !text) return;
+  const u = new SpeechSynthesisUtterance(String(text));
+  u.rate = 0.95;
+  u.pitch = 1.0;
+  u.lang = 'en-US';
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function detectRepeats(items) {
+  const map = new Map();
+  for (const it of items) {
+    const key = String(it || '').toLowerCase().trim();
+    if (!key) continue;
+    map.set(key, (map.get(key) || 0) + 1);
+  }
+  return [...map.entries()].filter((x) => x[1] >= 3).map((x) => x[0]);
+}
+
+function countWords(text) {
+  return String(text || '').trim().split(/\s+/).filter((w) => w.length > 0).length;
+}
+
+function startASR(onText) {
+    if (!recognitionSupported) {
+      alert('Speech recognition is not supported in this browser. Please type your answer.');
+      onText('');
+      return;
+    }
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let finalTranscript = '';
+    let stopped = false;
+    const deadline = Date.now() + MAX_RECORDING_MS;
+
+    activeRecognition = null;
+    showRecordingPopup('Speak clearly in English. Recording up to ' + Math.floor(MAX_RECORDING_MS / 1000) + 's — press Stop when done.');
+
+    function done() {
+      if (stopped) return;
+      stopped = true;
+      hideRecordingPopup();
+      clearTimeout(activeRecordingTimeout);
+      activeRecordingTimeout = null;
+      activeRecognition = null;
+      onText(finalTranscript.trim());
+    }
+
+    function startChunk() {
+      if (stopped || Date.now() >= deadline) { done(); return; }
+
+      const rec = new SR();
+      rec.lang = 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.continuous = false;
+      activeRecognition = rec;
+
+      rec.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            const chunk = event.results[i][0]?.transcript || '';
+            finalTranscript += (finalTranscript ? ' ' : '') + chunk;
+          }
+        }
+      };
+
+      rec.onerror = (e) => {
+        if ((e.error === 'no-speech' || e.error === 'audio-capture') && !stopped && Date.now() < deadline) {
+          setTimeout(startChunk, 100);
+        } else {
+          done();
+        }
+      };
+
+      rec.onend = () => {
+        if (!stopped && Date.now() < deadline) {
+          setTimeout(startChunk, 80);
+        } else {
+          done();
+        }
+      };
+
+      try { rec.start(); } catch (_) { done(); }
+    }
+
+    // Hard deadline regardless of chunk state
+    activeRecordingTimeout = setTimeout(() => {
+      if (!stopped) {
+        try { activeRecognition?.stop(); } catch (_) {}
+        done();
+      }
+    }, MAX_RECORDING_MS);
+
+    startChunk();
+  }
+
+function buildWarmupStep() {
+  const wrap = document.getElementById('workspace');
+  document.getElementById('stage-title').textContent = 'Step 1: Speaking Warm-up';
+  document.getElementById('stage-meta').textContent = `Answer 4 open questions in audio or text. Difficulty: ${state.difficultyLevel}.`;
+  document.getElementById('live-step').textContent = 'Step 1/6';
+
+  const blocks = warmupQuestions.map((q, i) => {
+    return `<div class="question">
+      <strong>${i + 1}. ${q}</strong>
+      <textarea id="warmup-${i}" placeholder="Your answer (or ASR transcript)...">${escapeHtml(state.warmupTranscripts[i] || '')}</textarea>
+      <div class="inline-actions">
+        <button class="btn-warn" onclick="captureWarmup(${i})">🎙️ Speak now</button>
+        <button class="btn-secondary" onclick="playPrompt('${escapeAttr(q)}')">🔊 Respond with voice</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="card">
+      <h3>Speaking Warm-up</h3>
+      <p>Speak naturally for 60-90 seconds in total. Then submit for feedback in Meaning, Accuracy, Naturalness, and Pronunciation.</p>
+      ${blocks}
+      <div class="inline-actions">
+        <button class="btn-primary" onclick="submitWarmup()">Submit warm-up</button>
+      </div>
+      <div id="warmup-feedback"></div>
+    </div>`;
+}
+
+function captureWarmup(i) {
+  startASR((text) => {
+    state.warmupTranscripts[i] = text;
+    const box = document.getElementById(`warmup-${i}`);
+    if (box) box.value = text;
+  });
+}
+
+function playPrompt(text) {
+  speak(text);
+}
+
+function submitWarmup() {
+  for (let i = 0; i < warmupQuestions.length; i++) {
+    const val = document.getElementById(`warmup-${i}`)?.value || '';
+    state.warmupTranscripts[i] = val.trim();
+  }
+
+  const joined = state.warmupTranscripts.join(' ').trim();
+  const words = countWords(joined);
+  const fillerMatches = joined.match(/\b(uh|um|eh|mmm|you know|like|sort of|kind of|basically)\b/gi) || [];
+  const fillerCount = fillerMatches.length;
+  const uniqueWords = new Set(joined.toLowerCase().split(/\W+/).filter(w => w.length > 2)).size;
+  const diversity = words > 5 ? uniqueWords / words : 0;
+  const hasSpanishInterference = /\b(i am agree|he go|she go|people is|informations|advices|we are winner)\b/i.test(joined);
+  const hasComplexStructures = /\b(would have|had been|since|although|despite|whereas|provided that|even though)\b/i.test(joined);
+  const hasConnectors = /\b(however|moreover|although|because|since|as a result|therefore|furthermore|in addition)\b/i.test(joined);
+
+  const fluencyRaw = 3.5 + (words / 80) * 4.5 - fillerCount * 0.3;
+  state.scores.fluency = Number(Math.max(2, Math.min(9.5, fluencyRaw)).toFixed(1));
+  state.scores.vocab = Number(Math.max(2, Math.min(9, diversity * 14)).toFixed(1));
+  state.scores.grammar = Number(Math.max(2, Math.min(9, 6.5 - (hasSpanishInterference ? 1.5 : 0) + (hasComplexStructures ? 0.8 : 0) - fillerCount * 0.1)).toFixed(1));
+  state.scores.pronunciation = Number(Math.max(2, Math.min(9, 6.5 - fillerCount * 0.15)).toFixed(1));
+
+  const recurring = [];
+  if (fillerCount >= 3) recurring.push(`Filler words detected (${fillerCount}x): ${[...new Set(fillerMatches.map(f => f.toLowerCase()))].join(', ')}`);
+  if (hasSpanishInterference) recurring.push('Grammar transfer from Spanish (e.g. "I am agree", "informations")');
+  if (/\bthing\b/i.test(joined) && !/\bissue|aspect|point|feature|element|factor\b/i.test(joined)) recurring.push('Lexical imprecision: "thing" overused - prefer issue, aspect, factor, element');
+  if (words < 40) recurring.push('Answers too short - expand each response with a concrete example or detail');
+  if (!hasConnectors) recurring.push('Limited discourse connectors - try: however, moreover, although, therefore');
+  state.recurringErrors = recurring.slice(0, 5);
+
+  const answerRows = warmupQuestions.map((q, i) => {
+    const t = state.warmupTranscripts[i] || '';
+    const wc = countWords(t);
+    const quality = wc >= 20
+      ? `<span class="good">✓ ${wc} words</span>`
+      : wc >= 8
+        ? `<span style="color:#c08020">⚠ ${wc} words - expand further</span>`
+        : `<span class="bad">✗ ${wc} words - too short</span>`;
+    return `<li><strong>Q${i + 1}:</strong> ${quality} &mdash; <em>${escapeHtml(q)}</em></li>`;
+  }).join('');
+
+  const tips = [];
+  if (words < 60) tips.push('Aim for at least 15-20 words per answer and include one concrete example.');
+  else tips.push('Good word output - focus now on lexical precision and variety.');
+  if (fillerCount > 2) tips.push(`Reduce fillers (${fillerCount} detected) - pause silently instead of saying "uh/um".`);
+  else tips.push('Filler use is controlled - keep it up.');
+  if (!hasComplexStructures) tips.push('Attempt complex structures: "Although..., I...", "If I had..., I would...", "Since..., we..."');
+  else tips.push('Good use of complex structures - maintain this in later steps.');
+
+  document.getElementById('warmup-feedback').innerHTML = `
+    <div class="feedback-block">
+      <div class="feedback-title">Warm-up - ${words} words total · ${fillerCount} fillers · level ${escapeHtml(state.cefrLevelEstimate)}</div>
+      <ul class="bullet-list">${answerRows}</ul>
+      <ul class="bullet-list" style="margin-top:6px">
+        ${tips.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
+        ${recurring.length ? `<li><strong>Patterns to watch:</strong> ${recurring.map(escapeHtml).join('; ')}</li>` : ''}
+      </ul>
+      ${resourceLinksHtml('speaking')}
+    </div>
+    <div class="inline-actions"><button class="btn-primary" onclick="buildGrammarStep()">Continue to Grammar</button></div>
+  `;
+
+  renderScores();
+}
+
+function inferGrammarConcept(item) {
+  if (item.concept && typeof item.concept === 'string' && item.concept.trim()) return item.concept.trim();
+  const a = (item.a || '').toLowerCase();
+  const opts = (item.options || []).map(o => (o || '').toLowerCase());
+  if (opts.every(o => ['a', 'an', 'the', ''].includes(o))) return 'Articles';
+  const prepositions = ['to', 'in', 'at', 'on', 'with', 'for', 'of', 'by', 'from', 'about', 'into'];
+  if (prepositions.includes(a) && a.split(' ').length === 1) return 'Prepositions';
+  if (/will have/.test(a)) return 'Future Perfect';
+  if (/would(?: not)? have/.test(a)) return 'Third Conditional';
+  if (/\bhad\b/.test(a) && /\bif\b/i.test(item.q || '')) return 'Second Conditional';
+  if (/\bhad\b/.test(a)) return 'Reported Speech / Past Perfect';
+  if (/\b(was|were)\b/.test(a) && /ed\b/.test(a)) return 'Passive Voice';
+  if (/\b(has|have)\b/.test(a)) return 'Present Perfect';
+  return 'Grammar structure';
+}
+
+const grammarConceptExplanation = {
+  'Future Perfect':             'Future Perfect (will have + past participle) describes an action that will be completed before a specific future moment.',
+  'Second Conditional':         'Second Conditional (If + Past Simple, would + infinitive) describes hypothetical present or future situations.',
+  'Third Conditional':          'Third Conditional (If + Past Perfect, would have + past participle) describes unreal past situations and their imagined results.',
+  'Passive Voice':              'Passive Voice (was/were + past participle) is used when the action matters more than who does it.',
+  'Reported Speech / Past Perfect': 'Reported Speech often shifts tenses back one step: present → past simple, past → past perfect.',
+  'Past Perfect':               'Past Perfect (had + past participle) describes an action completed before another past action.',
+  'Present Perfect':            'Present Perfect (have/has + past participle) links a past action to the present moment.',
+  'Prepositions':               'Preposition collocations are fixed: speak TO, good AT, interested IN — these must be memorised.',
+  'Articles':                   'Use "the" for specific or unique items, "a/an" for general ones, and no article for uncountable or plural general nouns.',
+  'Grammar structure':          'Review the grammar structure tested carefully and check its usage rules.',
+};
+
+function buildGrammarStep() {
+  state.currentStep = 2;
+  document.getElementById('stage-title').textContent = 'Step 2: Grammar Check';
+  document.getElementById('stage-meta').textContent = `8 items aligned to ${state.difficultyLevel}: tenses, conditionals, reported speech, passive, articles, prepositions.`;
+  document.getElementById('live-step').textContent = 'Step 2/6';
+
+  const items = grammarItems.map((it, idx) => {
+    const options = it.options.map((op) => `<option value="${escapeAttr(op)}">${escapeHtml(op)}</option>`).join('');
+    return `<div class="question"><strong>${idx + 1}. ${escapeHtml(it.q)}</strong><select id="grammar-${idx}"><option value="">Choose...</option>${options}</select></div>`;
+  }).join('');
+
+  document.getElementById('workspace').innerHTML = `
+    <div class="card">
+      <h3>Grammar check</h3>
+      <p>Complete all 8 items.</p>
+      ${items}
+      <div class="inline-actions"><button class="btn-primary" onclick="submitGrammar()">Submit grammar</button></div>
+      <div id="grammar-feedback"></div>
+    </div>
+  `;
+}
+
+function submitGrammar() {
+  let ok = 0;
+  const results = [];
+  grammarItems.forEach((it, i) => {
+    const val = document.getElementById(`grammar-${i}`)?.value || '';
+    const isCorrect = val === it.a;
+    if (isCorrect) ok++;
+    results.push({ it, val, isCorrect });
+  });
+
+  state.scores.grammar = Number(((ok / grammarItems.length) * 10).toFixed(1));
+  if (ok < grammarItems.length * 0.75) {
+    state.recurringErrors = [...new Set([...state.recurringErrors, 'Complex verb forms and grammar structures need review'])].slice(0, 5);
+  }
+  recalcDifficultyFromPerformance();
+
+  const itemRows = results.map(({ it, val, isCorrect }, i) => {
+    const concept = inferGrammarConcept(it);
+    const explanation = grammarConceptExplanation[concept] || '';
+    const sentenceCorrect = escapeHtml(it.q.replace('____', it.a));
+    const badge = isCorrect
+      ? `<span class="vocab-review-badge ok">✓ Correcto</span>`
+      : `<span class="vocab-review-badge err">✗ Incorrecto</span>`;
+    const correction = isCorrect ? '' :
+      `<div>Tu respuesta: <span class="bad">${escapeHtml(val || '(sin respuesta)')}</span> &mdash; Correcto: <span class="good">${escapeHtml(it.a)}</span></div>`;
+    const why = explanation
+      ? `<div class="vocab-review-why"><strong>Concepto:</strong> ${escapeHtml(concept)} — ${escapeHtml(explanation)}</div>`
+      : `<div class="vocab-review-why"><strong>Concepto:</strong> ${escapeHtml(concept)}</div>`;
+    return `
+      <li class="vocab-review-item ${isCorrect ? 'correct' : 'incorrect'}">
+        <div class="vocab-review-sentence">${i + 1}. ${sentenceCorrect}</div>
+        <div>${badge} <span style="font-size:11px;color:var(--muted)">${escapeHtml(concept)}</span>${correction}</div>
+        ${why}
+      </li>`;
+  }).join('');
+
+  document.getElementById('grammar-feedback').innerHTML = `
+    <div class="feedback-block">
+      <div class="feedback-title">Grammar result &mdash; ${ok}/${grammarItems.length} correct</div>
+      <ul class="vocab-review-list">${itemRows}</ul>
+      ${resourceLinksHtml('grammar')}
+    </div>
+    <div class="inline-actions"><button class="btn-primary" onclick="buildVocabStep()">Continue to Vocabulary</button></div>
+  `;
+  renderScores();
+}
+
+function buildVocabStep() {
+  state.currentStep = 3;
+  document.getElementById('stage-title').textContent = 'Step 3: Vocabulary in Context';
+  document.getElementById('stage-meta').textContent = `12 collocations and phrases. Adaptive level: ${state.difficultyLevel}.`;
+  document.getElementById('live-step').textContent = 'Step 3/6';
+
+  const items = vocabItems.map((it, i) => {
+    return `<div class="question"><strong>${i + 1}. ${escapeHtml(buildVocabularyPromptByDifficulty(it.prompt, i))}</strong><input id="vocab-${i}" type="text" placeholder="Type one word or phrase"></div>`;
+  }).join('');
+
+  const bank = vocabWordBank.map((w) => `<span class="pill">${escapeHtml(w)}</span>`).join('');
+
+  document.getElementById('workspace').innerHTML = `
+    <div class="card">
+      <h3>Vocabulary drill</h3>
+      <p>Fill each gap with the best collocation or phrase.</p>
+      <div class="question">
+        <strong>Possible words/phrases (Word Bank)</strong>
+        <div class="inline-actions">${bank}</div>
+      </div>
+      ${items}
+      <div class="inline-actions"><button class="btn-primary" onclick="submitVocab()">Submit vocabulary</button></div>
+      <div id="vocab-feedback"></div>
+    </div>
+  `;
+}
+
+function submitVocab() {
+  let ok = 0;
+  const results = [];
+  const learned = [];
+
+  vocabItems.forEach((it, i) => {
+    const val = (document.getElementById(`vocab-${i}`)?.value || '').trim();
+    const isCorrect = val.toLowerCase() === it.a.toLowerCase();
+    if (isCorrect) ok++;
+    const dict = vocabCardDictionary[it.a] || {};
+    results.push({ it, val, isCorrect, dict });
+    learned.push({
+      term: it.a,
+      meaningES: dict.meaningES || 'Expresion de uso frecuente en contexto profesional',
+      exampleEN: it.prompt.replace('____', it.a),
+    });
+  });
+
+  state.newVocabulary = learned.slice(0, 10);
+  state.scores.vocab = Number(((ok / vocabItems.length) * 10).toFixed(1));
+  recalcDifficultyFromPerformance();
+
+  const itemRows = results.map(({ it, val, isCorrect, dict }, i) => {
+    const sentenceCorrect = escapeHtml(it.prompt.replace('____', it.a));
+    const userAnswer = val ? escapeHtml(val) : '<em>sin respuesta</em>';
+    const badge = isCorrect
+      ? `<span class="vocab-review-badge ok">✓ Correcto</span>`
+      : `<span class="vocab-review-badge err">✗ Incorrecto</span>`;
+    const correction = isCorrect
+      ? ''
+      : `<div>Tu respuesta: <span class="bad">${userAnswer}</span> &mdash; Correcto: <span class="good">${escapeHtml(it.a)}</span></div>`;
+    const why = dict.meaningES
+      ? `<div class="vocab-review-why"><strong>¿Por qué?</strong> "${escapeHtml(it.a)}" significa <em>${escapeHtml(dict.meaningES)}</em>. Ejemplo: <em>${escapeHtml(dict.exampleEN || '')}</em>.</div>`
+      : '';
+    return `
+      <li class="vocab-review-item ${isCorrect ? 'correct' : 'incorrect'}">
+        <div class="vocab-review-sentence">${i + 1}. ${sentenceCorrect}</div>
+        <div>${badge}${correction}</div>
+        ${why}
+      </li>`;
+  }).join('');
+
+  document.getElementById('vocab-feedback').innerHTML = `
+    <div class="feedback-block">
+      <div class="feedback-title">Vocabulary result &mdash; ${ok}/${vocabItems.length} correct</div>
+      <ul class="vocab-review-list">${itemRows}</ul>
+      ${resourceLinksHtml('vocabulary')}
+    </div>
+    <div class="inline-actions"><button class="btn-primary" onclick="buildWritingStep()">Continue to Writing</button></div>
+  `;
+
+  createSessionVocabularyCards();
+  renderVocabularyCardDeck(state.vocabularyCards, 'Vocabulary cards generated for this session.');
+
+  renderScores();
+}
+
+function buildWritingStep() {
+  state.currentStep = 4;
+  document.getElementById('stage-title').textContent = 'Step 4: Writing Mini-Task';
+  document.getElementById('stage-meta').textContent = `Write 120-150 words with ${state.difficultyLevel} target register, then receive correction and style upgrades.`;
+  document.getElementById('live-step').textContent = 'Step 4/6';
+
+  document.getElementById('workspace').innerHTML = `
+    <div class="card">
+      <h3>Writing task (120-150 words)</h3>
+      <p>Prompt: ${escapeHtml(writingPrompt)}</p>
+      <textarea id="writing-text" placeholder="Write your email here..."></textarea>
+      <div class="inline-actions">
+        <button class="btn-primary" onclick="submitWriting()">Evaluate writing</button>
+        <button class="btn-secondary" onclick="playPrompt('Please write one hundred and twenty to one hundred and fifty words now.')">🔊 Respond with voice</button>
+      </div>
+      <div id="writing-feedback"></div>
+    </div>
+  `;
+}
+
+function rewriteWriting(text) {
+  let fixed = String(text || '').trim();
+  fixed = fixed.replace(/\bi\b/g, 'I');
+  fixed = fixed.replace(/\bpls\b/gi, 'please');
+  fixed = fixed.replace(/\bthx\b/gi, 'thank you');
+  fixed = fixed.replace(/\bvery very\b/gi, 'highly');
+  fixed = fixed.replace(/\bi want to ask you if\b/gi, 'I would like to ask whether');
+  fixed = fixed.replace(/\bcan you\b/gi, 'Could you');
+  fixed = fixed.replace(/\bgonna\b/gi, 'going to');
+  fixed = fixed.replace(/\bwanna\b/gi, 'would like to');
+  fixed = fixed.replace(/\bgot to\b/gi, 'need to');
+  fixed = fixed.replace(/\bvery important\b/gi, 'crucial');
+  fixed = fixed.replace(/\ba lot of\b/gi, 'a significant number of');
+  return fixed;
+}
+
+function submitWriting() {
+  const text = (document.getElementById('writing-text')?.value || '').trim();
+  state.writingText = text;
+  const words = countWords(text);
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 5);
+  const avgSentLen = words / Math.max(1, sentences.length);
+  const corrected = rewriteWriting(text);
+  state.writingCorrection = corrected;
+
+  const hasConnectors   = /\b(however|moreover|therefore|in addition|furthermore|consequently|as a result|on the other hand|additionally|nevertheless|in contrast|despite this)\b/i.test(text);
+  const hasFormalReg    = /\b(would like|could you|I appreciate|please|sincerely|regarding|I am writing|kindly|I would be|we would|I wish to|I am pleased|I am contacting)\b/i.test(text);
+  const hasInformal     = /\b(pls|thx|gonna|wanna|gotta|coz|cause)\b/i.test(text) || /[!]{2,}/.test(text);
+  const hasVagueLang    = /\b(very|really|a lot|thing|stuff|nice|good|bad)\b/gi.test(text);
+  const hasSentVariety  = avgSentLen >= 8 && avgSentLen <= 22;
+
+  let score = 5.5;
+  if (words >= 120 && words <= 150) score += 1.5;
+  else if (words >= 90 && words < 120) score += 0.7;
+  else if (words > 150 && words <= 180) score += 0.5;
+  else if (words < 60) score -= 2.0;
+  if (hasConnectors)   score += 0.7;
+  if (hasFormalReg)    score += 0.5;
+  if (hasSentVariety)  score += 0.3;
+  if (hasInformal)     score -= 1.0;
+
+  state.scores.writing = Number(Math.max(2, Math.min(9.8, score)).toFixed(1));
+  recalcDifficultyFromPerformance();
+
+  // Dynamic style tips based on actual analysis
+  const styleUpgrades = [];
+  if (!hasConnectors) styleUpgrades.push('Add discourse markers: however, moreover, therefore, in addition, as a result.');
+  if (words < 120) styleUpgrades.push(`Expand text — you wrote ${words} words, target is 120–150. Add an example or elaboration.`);
+  if (hasVagueLang) styleUpgrades.push('Replace vague words (very, nice, good, thing) with precise alternatives: significant, compelling, issue, factor.');
+  if (!hasFormalReg) styleUpgrades.push('Use formal professional phrases: I would like to, could you please, I appreciate your…, I am writing to…');
+  if (sentences.length < 4) styleUpgrades.push('Vary your structure — aim for 4–5 sentences: opening, context, request/point, closing.');
+  const finalTips = styleUpgrades.slice(0, 3);
+  if (finalTips.length < 3) finalTips.push('Read aloud to catch unnatural phrasing — rewrite anything that sounds like a direct translation.');
+
+  const wordCountBadge = words >= 120 && words <= 150
+    ? `<span class="good">${words} words ✓</span>`
+    : `<span class="bad">${words} words (target: 120–150)</span>`;
+
+  document.getElementById('writing-feedback').innerHTML = `
+    <div class="feedback-block">
+      <div class="feedback-title">Writing feedback — ${wordCountBadge}</div>
+      <ul class="bullet-list">
+        <li><strong>Discourse markers:</strong> ${hasConnectors ? '<span class="good">Detected ✓</span>' : '<span class="bad">None — add however, moreover, therefore, as a result.</span>'}</li>
+        <li><strong>Register:</strong> ${hasFormalReg ? '<span class="good">Professional tone detected ✓</span>' : '<span class="bad">Informal — use: would like, I appreciate, could you please.</span>'}</li>
+        <li><strong>Vague language:</strong> ${hasVagueLang ? '<span class="bad">Detected — replace very/nice/good/thing with precise vocabulary.</span>' : '<span class="good">Good lexical precision ✓</span>'}</li>
+        <li><strong>Sentence variety:</strong> ${hasSentVariety ? `<span class="good">Good avg. length (${Math.round(avgSentLen)} words/sentence) ✓</span>` : `<span style="color:#c08020">Avg. ${Math.round(avgSentLen)} words/sentence — vary length.</span>`}</li>
+        <li><strong>Corrected version:</strong><br><em>${escapeHtml(corrected)}</em></li>
+        <li><strong>${finalTips.length} style improvements:</strong><br>${finalTips.map((t, i) => `${i + 1}. ${escapeHtml(t)}`).join('<br>')}</li>
+        <li><strong>Professional sentence bank:</strong><br>${[
+          'I would appreciate your prompt response on this matter.',
+          'Could we schedule a brief call to discuss this further?',
+          'Thank you for your understanding and continued support.',
+          'Please do not hesitate to reach out if you need any clarification.',
+          'I remain committed to delivering high-quality results within the agreed scope.'
+        ].map(escapeHtml).join('<br>')}</li>
+      </ul>
+      ${resourceLinksHtml('writing')}
+    </div>
+    <div class="inline-actions"><button class="btn-primary" onclick="buildPronunciationStep()">Continue to Pronunciation</button></div>
+  `;
+
+  renderScores();
+}
+function buildPronunciationStep() {
+  state.currentStep = 5;
+  document.getElementById('stage-title').textContent = 'Step 5: Pronunciation Guided Drill';
+  document.getElementById('stage-meta').textContent = `Focus: TH, V vs B, /ɪ/ vs /iː/, stress, linking, -ed endings. Level: ${state.difficultyLevel}.`;
+  document.getElementById('live-step').textContent = 'Step 5/6';
+
+  const blocks = pronunciationPhrases.map((p, i) => {
+    return `<div class="question">
+      <strong>${i + 1}. ${escapeHtml(p)}</strong>
+      <textarea id="pron-${i}" placeholder="Type transcript of what you said..."></textarea>
+      <div class="inline-actions">
+        <button class="btn-secondary" onclick="playPrompt('${escapeAttr(p)}')">🔊 Respond with voice</button>
+        <button class="btn-warn" onclick="capturePron(${i})">🎙️ Speak now</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('workspace').innerHTML = `
+    <div class="card">
+      <h3>Pronunciation practice: 8 phrases</h3>
+      <p>Shadowing mode: listen, repeat, and capture your transcript. Two rounds are recommended.</p>
+      ${blocks}
+      <div class="inline-actions"><button class="btn-primary" onclick="submitPronunciation()">Evaluate pronunciation</button></div>
+      <div id="pron-feedback"></div>
+    </div>
+  `;
+}
+
+function capturePron(i) {
+  startASR((text) => {
+    state.pronunciationTranscripts[i] = text;
+    const box = document.getElementById(`pron-${i}`);
+    if (box) box.value = text;
+  });
+}
+
+function pronunciationAdvice() {
+  return [
+    {
+      feature: 'TH sounds /θ/ and /ð/',
+      tip: 'Place tongue gently between teeth; release air softly.',
+      practiceSentence: 'They thought the theory was thorough.'
+    },
+    {
+      feature: 'V vs B distinction',
+      tip: 'For V, touch lower lip with upper teeth and vibrate voice.',
+      practiceSentence: 'Very busy visitors booked a boat.'
+    },
+    {
+      feature: '/ɪ/ vs /iː/',
+      tip: 'Keep /ɪ/ short and relaxed, /iː/ longer and tenser.',
+      practiceSentence: 'We live in a big city near the sea.'
+    }
+  ];
+}
+
+function submitPronunciation() {
+  for (let i = 0; i < pronunciationPhrases.length; i++) {
+    state.pronunciationTranscripts[i] = (document.getElementById(`pron-${i}`)?.value || '').trim();
+  }
+
+  // Per-phrase scoring
+  const phraseResults = pronunciationPhrases.map((p, i) => {
+    const targetWords = p.toLowerCase().split(/\W+/).filter(Boolean);
+    const heard = (state.pronunciationTranscripts[i] || '').toLowerCase();
+    const matchedWords = targetWords.filter(w => heard.includes(w));
+    const ratio = matchedWords.length / Math.max(1, targetWords.length);
+    const hasTranscript = (state.pronunciationTranscripts[i] || '').trim().length > 0;
+    return { phrase: p, ratio, matchedCount: matchedWords.length, total: targetWords.length, transcript: state.pronunciationTranscripts[i] || '', hasTranscript };
+  });
+
+  const attempted = phraseResults.filter(r => r.hasTranscript).length;
+  const avgRatio = phraseResults.reduce((s, r) => s + r.ratio, 0) / Math.max(1, phraseResults.length);
+  const attemptBonus = (attempted / Math.max(1, pronunciationPhrases.length)) * 1.5;
+  state.scores.pronunciation = Number(Math.max(2, Math.min(9.5, avgRatio * 8 + attemptBonus)).toFixed(1));
+  state.pronunciationTargets = pronunciationAdvice().slice(0, 3);
+  recalcDifficultyFromPerformance();
+
+  // Identify weakest phrases for targeted practice
+  const weakest = [...phraseResults].sort((a, b) => a.ratio - b.ratio).filter(r => r.ratio < 0.7).slice(0, 3);
+
+  // Detect phoneme patterns in missed phrases
+  const missedText = weakest.map(r => r.phrase).join(' ').toLowerCase();
+  const phonemeTips = [];
+  if (/\bth\w+|\bthe\b|\bthis\b|\bthat\b|\bthey\b|\bthought\b|\bthrough\b/.test(missedText)) {
+    phonemeTips.push('TH sounds (/θ/ and /ð/): place tongue gently between your teeth and release air — do not substitute with T or D.');
+  }
+  if (/\bv\w+|\bvery\b|\bvisit\b|\bvoid\b|\bvalue\b|\breverse\b/.test(missedText)) {
+    phonemeTips.push('V vs B: for /v/ touch lower lip to upper teeth and vibrate — do NOT close both lips (that makes /b/).');
+  }
+  if (/\b\w*ee\w*|\bleave\b|\bthree\b|\bsee\b|\bmeet\b|\blive\b|\bgive\b|\bship\b/.test(missedText)) {
+    phonemeTips.push('/ɪ/ vs /iː/: "ship" (/ɪ/) is short and relaxed; "sheep" (/iː/) is longer and tenser — feel the jaw drop slightly for /iː/.');
+  }
+  if (phonemeTips.length === 0) {
+    phonemeTips.push('Focus on stress timing: content words (nouns, verbs, adjectives) carry main stress; reduce function words (the, a, to, of).');
+  }
+  phonemeTips.push('Shadowing technique: listen once, pause, repeat at the same pace. Record yourself and compare.');
+
+  // Build per-phrase rows
+  const phraseRows = phraseResults.map((r, i) => {
+    const pct = Math.round(r.ratio * 100);
+    const cls = pct >= 80 ? 'correct' : pct < 50 ? 'incorrect' : '';
+    const badgeText = pct >= 80 ? `✓ ${pct}%` : pct >= 50 ? `~ ${pct}%` : `✗ ${pct}%`;
+    const badgeStyle = pct >= 80
+      ? `class="vocab-review-badge ok"`
+      : pct >= 50
+        ? `class="vocab-review-badge" style="background:#fff3cd;color:#856404"`
+        : `class="vocab-review-badge err"`;
+    const transcriptNote = r.hasTranscript
+      ? `<div class="vocab-review-why">You said: <em>${escapeHtml(r.transcript.slice(0, 80))}${r.transcript.length > 80 ? '…' : ''}</em> &mdash; ${r.matchedCount}/${r.total} words matched</div>`
+      : `<div class="vocab-review-why" style="color:var(--danger)">Not attempted — record this phrase next round</div>`;
+    return `
+      <li class="vocab-review-item ${cls}">
+        <div class="vocab-review-sentence">${i + 1}. ${escapeHtml(r.phrase)}</div>
+        <div><span ${badgeStyle}>${badgeText}</span></div>
+        ${transcriptNote}
+      </li>`;
+  }).join('');
+
+  const practiceHtml = weakest.length
+    ? weakest.map(r => `<li>Practise again: <em>${escapeHtml(r.phrase)}</em></li>`).join('')
+    : '<li>All phrases performed well — try increasing speed next session.</li>';
+
+  document.getElementById('pron-feedback').innerHTML = `
+    <div class="feedback-block">
+      <div class="feedback-title">Pronunciation — ${attempted}/${pronunciationPhrases.length} attempted · avg ${Math.round(avgRatio * 100)}% word match</div>
+      <ul class="vocab-review-list">${phraseRows}</ul>
+      ${weakest.length ? `<div style="margin-top:8px"><strong>Priority phrases for next round:</strong><ul class="bullet-list">${practiceHtml}</ul></div>` : ''}
+      <div style="margin-top:8px"><strong>Phoneme tips:</strong>
+        <ul class="bullet-list">${phonemeTips.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
+      </div>
+      ${resourceLinksHtml('pronunciation')}
+    </div>
+    <div class="inline-actions"><button class="btn-primary" onclick="buildListeningStep()">Continue to Listening</button></div>
+  `;
+
+  renderScores();
+}
+function buildListeningStep() {
+  state.currentStep = 6;
+  document.getElementById('stage-title').textContent = 'Step 6: Listening Mini-Podcast';
+  document.getElementById('stage-meta').textContent = `Answer 5 questions before seeing transcript. Adaptive level: ${state.difficultyLevel}.`;
+  document.getElementById('live-step').textContent = 'Step 6/6';
+
+  const script = currentListeningScript();
+
+  const questions = listeningQuestions.map((q, qi) => {
+    const options = q.options.map((op, oi) => `<label><input type="radio" name="listen-${qi}" value="${oi}"> ${escapeHtml(op)}</label>`).join('<br>');
+    return `<div class="question"><strong>${qi + 1}. ${escapeHtml(q.q)}</strong><div style="margin-top:6px">${options}</div></div>`;
+  }).join('');
+
+  document.getElementById('workspace').innerHTML = `
+    <div class="card">
+      <h3>Listening task</h3>
+      <p>First listen and answer. Do not read transcript yet.</p>
+      <div class="inline-actions">
+        <button class="btn-secondary" onclick="playPrompt('${escapeAttr(script)}')">🔊 Respond with voice</button>
+      </div>
+      ${questions}
+      <div class="inline-actions"><button class="btn-primary" onclick="submitListening()">Submit listening answers</button></div>
+      <div id="listen-feedback"></div>
+    </div>
+  `;
+}
+
+function submitListening() {
+  let ok = 0;
+  const answers = [];
+  listeningQuestions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name=\"listen-${i}\"]:checked`);
+    const idx = selected ? Number(selected.value) : -1;
+    answers.push(idx);
+    if (idx === q.a) ok++;
+  });
+  state.listeningAnswers = answers;
+  state.scores.listening = Number(((ok / listeningQuestions.length) * 10).toFixed(1));
+  recalcDifficultyFromPerformance();
+
+  const script = currentListeningScript();
+
+  const pct = (ok / listeningQuestions.length) * 100;
+  let tuning = 'Keep current level.';
+  if (pct > 80) tuning = 'Increase speed and reduce redundancy next session.';
+  if (pct < 60) tuning = 'Slow down audio and add stronger discourse signposting.';
+
+  document.getElementById('listen-feedback').innerHTML = `
+    <div class="feedback-block">
+      <div class="feedback-title">Listening feedback</div>
+      <ul class="bullet-list">
+        <li>Score: <strong>${ok}/${listeningQuestions.length}</strong></li>
+        <li>Difficulty adaptation: ${escapeHtml(tuning)}</li>
+        <li><strong>Transcript:</strong><br>${escapeHtml(script)}</li>
+        <li><strong>New vocabulary:</strong> clarify outcomes, summarize decisions, check assumptions.</li>
+      </ul>
+      ${resourceLinksHtml('listening')}
+    </div>
+  `;
+
+  renderScores();
+  setTimeout(() => openResultsScreen(true), 600);
+}
+
+function calcOverallLevel() {
+  const avg = computeAverageScore(state.scores);
+  if (avg >= 8.5) return 'C1';
+  if (avg >= 7.2) return 'B2+';
+  if (avg >= 6) return 'B2';
+  return 'B1+';
+}
+
+function buildHomework() {
+  const weak = Object.entries(state.scores).sort((a, b) => a[1] - b[1]).slice(0, 2).map((x) => x[0]);
+  const map = {
+    vocab: 'Write 12 sentences using today\'s collocations.',
+    grammar: 'Do 10 conditional and reported speech transformations.',
+    writing: 'Rewrite one email in formal and casual register.',
+    pronunciation: 'Shadow 8 target phrases in two rounds.',
+    listening: 'Listen to a 2-minute podcast and summarize key points.',
+    fluency: 'Record a 90-second answer with fewer fillers.',
+  };
+  return weak.map((k) => map[k]).slice(0, 3);
+}
+
+function targetedFixFromRepeats() {
+  const repeated = detectRepeats(state.recurringErrors);
+  if (!repeated.length) return [];
+  return [
+    'Targeted Fix Drill: I would like to clarify the timeline.',
+    'Targeted Fix Drill: They thought the solution was feasible.',
+    'Targeted Fix Drill: We have been working on this since Monday.',
+    'Targeted Fix Drill: If I had prepared more, I would have performed better.',
+    'Targeted Fix Drill: Could you elaborate on the main objective?'
+  ];
+}
+
+function generateLearningLog() {
+  const today = new Date().toISOString().slice(0, 10);
+  state.nextHomework = buildHomework();
+  const repeatedDrill = targetedFixFromRepeats();
+  if (repeatedDrill.length) {
+    state.nextHomework = [...state.nextHomework, 'Run Targeted Fix Drill (5 sentences, immediate feedback).'].slice(0, 3);
+  }
+
+  state.cefrLevelEstimate = calcOverallLevel();
+  state.progressIndex = Math.min(10, state.progressIndex + 1);
+  state.sessionHistoryCount = Math.max(state.sessionHistoryCount, Number(state.sessionNumber || 0) || 0);
+
+  const log = [
+    `Learning Log - ${today}`,
+    `Profile ID: ${state.profileId || ''}`,
+    `Session #: ${state.sessionNumber || ''}`,
+    '',
+    'A) Topics worked:',
+    '- Speaking warm-up, grammar structures, collocations, writing email register, pronunciation drill, listening comprehension.',
+    '',
+    'B) Recurring errors (max 5):',
+    ...(state.recurringErrors.length ? state.recurringErrors.slice(0, 5).map((e) => `- ${e}`) : ['-']),
+    '',
+    'C) New vocabulary/expressions (max 10):',
+    ...(state.newVocabulary.length
+      ? state.newVocabulary.slice(0, 10).map((v) => `- ${v.term}: ${v.exampleEN}`)
+      : ['-']),
+    '',
+    'D) Estimated scores (0-10):',
+    `- vocab: ${state.scores.vocab}`,
+    `- grammar: ${state.scores.grammar}`,
+    `- writing: ${state.scores.writing}`,
+    `- pronunciation: ${state.scores.pronunciation}`,
+    `- listening: ${state.scores.listening}`,
+    `- fluency: ${state.scores.fluency}`,
+    '',
+    'E) Goals for next session (max 2):',
+    ...(state.nextHomework.slice(0, 2).map((h) => `- ${h}`)),
+    '',
+    'F) Pronunciation Targets (max 3):',
+    ...(state.pronunciationTargets.length
+      ? state.pronunciationTargets.slice(0, 3).map((p) => `- ${p.feature}: ${p.practiceSentence}`)
+      : ['-'])
+  ].join('\n');
+
+  state.learningLog = log;
+
+  state.sessionState = {
+    profileId: FIXED_PROFILE_ID,
+    sessionNumber: state.sessionNumber || '',
+    cefrLevelEstimate: state.cefrLevelEstimate || '',
+    difficultyLevel: state.difficultyLevel,
+    progressIndex: state.progressIndex,
+    sessionHistoryCount: state.sessionHistoryCount,
+    scores: {
+      vocab: state.scores.vocab || 0,
+      grammar: state.scores.grammar || 0,
+      writing: state.scores.writing || 0,
+      pronunciation: state.scores.pronunciation || 0,
+      listening: state.scores.listening || 0,
+      fluency: state.scores.fluency || 0,
+    },
+    recurringErrors: state.recurringErrors.slice(0, 5),
+    newVocabulary: state.newVocabulary.slice(0, 10),
+    pronunciationTargets: state.pronunciationTargets.slice(0, 3),
+    nextHomework: state.nextHomework.slice(0, 3),
+    vocabularyCards: (state.vocabularyCards.length ? state.vocabularyCards : createSessionVocabularyCards()).slice(0, 20),
+  };
+
+  document.getElementById('session-output').textContent = `${log}\n\nSESSION_STATE:\n${JSON.stringify(state.sessionState, null, 2)}`;
+}
+
+async function saveSessionState() {
+  if (!state.sessionState) {
+    alert('Generate Learning Log and SESSION_STATE first.');
+    return;
+  }
+  if (!state.sessionState.profileId || !state.sessionState.sessionNumber) {
+    alert('Profile ID and Session # are required.');
+    return;
+  }
+
+  const res = await fetch(API_STATE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionState: state.sessionState }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.error) {
+    alert(`Could not save SESSION_STATE: ${data.error || res.status}`);
+    return;
+  }
+
+  try {
+    await saveVocabularyCards();
+  } catch (e) {
+    alert(`SESSION_STATE saved, but vocabulary cards could not be stored: ${e.message}`);
+    return;
+  }
+
+  const savedSession = Number(state.sessionNumber || 0) || 0;
+  state.sessionHistoryCount = Math.max(state.sessionHistoryCount, savedSession);
+  const nextSession = state.sessionHistoryCount + 1;
+  state.sessionNumber = String(nextSession);
+
+  const sessionInput = document.getElementById('session-number');
+  if (sessionInput) sessionInput.value = String(nextSession);
+
+  resetSessionData();
+  recalcDifficultyFromPerformance();
+  renderScores();
+
+  const notice = document.getElementById('setup-notice');
+  if (notice) {
+    notice.textContent = `Saved. Select a saved SQLite content pack to start session #${nextSession}.`;
+  }
+
+  const stageTitle = document.getElementById('stage-title');
+  const stageMeta = document.getElementById('stage-meta');
+  const liveStep = document.getElementById('live-step');
+  if (stageTitle) stageTitle.textContent = 'Ready to Start';
+  if (stageMeta) stageMeta.textContent = `Session #${nextSession} ready. Choose a saved content pack and press Start Session.`;
+  if (liveStep) liveStep.textContent = 'Step 0/6';
+
+  alert(`SESSION_STATE and vocabulary cards saved. Next session: #${nextSession}. Select a saved content pack to continue.`);
+}
+
+async function openResultsScreen(fromSession = false) {
+  const ws = document.getElementById('workspace');
+
+  // If called manually (Resultados button) and no active session, load latest from DB
+  if (!fromSession && !state.scores.fluency && !state.scores.grammar) {
+    ws.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p>Loading latest results from database…</p></div>`;
+    try {
+      const res = await fetch(`${API_STATE}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.sessionState) {
+        const s = data.sessionState;
+        state.scores = Object.assign(state.scores, s.scores || {});
+        state.recurringErrors = Array.isArray(s.recurringErrors) ? s.recurringErrors : [];
+        state.newVocabulary = Array.isArray(s.newVocabulary) ? s.newVocabulary : [];
+        state.pronunciationTargets = Array.isArray(s.pronunciationTargets) ? s.pronunciationTargets : [];
+        state.nextHomework = Array.isArray(s.nextHomework) ? s.nextHomework : [];
+        state.sessionNumber = s.sessionNumber || state.sessionNumber;
+        state.cefrLevelEstimate = s.cefrLevelEstimate || state.cefrLevelEstimate;
+        // Load vocab cards for that session
+        try {
+          const vres = await fetch(`${API_VOCAB_CARDS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}&sessionNumber=${encodeURIComponent(s.sessionNumber || '')}`);
+          const vdata = await vres.json().catch(() => ({}));
+          if (vres.ok && Array.isArray(vdata.cards)) state.vocabularyCards = vdata.cards;
+        } catch (_) {}
+        renderScores();
+        renderResultsHTML(false, 'Últimos resultados guardados en base de datos.');
+        return;
+      }
+    } catch (_) {}
+    ws.innerHTML = `<div class="card"><p class="notice">No hay resultados guardados todavía. Completa una sesión primero.</p></div>`;
+    return;
+  }
+
+  // Called after session — generate log and auto-save
+  generateLearningLog();
+
+  let saveStatus = 'Guardando resultados…';
+  let savedOk = false;
+  if (state.sessionState?.profileId && state.sessionState?.sessionNumber) {
+    try {
+      const res = await fetch(API_STATE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionState: state.sessionState }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && !data.error) {
+        try { await saveVocabularyCards(); } catch (_) {}
+        savedOk = true;
+        const savedSession = Number(state.sessionNumber || 0) || 0;
+        state.sessionHistoryCount = Math.max(state.sessionHistoryCount, savedSession);
+        const nextSession = state.sessionHistoryCount + 1;
+        state.sessionNumber = String(nextSession);
+        const sessionInput = document.getElementById('session-number');
+        if (sessionInput) sessionInput.value = String(nextSession);
+      }
+    } catch (_) {}
+  }
+  saveStatus = savedOk ? 'Resultados guardados en base de datos.' : 'No se pudieron guardar automáticamente.';
+  renderResultsHTML(savedOk, saveStatus);
+}
+
+function renderResultsHTML(savedOk, saveStatus) {
+  const s = state.scores;
+  const avg = computeAverageScore(s).toFixed(1);
+  const level = calcOverallLevel();
+  const sessionLabel = state.sessionState?.sessionNumber || state.sessionNumber || '';
+
+  const scoreRows = [
+    ['Fluency / Speaking', s.fluency],
+    ['Grammar',            s.grammar],
+    ['Vocabulary',         s.vocab],
+    ['Writing',            s.writing],
+    ['Pronunciation',      s.pronunciation],
+    ['Listening',          s.listening],
+  ].map(([label, val]) => {
+    const n = Number(val) || 0;
+    const pct = Math.round((n / 10) * 100);
+    const color = n >= 8 ? 'var(--ok)' : n >= 6 ? 'var(--accent-2)' : 'var(--warn)';
+    return `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="min-width:160px;font-size:13px">${escapeHtml(label)}</span>
+        <div style="flex:1;height:10px;border-radius:999px;background:#ece3d3;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${color};border-radius:999px;transition:width .4s"></div>
+        </div>
+        <span style="min-width:34px;text-align:right;font-weight:800;font-size:15px;color:${color}">${n.toFixed(1)}</span>
+      </div>`;
+  }).join('');
+
+  const errorItems = (state.recurringErrors || []).slice(0, 5)
+    .map((e) => `<li>${escapeHtml(e)}</li>`).join('');
+
+  const homeworkItems = (state.nextHomework || [])
+    .map((h) => `<li>${escapeHtml(h)}</li>`).join('') || '<li>—</li>';
+
+  const pronTargets = (state.pronunciationTargets || []).slice(0, 3)
+    .map((p) => `<li><strong>${escapeHtml(p.feature || '')}</strong>${p.practiceSentence ? ` — <em>${escapeHtml(p.practiceSentence)}</em>` : ''}</li>`).join('');
+
+  const cards = (state.vocabularyCards || []).slice(0, 12);
+  const cardGrid = cards.map((c) => `
+    <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff">
+      <div style="font-weight:700;font-size:14px">${escapeHtml(c.term || c.term || '')}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">${escapeHtml(c.meaningES || '')}</div>
+      <div style="font-size:12px;font-style:italic;margin-top:5px;color:var(--ink)">${escapeHtml(c.exampleEN || '')}</div>
+    </div>`).join('');
+
+  const logText = state.learningLog || '';
+
+  const statusIcon = savedOk ? '✓' : '⚠';
+  const statusColor = savedOk ? 'var(--ok)' : 'var(--warn)';
+
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = `
+    <div class="card" style="max-width:100%">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <h3 style="margin:0">Resultados — Sesión ${escapeHtml(sessionLabel)}</h3>
+          <p class="subtitle" style="margin-top:4px">${escapeHtml(state.mainGoal || '')} · Nivel estimado: <strong>${escapeHtml(level)}</strong></p>
+        </div>
+        <div style="font-size:13px;color:${statusColor};padding:6px 12px;border:1px solid ${statusColor};border-radius:8px">${statusIcon} ${escapeHtml(saveStatus)}</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+
+        <div style="grid-column:1/-1;background:linear-gradient(135deg,#fff8f3,#f0faf8);border:1px solid var(--line);border-radius:12px;padding:16px">
+          <div class="section-title" style="margin-bottom:10px">Puntuaciones por habilidad</div>
+          ${scoreRows}
+          <div style="margin-top:10px;padding:10px;background:#fff;border-radius:8px;display:flex;gap:20px;flex-wrap:wrap">
+            <span style="font-size:13px">Media total: <strong style="font-size:18px">${avg}</strong><span style="color:var(--muted)">/10</span></span>
+            <span style="font-size:13px">Nivel CEFR: <strong>${escapeHtml(level)}</strong></span>
+          </div>
+        </div>
+
+        ${errorItems ? `
+        <div style="background:#fff8f0;border:1px solid #f5cba0;border-radius:12px;padding:16px">
+          <div class="section-title" style="margin-bottom:8px;color:var(--warn)">Errores recurrentes</div>
+          <ul class="bullet-list">${errorItems}</ul>
+        </div>` : ''}
+
+        <div style="background:#f0faf8;border:1px solid #a0d8ce;border-radius:12px;padding:16px">
+          <div class="section-title" style="margin-bottom:8px;color:var(--accent-2)">Deberes próxima sesión</div>
+          <ul class="bullet-list">${homeworkItems}</ul>
+        </div>
+
+        ${pronTargets ? `
+        <div style="background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:16px">
+          <div class="section-title" style="margin-bottom:8px">Objetivos pronunciación</div>
+          <ul class="bullet-list">${pronTargets}</ul>
+        </div>` : ''}
+
+        ${cardGrid ? `
+        <div style="grid-column:1/-1;background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:16px">
+          <div class="section-title" style="margin-bottom:10px">Tarjetas de vocabulario (${cards.length})</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">${cardGrid}</div>
+        </div>` : ''}
+
+        ${logText ? `
+        <div style="grid-column:1/-1;background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:16px">
+          <div class="section-title" style="margin-bottom:8px">Learning Log completo</div>
+          <pre style="font-size:11px;white-space:pre-wrap;line-height:1.6;color:var(--ink);font-family:var(--mono);max-height:260px;overflow:auto;background:#fff;border:1px solid var(--line);padding:10px;border-radius:8px">${escapeHtml(logText)}</pre>
+        </div>` : ''}
+
+      </div>
+
+      <div class="inline-actions" style="margin-top:16px">
+        <button class="btn-primary" onclick="startSession()">Empezar siguiente sesión</button>
+        <button class="btn-secondary" onclick="openResultsScreen(false)">Recargar desde DB</button>
+      </div>
+    </div>
+  `;
+
+  const stageTitle = document.getElementById('stage-title');
+  const stageMeta  = document.getElementById('stage-meta');
+  const liveStep   = document.getElementById('live-step');
+  if (stageTitle) stageTitle.textContent = 'Resultados';
+  if (stageMeta)  stageMeta.textContent  = `Sesión ${sessionLabel} · Media: ${avg}/10 · Nivel: ${level}`;
+  if (liveStep)   liveStep.textContent   = 'Hecho';
+  renderScores();
+}
+
+async function loadLatestState() {
+  const profileId = FIXED_PROFILE_ID;
+
+  const res = await fetch(`${API_STATE}?profileId=${encodeURIComponent(profileId)}`);
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok || !data?.sessionState) {
+    document.getElementById('setup-notice').textContent = 'No stored memory found for this profile. Paste the last Learning Log to continue.';
+    return;
+  }
+
+  const s = data.sessionState;
+  state.profileId = FIXED_PROFILE_ID;
+  state.sessionNumber = s.sessionNumber || '';
+  state.cefrLevelEstimate = s.cefrLevelEstimate || 'C1';
+  state.difficultyLevel = String(s.difficultyLevel || 'C1-lite');
+  state.progressIndex = Number(s.progressIndex || 0);
+  state.sessionHistoryCount = Number(s.sessionHistoryCount || s.sessionNumber || 0);
+  state.scores = {
+    vocab: Number(s?.scores?.vocab || 0),
+    grammar: Number(s?.scores?.grammar || 0),
+    writing: Number(s?.scores?.writing || 0),
+    pronunciation: Number(s?.scores?.pronunciation || 0),
+    listening: Number(s?.scores?.listening || 0),
+    fluency: Number(s?.scores?.fluency || 0),
+  };
+  state.recurringErrors = Array.isArray(s.recurringErrors) ? s.recurringErrors : [];
+  state.newVocabulary = Array.isArray(s.newVocabulary) ? s.newVocabulary : [];
+  state.pronunciationTargets = Array.isArray(s.pronunciationTargets) ? s.pronunciationTargets : [];
+  state.nextHomework = Array.isArray(s.nextHomework) ? s.nextHomework : [];
+
+  document.getElementById('session-number').value = String((Number(state.sessionHistoryCount) || 0) + 1);
+  document.getElementById('setup-notice').textContent = 'Latest SESSION_STATE loaded. Start a new session and continue from prior weaknesses.';
+
+  try {
+    const cards = await loadVocabularyCards(FIXED_PROFILE_ID, s.sessionNumber || '');
+    renderVocabularyCardDeck(cards, cards.length ? '' : 'No saved cards found for that session.');
+  } catch (_) {
+    renderVocabularyCardDeck([], 'No saved cards found yet. Complete a session and save to store cards.');
+  }
+
+  renderScores();
+}
+
+async function startSession(fromPreview = false) {
+  state.profileId = FIXED_PROFILE_ID;
+  state.sessionNumber = (document.getElementById('session-number').value || '').trim();
+  state.mainGoal = (document.getElementById('main-goal').value || '').trim();
+  state.selectedContentPackId = String(document.getElementById('content-pack-select')?.value || state.selectedContentPackId || '').trim();
+
+  if (!state.sessionNumber && fromPreview) {
+    state.sessionNumber = '1';
+    const sessionInput = document.getElementById('session-number');
+    if (sessionInput) sessionInput.value = '1';
+  }
+
+  if (!state.mainGoal && fromPreview) {
+    state.mainGoal = 'work';
+    const goalSelect = document.getElementById('main-goal');
+    if (goalSelect) goalSelect.value = 'work';
+  }
+
+  if (!state.sessionNumber) {
+    alert('Please provide a Session number.');
+    return;
+  }
+  if (!state.mainGoal) state.mainGoal = 'general';
+
+  // If selector is temporarily empty, fallback to latest loaded pack.
+  if (!state.selectedContentPackId && Array.isArray(state.contentPacks) && state.contentPacks.length) {
+    state.selectedContentPackId = String(state.contentPacks[0].id);
+    const sel = document.getElementById('content-pack-select');
+    if (sel) sel.value = state.selectedContentPackId;
+  }
+
+  if (!state.selectedContentPackId) {
+    alert('Please select a saved content pack from SQLite.');
+    return;
+  }
+
+  resetSessionData();
+  recalcDifficultyFromPerformance();
+
+  if (state.settings.llmAllSections) {
+    state.difficultyLevel = state.settings.targetLevel;
+    state.cefrLevelEstimate = state.settings.targetLevel;
+  }
+
+  document.getElementById('setup-notice').textContent = `Loading saved content pack #${state.selectedContentPackId} for session #${state.sessionNumber}…`;
+  const ws = document.getElementById('workspace');
+  if (ws) {
+    ws.innerHTML = `
+      <div class="card">
+        <h3>Starting session...</h3>
+        <p>Applying saved content pack #${escapeHtml(state.selectedContentPackId)}.</p>
+      </div>
+    `;
+  }
+
+  try {
+    const pack = await loadSelectedContentPack();
+    if (pack.level) {
+      state.difficultyLevel = pack.level;
+      state.cefrLevelEstimate = pack.level;
+    }
+  } catch (e) {
+    if (state.selectedContentPack && String(state.selectedContentPack.id) === state.selectedContentPackId) {
+      applyContentPack(state.selectedContentPack.content || {});
+    } else {
+      alert(`Could not load saved content pack: ${e.message}`);
+      return;
+    }
+  }
+
+  try {
+    speak('Session started. Step one, speaking warm-up. Speak now.');
+    buildWarmupStep();
+    renderScores();
+    document.getElementById('setup-notice').textContent = `Session #${state.sessionNumber} ready from saved pack #${state.selectedContentPackId} — user ${FIXED_PROFILE_ID}, level ${state.cefrLevelEstimate}, focus: ${state.mainGoal}.`;
+  } catch (e) {
+    alert(`Session could not render Step 1: ${e.message}`);
+    const wsFail = document.getElementById('workspace');
+    if (wsFail) {
+      wsFail.innerHTML = `
+        <div class="card">
+          <h3 class="bad">Could not render session</h3>
+          <p>${escapeHtml(e.message)}</p>
+          <div class="inline-actions"><button class="btn-primary" onclick="previewSelectedContentPack(state.selectedContentPackId)">Back to pack preview</button></div>
+        </div>
+      `;
+    }
+  }
+}
+
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeAttr(s) {
+  return escapeHtml(s).replace(/'/g, '&#39;');
+}
+
+// ── Irregular Verbs ───────────────────────────────────────────────────────────
+
+const API_IRREGULAR_VERBS = '/api/teacher/irregular-verbs';
+
+function speakVerbAccent(text, accent) {
+  if (!speechSupported || !text) return;
+  const voices = window.speechSynthesis.getVoices();
+  const targetLang = accent === 'uk' ? 'en-GB' : 'en-US';
+  const voice =
+    voices.find((v) => v.lang === targetLang) ||
+    voices.find((v) => v.lang.startsWith(accent === 'uk' ? 'en-GB' : 'en-US')) ||
+    voices.find((v) => v.lang.startsWith('en'));
+  const u = new SpeechSynthesisUtterance(String(text));
+  u.rate = 0.85;
+  u.pitch = 1.0;
+  u.lang = targetLang;
+  if (voice) u.voice = voice;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function renderIrregularVerbsTable(verbs, batchInfo) {
+  const el = document.getElementById('verbs-table-host');
+  if (!el) return;
+
+  const safeVerbs = Array.isArray(verbs) ? verbs : [];
+  if (!safeVerbs.length) {
+    el.innerHTML = '<div class="notice">No verb data in this batch.</div>';
+    return;
+  }
+
+  const rows = safeVerbs.map((v) => {
+    const forms   = v.forms || {};
+    const pron    = v.pronunciation || {};
+    const ukIpa   = pron.uk && pron.uk.ipa   ? pron.uk.ipa   : '';
+    const usIpa   = pron.us && pron.us.ipa   ? pron.us.ipa   : '';
+    const meanings = Array.isArray(v.translation_es) ? v.translation_es.join(', ') : (v.translation_es || '');
+    const tenses  = Array.isArray(v.tenses_usage) ? v.tenses_usage.map((t) => `<span class="tense-pill">${escapeHtml(t)}</span>`).join('') : '';
+    const examples = Array.isArray(v.examples) ? v.examples.slice(0, 2) : [];
+    const exHtml  = examples.map((ex) => `
+      <div class="verb-example">${escapeHtml(ex.en || '')}</div>
+      <div class="verb-example-es">${escapeHtml(ex.es || '')}</div>
+    `).join('<div style="height:4px"></div>');
+    const tagHtml = Array.isArray(v.tags) ? `<div class="verb-tags">${v.tags.map((t) => `<span class="verb-tag">${escapeHtml(t)}</span>`).join('')}</div>` : '';
+
+    return `<tr>
+      <td>
+        <div class="verb-base">${escapeHtml(v.base_form || '')}</div>
+        ${ukIpa ? `<span class="verb-ipa">UK ${escapeHtml(ukIpa)}</span>` : ''}
+        ${usIpa ? `<span class="verb-ipa">US ${escapeHtml(usIpa)}</span>` : ''}
+        ${tagHtml}
+      </td>
+      <td class="verb-form-cell">
+        ${escapeHtml(forms.past_simple || '-')}
+        ${forms.past_simple ? `<div style="margin-top:4px;display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn-uk" data-verb="${escapeAttr(forms.past_simple)}" data-accent="uk">&#127468;&#127463; UK</button>
+          <button class="btn-us" data-verb="${escapeAttr(forms.past_simple)}" data-accent="us">&#127482;&#127480; US</button>
+        </div>` : ''}
+      </td>
+      <td class="verb-form-cell">
+        ${escapeHtml(forms.past_participle || '-')}
+        ${forms.past_participle ? `<div style="margin-top:4px;display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn-uk" data-verb="${escapeAttr(forms.past_participle)}" data-accent="uk">&#127468;&#127463; UK</button>
+          <button class="btn-us" data-verb="${escapeAttr(forms.past_participle)}" data-accent="us">&#127482;&#127480; US</button>
+        </div>` : ''}
+      </td>
+      <td class="verb-form-cell">${escapeHtml(forms.third_person_singular   || '-')}</td>
+      <td class="verb-form-cell">${escapeHtml(forms.present_participle      || '-')}</td>
+      <td><div class="verb-meaning">${escapeHtml(meanings || '-')}</div></td>
+      <td>${tenses || '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td>${exHtml || '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td>
+        <button class="btn-uk" data-verb="${escapeAttr(v.base_form || '')}" data-accent="uk">&#127468;&#127463; UK</button>
+        <button class="btn-us" data-verb="${escapeAttr(v.base_form || '')}" data-accent="us">&#127482;&#127480; US</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const stamp = batchInfo && batchInfo.createdAt ? new Date(batchInfo.createdAt).toLocaleString() : '';
+  const meta  = batchInfo
+    ? `Batch #${batchInfo.id} &middot; Level <strong>${escapeHtml(batchInfo.level || '-')}</strong> &middot; ${escapeHtml(batchInfo.batchName || '')} &middot; ${escapeHtml(stamp)}`
+    : `<strong>All verbs — complete database (${safeVerbs.length})</strong>`;
+
+  el.innerHTML = `
+    ${meta ? `<p style="font-size:12px;color:var(--muted);margin-bottom:8px">${meta}</p>` : ''}
+    <div class="verbs-table-wrap">
+      <table class="verbs-table">
+        <thead>
+          <tr>
+            <th>Base Form</th>
+            <th>Past Simple</th>
+            <th>Past Participle</th>
+            <th>3rd Person Sing.</th>
+            <th>-ing Form</th>
+            <th>Meaning (ES)</th>
+            <th>Tenses</th>
+            <th>Examples</th>
+            <th>Audio</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+
+  el.querySelectorAll('[data-verb]').forEach((btn) => {
+    btn.addEventListener('click', () => speakVerbAccent(btn.dataset.verb, btn.dataset.accent));
+  });
+}
+
+// Single source of truth for the verbs section.
+// Always re-fetches the complete DB (batches list + allVerbs) so the dropdown
+// and verb count are always current.  When targetBatchId is 'all' (default) the
+// combined deduplicated table is shown.  When a specific batch ID is supplied a
+// second request is made for that batch's verbs, keeping the dropdown in sync
+// with the full database regardless.
+async function loadIrregularVerbBatches(targetBatchId = 'all') {
+  const batchSelect = document.getElementById('verbs-batch-select');
+  const tableHost   = document.getElementById('verbs-table-host');
+  if (!batchSelect) return;
+
+  try {
+    // Step 1 — always fetch the complete DB state to keep the dropdown current.
+    const res  = await fetch(`${API_IRREGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const batches  = Array.isArray(data.batches)  ? data.batches  : [];
+    const allVerbs = Array.isArray(data.allVerbs) ? data.allVerbs : [];
+
+    if (!batches.length) {
+      batchSelect.innerHTML = '<option value="">No batches yet</option>';
+      if (tableHost) tableHost.innerHTML = '<div class="notice">No verbs saved yet. Choose a level and click "Generate 5 new verbs (AI)".</div>';
+      return;
+    }
+
+    // Step 2 — rebuild dropdown with fresh counts.
+    batchSelect.innerHTML =
+      `<option value="all">All verbs (${allVerbs.length})</option>` +
+      batches.map((b) => {
+        const stamp = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '';
+        const label = `${b.level} · ${stamp} · #${b.id}`;
+        return `<option value="${escapeAttr(String(b.id))}">${escapeHtml(label)}</option>`;
+      }).join('');
+
+    // Step 3 — decide which view to render.
+    const batchIdStr    = String(targetBatchId || 'all');
+    const batchExists   = batches.some((b) => String(b.id) === batchIdStr);
+    const resolvedBatch = batchExists ? batchIdStr : 'all';
+    batchSelect.value   = resolvedBatch;
+
+    if (resolvedBatch === 'all') {
+      renderIrregularVerbsTable(allVerbs, null);
+    } else {
+      // Step 4 — second request only when a specific batch is selected.
+      if (tableHost) tableHost.innerHTML = '<div class="notice">Loading batch…</div>';
+      const bRes  = await fetch(`${API_IRREGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}&id=${encodeURIComponent(resolvedBatch)}`);
+      const bData = await bRes.json().catch(() => ({}));
+      if (!bRes.ok || !bData.ok) throw new Error(bData.error || `HTTP ${bRes.status}`);
+      renderIrregularVerbsTable(bData.batch.verbs, bData.batch);
+    }
+  } catch (e) {
+    if (batchSelect) batchSelect.innerHTML = '<option value="">Could not load batches</option>';
+    if (tableHost)   tableHost.innerHTML = `<div class="notice">Could not load batches: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function triggerGenerateVerbs(level) {
+  const statusEl  = document.getElementById('verbs-status');
+  const tableHost = document.getElementById('verbs-table-host');
+  const genBtn    = document.getElementById('verbs-generate-btn');
+
+  if (statusEl)  { statusEl.style.display = 'block'; statusEl.textContent = `Generating 5 verbs at level ${level}… this may take 20–40 seconds.`; }
+  if (tableHost) tableHost.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--muted);font-size:13px;margin-top:8px">AI is generating irregular verbs at level ${escapeHtml(level)}…</p></div>`;
+  if (genBtn)    genBtn.disabled = true;
+
+  try {
+    const res  = await fetch(`${API_IRREGULAR_VERBS}/generate`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ profileId: FIXED_PROFILE_ID, level }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const newCount = data.batch.verbs.length;
+    if (statusEl) statusEl.textContent = `Added ${newCount} new verb${newCount !== 1 ? 's' : ''} (level ${data.batch.level}, batch #${data.batch.id}). Refreshing full list…`;
+
+    // Re-fetch everything so the table always shows the complete database state
+    await loadIrregularVerbBatches();
+    if (statusEl) statusEl.textContent = statusEl.textContent.replace('Refreshing full list…', 'Done.');
+  } catch (e) {
+    if (statusEl)  statusEl.textContent = `Generation failed: ${e.message}`;
+    if (tableHost) tableHost.innerHTML = `<div class="notice">Generation failed: ${escapeHtml(e.message)}</div>`;
+  } finally {
+    if (genBtn) genBtn.disabled = false;
+  }
+}
+
+async function triggerGenerateAllIrregularVerbs(level) {
+  const statusEl  = document.getElementById('verbs-status');
+  const tableHost = document.getElementById('verbs-table-host');
+  const genBtn    = document.getElementById('verbs-generate-btn');
+  const allBtn    = document.getElementById('verbs-generateall-btn');
+
+  [genBtn, allBtn].forEach((b) => b && (b.disabled = true));
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'Checking database…'; }
+
+  let masterTotal = 0, unseenCount = 0;
+  try {
+    const r = await fetch(`${API_IRREGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) { masterTotal = d.masterTotal || 0; unseenCount = d.unseenCount || 0; }
+  } catch (_) {}
+
+  if (!masterTotal) {
+    if (statusEl) statusEl.textContent = 'Could not reach server.';
+    [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+    return;
+  }
+  if (unseenCount === 0) {
+    if (statusEl) statusEl.textContent = `All ${masterTotal} irregular verbs are already in the database.`;
+    await loadIrregularVerbBatches();
+    [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+    return;
+  }
+
+  if (tableHost) tableHost.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p id="verbs-fill-progress" style="color:var(--muted);font-size:13px;margin-top:8px">Auto-filling ${unseenCount} missing irregular verbs at level ${escapeHtml(level)}… please wait.</p></div>`;
+  if (statusEl) statusEl.textContent = `Filling: ${masterTotal - unseenCount} / ${masterTotal} saved…`;
+
+  let consecutiveErrors = 0;
+  const MAX_ERRORS = 3;
+
+  while (unseenCount > 0 && consecutiveErrors < MAX_ERRORS) {
+    try {
+      const r = await fetch(`${API_IRREGULAR_VERBS}/generate`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: FIXED_PROFILE_ID, level }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) throw new Error(d.error || `HTTP ${r.status}`);
+
+      const cr = await fetch(`${API_IRREGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+      const cd = await cr.json().catch(() => ({}));
+      if (cr.ok && cd.ok) { masterTotal = cd.masterTotal || masterTotal; unseenCount = cd.unseenCount ?? unseenCount; }
+
+      consecutiveErrors = 0;
+      const saved = masterTotal - unseenCount;
+      if (statusEl) statusEl.textContent = `Filling: ${saved} / ${masterTotal} saved…`;
+      const pEl = document.getElementById('verbs-fill-progress');
+      if (pEl) pEl.textContent = `Auto-filling irregular verbs at level ${level}… ${saved} / ${masterTotal} done.`;
+    } catch (e) {
+      consecutiveErrors++;
+      if (statusEl) statusEl.textContent = `Error (${consecutiveErrors}/${MAX_ERRORS}): ${escapeHtml(e.message)}. Retrying…`;
+    }
+  }
+
+  await loadIrregularVerbBatches();
+  const saved = masterTotal - unseenCount;
+  if (statusEl) statusEl.textContent = unseenCount === 0
+    ? `Done — all ${masterTotal} irregular verbs are now in the database.`
+    : `Stopped at ${saved} / ${masterTotal} after ${MAX_ERRORS} consecutive errors.`;
+  [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+}
+
+function buildIrregularVerbsSection() {
+  const ws = document.getElementById('workspace');
+  document.getElementById('stage-title').textContent = 'Irregular Verbs';
+  document.getElementById('stage-meta').textContent  = 'Generate and study English irregular verbs with all forms, Spanish translations, IPA, and UK / US audio.';
+  document.getElementById('live-step').textContent   = 'Extra';
+
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Irregular Verbs</h3>
+      <p style="margin-bottom:12px">Use <strong>Generate All Missing</strong> to auto-fill the entire master list in one click, or <strong>Generate 5</strong> for an incremental batch.</p>
+
+      <div class="verbs-toolbar">
+        <label style="font-size:12px;font-weight:700;color:#27323d">Level:</label>
+        <select id="verbs-level" style="width:auto">
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="B1" selected>B1</option>
+          <option value="B2">B2</option>
+          <option value="C1">C1</option>
+        </select>
+        <button class="btn-primary" id="verbs-generateall-btn" style="background:var(--accent-2);border-color:var(--accent-2)">Generate All Missing (AI)</button>
+        <button class="btn-primary" id="verbs-generate-btn">+ 5 more</button>
+        <select id="verbs-batch-select" style="width:auto;flex:1;min-width:160px">
+          <option value="">Loading batches…</option>
+        </select>
+      </div>
+
+      <div id="verbs-status" class="notice" style="display:none;margin-bottom:10px"></div>
+      <div id="verbs-table-host"><div class="notice">Loading saved batches…</div></div>
+    </div>
+  `;
+
+  document.getElementById('verbs-generateall-btn').addEventListener('click', () => {
+    const level = document.getElementById('verbs-level')?.value || 'B1';
+    triggerGenerateAllIrregularVerbs(level);
+  });
+
+  document.getElementById('verbs-generate-btn').addEventListener('click', () => {
+    const level = document.getElementById('verbs-level')?.value || 'B1';
+    triggerGenerateVerbs(level);
+  });
+
+  document.getElementById('verbs-batch-select').addEventListener('change', (e) => {
+    loadIrregularVerbBatches(e.target.value);
+  });
+
+  loadIrregularVerbBatches();
+}
+
+// ── Regular Verbs ─────────────────────────────────────────────────────────────
+
+const API_REGULAR_VERBS = '/api/teacher/regular-verbs';
+
+function renderRegularVerbsTable(verbs, batchInfo) {
+  const el = document.getElementById('rverbs-table-host');
+  if (!el) return;
+
+  const safeVerbs = Array.isArray(verbs) ? verbs : [];
+  if (!safeVerbs.length) {
+    el.innerHTML = '<div class="notice">No verb data in this batch.</div>';
+    return;
+  }
+
+  const rows = safeVerbs.map((v) => {
+    const forms   = v.forms || {};
+    const pron    = v.pronunciation || {};
+    const ukIpa   = pron.uk && pron.uk.ipa ? pron.uk.ipa : '';
+    const usIpa   = pron.us && pron.us.ipa ? pron.us.ipa : '';
+    const meanings = Array.isArray(v.translation_es) ? v.translation_es.join(', ') : (v.translation_es || '');
+    const tenses  = Array.isArray(v.tenses_usage) ? v.tenses_usage.map((t) => `<span class="tense-pill">${escapeHtml(t)}</span>`).join('') : '';
+    const examples = Array.isArray(v.examples) ? v.examples.slice(0, 2) : [];
+    const exHtml  = examples.map((ex) => `
+      <div class="verb-example">${escapeHtml(ex.en || '')}</div>
+      <div class="verb-example-es">${escapeHtml(ex.es || '')}</div>
+    `).join('<div style="height:4px"></div>');
+    const tagHtml = Array.isArray(v.tags) ? `<div class="verb-tags">${v.tags.map((t) => `<span class="verb-tag">${escapeHtml(t)}</span>`).join('')}</div>` : '';
+
+    return `<tr>
+      <td>
+        <div class="verb-base">${escapeHtml(v.base_form || '')}</div>
+        ${ukIpa ? `<span class="verb-ipa">UK ${escapeHtml(ukIpa)}</span>` : ''}
+        ${usIpa ? `<span class="verb-ipa">US ${escapeHtml(usIpa)}</span>` : ''}
+        ${tagHtml}
+      </td>
+      <td class="verb-form-cell">
+        ${escapeHtml(forms.past_simple || '-')}
+        ${forms.past_simple ? `<div style="margin-top:4px;display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn-uk" data-verb="${escapeAttr(forms.past_simple)}" data-accent="uk">&#127468;&#127463; UK</button>
+          <button class="btn-us" data-verb="${escapeAttr(forms.past_simple)}" data-accent="us">&#127482;&#127480; US</button>
+        </div>` : ''}
+      </td>
+      <td class="verb-form-cell">
+        ${escapeHtml(forms.past_participle || '-')}
+        ${forms.past_participle ? `<div style="margin-top:4px;display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn-uk" data-verb="${escapeAttr(forms.past_participle)}" data-accent="uk">&#127468;&#127463; UK</button>
+          <button class="btn-us" data-verb="${escapeAttr(forms.past_participle)}" data-accent="us">&#127482;&#127480; US</button>
+        </div>` : ''}
+      </td>
+      <td class="verb-form-cell">${escapeHtml(forms.third_person_singular   || '-')}</td>
+      <td class="verb-form-cell">${escapeHtml(forms.present_participle      || '-')}</td>
+      <td><div class="verb-meaning">${escapeHtml(meanings || '-')}</div></td>
+      <td>${tenses || '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td>${exHtml || '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td>
+        <button class="btn-uk" data-verb="${escapeAttr(v.base_form || '')}" data-accent="uk">&#127468;&#127463; UK</button>
+        <button class="btn-us" data-verb="${escapeAttr(v.base_form || '')}" data-accent="us">&#127482;&#127480; US</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const stamp = batchInfo && batchInfo.createdAt ? new Date(batchInfo.createdAt).toLocaleString() : '';
+  const meta  = batchInfo
+    ? `Batch #${batchInfo.id} &middot; Level <strong>${escapeHtml(batchInfo.level || '-')}</strong> &middot; ${escapeHtml(batchInfo.batchName || '')} &middot; ${escapeHtml(stamp)}`
+    : `<strong>All verbs — complete database (${safeVerbs.length})</strong>`;
+
+  el.innerHTML = `
+    ${meta ? `<p style="font-size:12px;color:var(--muted);margin-bottom:8px">${meta}</p>` : ''}
+    <div class="verbs-table-wrap">
+      <table class="verbs-table">
+        <thead>
+          <tr>
+            <th>Base Form</th>
+            <th>Past Simple</th>
+            <th>Past Participle</th>
+            <th>3rd Person Sing.</th>
+            <th>-ing Form</th>
+            <th>Meaning (ES)</th>
+            <th>Tenses</th>
+            <th>Examples</th>
+            <th>Audio</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+
+  el.querySelectorAll('[data-verb]').forEach((btn) => {
+    btn.addEventListener('click', () => speakVerbAccent(btn.dataset.verb, btn.dataset.accent));
+  });
+}
+
+async function loadRegularVerbBatches(targetBatchId = 'all') {
+  const batchSelect = document.getElementById('rverbs-batch-select');
+  const tableHost   = document.getElementById('rverbs-table-host');
+  const catSelect   = document.getElementById('rverbs-category');
+  if (!batchSelect) return;
+
+  try {
+    const res  = await fetch(`${API_REGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const batches       = Array.isArray(data.batches)    ? data.batches    : [];
+    const allVerbs      = Array.isArray(data.allVerbs)   ? data.allVerbs   : [];
+    const categories    = Array.isArray(data.categories) ? data.categories : [];
+    const categoryStats = data.categoryStats || {};
+    const totalInDB     = data.totalInDB != null ? data.totalInDB : allVerbs.length;
+
+    if (catSelect && catSelect.options.length <= 1 && categories.length) {
+      catSelect.innerHTML = categories.map((c) => {
+        const count = Object.entries(categoryStats).filter(([k]) => k.startsWith(c + '|||')).reduce((s, [, v]) => s + v, 0);
+        return `<option value="${escapeAttr(c)}">${escapeHtml(c)}${count ? ` (${count})` : ''}</option>`;
+      }).join('');
+    }
+
+    if (!batches.length) {
+      batchSelect.innerHTML = '<option value="">No batches yet</option>';
+      if (tableHost) tableHost.innerHTML = '<div class="notice">No verbs saved yet. Choose a category and level, then click "+ 5 more".</div>';
+      return;
+    }
+
+    batchSelect.innerHTML =
+      `<option value="all">All verbs (${totalInDB})</option>` +
+      batches.map((b) => {
+        const stamp = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '';
+        const cat   = b.category ? `${b.category} · ` : '';
+        const label = `${cat}${b.level} · ${stamp} · #${b.id}`;
+        return `<option value="${escapeAttr(String(b.id))}">${escapeHtml(label)}</option>`;
+      }).join('');
+
+    const batchIdStr    = String(targetBatchId || 'all');
+    const batchExists   = batches.some((b) => String(b.id) === batchIdStr);
+    const resolvedBatch = batchExists ? batchIdStr : 'all';
+    batchSelect.value   = resolvedBatch;
+
+    if (resolvedBatch === 'all') {
+      renderRegularVerbsTable(allVerbs, null);
+    } else {
+      if (tableHost) tableHost.innerHTML = '<div class="notice">Loading batch…</div>';
+      const bRes  = await fetch(`${API_REGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}&id=${encodeURIComponent(resolvedBatch)}`);
+      const bData = await bRes.json().catch(() => ({}));
+      if (!bRes.ok || !bData.ok) throw new Error(bData.error || `HTTP ${bRes.status}`);
+      renderRegularVerbsTable(bData.batch.verbs, bData.batch);
+    }
+  } catch (e) {
+    if (batchSelect) batchSelect.innerHTML = '<option value="">Could not load batches</option>';
+    if (tableHost)   tableHost.innerHTML = `<div class="notice">Could not load batches: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function triggerGenerateRegularVerbs(level) {
+  const statusEl  = document.getElementById('rverbs-status');
+  const tableHost = document.getElementById('rverbs-table-host');
+  const genBtn    = document.getElementById('rverbs-generate-btn');
+  const category  = document.getElementById('rverbs-category')?.value || 'Movement & Physical Actions';
+
+  if (statusEl)  { statusEl.style.display = 'block'; statusEl.textContent = `Generating 5 verbs (${category}, ${level})… this may take 20–40 seconds.`; }
+  if (tableHost) tableHost.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--muted);font-size:13px;margin-top:8px">AI is generating regular verbs — ${escapeHtml(category)} · ${escapeHtml(level)}…</p></div>`;
+  if (genBtn)    genBtn.disabled = true;
+
+  try {
+    const res  = await fetch(`${API_REGULAR_VERBS}/generate`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ profileId: FIXED_PROFILE_ID, level, category }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const newCount = data.batch.verbs.length;
+    if (statusEl) statusEl.textContent = `Added ${newCount} new verb${newCount !== 1 ? 's' : ''} (${category}, ${data.batch.level}, batch #${data.batch.id}). Refreshing…`;
+
+    await loadRegularVerbBatches();
+    if (statusEl) statusEl.textContent = statusEl.textContent.replace('Refreshing…', 'Done.');
+  } catch (e) {
+    if (statusEl)  statusEl.textContent = `Generation failed: ${e.message}`;
+    if (tableHost) tableHost.innerHTML = `<div class="notice">Generation failed: ${escapeHtml(e.message)}</div>`;
+  } finally {
+    if (genBtn) genBtn.disabled = false;
+  }
+}
+
+async function triggerGenerateAllRegularVerbs(level) {
+  const statusEl = document.getElementById('rverbs-status');
+  const tableHost = document.getElementById('rverbs-table-host');
+  const genBtn    = document.getElementById('rverbs-generate-btn');
+  const allBtn    = document.getElementById('rverbs-generateall-btn');
+
+  [genBtn, allBtn].forEach((b) => b && (b.disabled = true));
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'Fetching categories…'; }
+
+  let categories = [];
+  try {
+    const r = await fetch(`${API_REGULAR_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok && Array.isArray(d.categories)) categories = d.categories;
+  } catch (_) {}
+
+  if (!categories.length) {
+    if (statusEl) statusEl.textContent = 'Could not reach server.';
+    [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+    return;
+  }
+
+  const total = categories.length;
+  if (tableHost) tableHost.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p id="rverbs-fill-progress" style="color:var(--muted);font-size:13px;margin-top:8px">Generating one block per category at level ${escapeHtml(level)}… 0 / ${total} done.</p></div>`;
+  if (statusEl) statusEl.textContent = `Generating: 0 / ${total} categories at level ${level}…`;
+
+  let done = 0, consecutiveErrors = 0;
+  const MAX_ERRORS = 3;
+
+  for (const category of categories) {
+    if (consecutiveErrors >= MAX_ERRORS) break;
+    try {
+      const r = await fetch(`${API_REGULAR_VERBS}/generate`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: FIXED_PROFILE_ID, level, category }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) throw new Error(d.error || `HTTP ${r.status}`);
+      consecutiveErrors = 0;
+    } catch (e) {
+      consecutiveErrors++;
+    }
+    done++;
+    if (statusEl) statusEl.textContent = `Generating: ${done} / ${total} categories at level ${level}…`;
+    const pEl = document.getElementById('rverbs-fill-progress');
+    if (pEl) pEl.textContent = `Generating one block per category at level ${level}… ${done} / ${total} done.`;
+  }
+
+  await loadRegularVerbBatches();
+  if (statusEl) statusEl.textContent = consecutiveErrors >= MAX_ERRORS
+    ? `Stopped after ${MAX_ERRORS} consecutive errors (${done} / ${total} categories processed).`
+    : `Done — generated ${done} category blocks at level ${level}.`;
+  [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+}
+
+function buildRegularVerbsSection() {
+  const ws = document.getElementById('workspace');
+  document.getElementById('stage-title').textContent = 'Regular Verbs';
+  document.getElementById('stage-meta').textContent  = 'Generate and study English regular verbs with all forms, Spanish translations, IPA, and UK / US audio.';
+  document.getElementById('live-step').textContent   = 'Extra';
+
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Regular Verbs</h3>
+      <p style="margin-bottom:12px">Pick a <strong>Category</strong> and <strong>Level</strong>, then <strong>+ 5 more</strong> for one block, or <strong>Generate All Categories (AI)</strong> to fill one block per category in sequence.</p>
+
+      <div class="verbs-toolbar">
+        <label style="font-size:12px;font-weight:700;color:#27323d">Category:</label>
+        <select id="rverbs-category" style="width:auto;max-width:220px">
+          <option value="">Loading…</option>
+        </select>
+        <label style="font-size:12px;font-weight:700;color:#27323d">Level:</label>
+        <select id="rverbs-level" style="width:auto">
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="B1" selected>B1</option>
+          <option value="B2">B2</option>
+          <option value="C1">C1</option>
+        </select>
+        <button class="btn-primary" id="rverbs-generateall-btn" style="background:var(--accent-2);border-color:var(--accent-2)">Generate All Categories (AI)</button>
+        <button class="btn-primary" id="rverbs-generate-btn">+ 5 more</button>
+        <select id="rverbs-batch-select" style="width:auto;flex:1;min-width:160px">
+          <option value="">Loading batches…</option>
+        </select>
+      </div>
+
+      <div id="rverbs-status" class="notice" style="display:none;margin-bottom:10px"></div>
+      <div id="rverbs-table-host"><div class="notice">Loading saved batches…</div></div>
+    </div>
+  `;
+
+  document.getElementById('rverbs-generateall-btn').addEventListener('click', () => {
+    const level = document.getElementById('rverbs-level')?.value || 'B1';
+    triggerGenerateAllRegularVerbs(level);
+  });
+
+  document.getElementById('rverbs-generate-btn').addEventListener('click', () => {
+    const level = document.getElementById('rverbs-level')?.value || 'B1';
+    triggerGenerateRegularVerbs(level);
+  });
+
+  document.getElementById('rverbs-batch-select').addEventListener('change', (e) => {
+    loadRegularVerbBatches(e.target.value);
+  });
+
+  loadRegularVerbBatches();
+}
+
+// ── Phrasal Verbs ─────────────────────────────────────────────────────────────
+
+const API_PHRASAL_VERBS = '/api/teacher/phrasal-verbs';
+
+function renderPhrasalVerbsTable(verbs, batchInfo) {
+  const el = document.getElementById('pverbs-table-host');
+  if (!el) return;
+
+  const safeVerbs = Array.isArray(verbs) ? verbs : [];
+  if (!safeVerbs.length) {
+    el.innerHTML = '<div class="notice">No verb data in this batch.</div>';
+    return;
+  }
+
+  const rows = safeVerbs.map((v) => {
+    const forms    = v.forms || {};
+    const pron     = v.pronunciation || {};
+    const ukIpa    = pron.uk && pron.uk.ipa ? pron.uk.ipa : '';
+    const usIpa    = pron.us && pron.us.ipa ? pron.us.ipa : '';
+    const meanings = Array.isArray(v.translation_es) ? v.translation_es.join(', ') : (v.translation_es || '');
+    const tenses   = Array.isArray(v.tenses_usage) ? v.tenses_usage.map((t) => `<span class="tense-pill">${escapeHtml(t)}</span>`).join('') : '';
+    const examples = Array.isArray(v.examples) ? v.examples.slice(0, 2) : [];
+    const exHtml   = examples.map((ex) => `
+      <div class="verb-example">${escapeHtml(ex.en || '')}</div>
+      <div class="verb-example-es">${escapeHtml(ex.es || '')}</div>
+    `).join('<div style="height:4px"></div>');
+    const tagHtml  = Array.isArray(v.tags) ? `<div class="verb-tags">${v.tags.map((t) => `<span class="verb-tag">${escapeHtml(t)}</span>`).join('')}</div>` : '';
+    const typeTag  = v.type ? `<span class="verb-tag" style="background:#e8f0fe;border-color:#c5d4f5;color:#2d5bb7">${escapeHtml(v.type)}</span>` : '';
+
+    return `<tr>
+      <td>
+        <div class="verb-base">${escapeHtml(v.base_form || '')}</div>
+        ${ukIpa ? `<span class="verb-ipa">UK ${escapeHtml(ukIpa)}</span>` : ''}
+        ${usIpa ? `<span class="verb-ipa">US ${escapeHtml(usIpa)}</span>` : ''}
+        <div class="verb-tags">${typeTag}</div>
+        ${tagHtml}
+      </td>
+      <td class="verb-form-cell">
+        ${escapeHtml(forms.past_simple || '-')}
+        ${forms.past_simple ? `<div style="margin-top:4px;display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn-uk" data-verb="${escapeAttr(forms.past_simple)}" data-accent="uk">&#127468;&#127463; UK</button>
+          <button class="btn-us" data-verb="${escapeAttr(forms.past_simple)}" data-accent="us">&#127482;&#127480; US</button>
+        </div>` : ''}
+      </td>
+      <td class="verb-form-cell">
+        ${escapeHtml(forms.past_participle || '-')}
+        ${forms.past_participle ? `<div style="margin-top:4px;display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn-uk" data-verb="${escapeAttr(forms.past_participle)}" data-accent="uk">&#127468;&#127463; UK</button>
+          <button class="btn-us" data-verb="${escapeAttr(forms.past_participle)}" data-accent="us">&#127482;&#127480; US</button>
+        </div>` : ''}
+      </td>
+      <td class="verb-form-cell">${escapeHtml(forms.third_person_singular   || '-')}</td>
+      <td class="verb-form-cell">${escapeHtml(forms.present_participle      || '-')}</td>
+      <td><div class="verb-meaning">${escapeHtml(meanings || '-')}</div></td>
+      <td>${tenses || '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td>${exHtml || '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td>
+        <button class="btn-uk" data-verb="${escapeAttr(v.base_form || '')}" data-accent="uk">&#127468;&#127463; UK</button>
+        <button class="btn-us" data-verb="${escapeAttr(v.base_form || '')}" data-accent="us">&#127482;&#127480; US</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const stamp = batchInfo && batchInfo.createdAt ? new Date(batchInfo.createdAt).toLocaleString() : '';
+  const meta  = batchInfo
+    ? `Batch #${batchInfo.id} &middot; Level <strong>${escapeHtml(batchInfo.level || '-')}</strong> &middot; ${escapeHtml(batchInfo.batchName || '')} &middot; ${escapeHtml(stamp)}`
+    : `<strong>All phrasal verbs — complete database (${safeVerbs.length})</strong>`;
+
+  el.innerHTML = `
+    ${meta ? `<p style="font-size:12px;color:var(--muted);margin-bottom:8px">${meta}</p>` : ''}
+    <div class="verbs-table-wrap">
+      <table class="verbs-table">
+        <thead>
+          <tr>
+            <th>Phrasal Verb</th>
+            <th>Past Simple</th>
+            <th>Past Participle</th>
+            <th>3rd Person Sing.</th>
+            <th>-ing Form</th>
+            <th>Meaning (ES)</th>
+            <th>Tenses</th>
+            <th>Examples</th>
+            <th>Audio</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+
+  el.querySelectorAll('[data-verb]').forEach((btn) => {
+    btn.addEventListener('click', () => speakVerbAccent(btn.dataset.verb, btn.dataset.accent));
+  });
+}
+
+async function loadPhrasalVerbBatches(targetBatchId = 'all') {
+  const batchSelect = document.getElementById('pverbs-batch-select');
+  const tableHost   = document.getElementById('pverbs-table-host');
+  const catSelect   = document.getElementById('pverbs-category');
+  if (!batchSelect) return;
+
+  try {
+    const res  = await fetch(`${API_PHRASAL_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const batches       = Array.isArray(data.batches)    ? data.batches    : [];
+    const allVerbs      = Array.isArray(data.allVerbs)   ? data.allVerbs   : [];
+    const categories    = Array.isArray(data.categories) ? data.categories : [];
+    const categoryStats = data.categoryStats || {};
+    const totalInDB     = data.totalInDB != null ? data.totalInDB : allVerbs.length;
+
+    if (catSelect && catSelect.options.length <= 1 && categories.length) {
+      catSelect.innerHTML = categories.map((c) => {
+        const count = Object.entries(categoryStats).filter(([k]) => k.startsWith(c + '|||')).reduce((s, [, v]) => s + v, 0);
+        return `<option value="${escapeAttr(c)}">${escapeHtml(c)}${count ? ` (${count})` : ''}</option>`;
+      }).join('');
+    }
+
+    if (!batches.length) {
+      batchSelect.innerHTML = '<option value="">No batches yet</option>';
+      if (tableHost) tableHost.innerHTML = '<div class="notice">No phrasal verbs saved yet. Choose a category and level, then click "+ 5 more".</div>';
+      return;
+    }
+
+    batchSelect.innerHTML =
+      `<option value="all">All phrasal verbs (${totalInDB})</option>` +
+      batches.map((b) => {
+        const stamp = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '';
+        const cat   = b.category ? `${b.category} · ` : '';
+        const label = `${cat}${b.level} · ${stamp} · #${b.id}`;
+        return `<option value="${escapeAttr(String(b.id))}">${escapeHtml(label)}</option>`;
+      }).join('');
+
+    const batchIdStr    = String(targetBatchId || 'all');
+    const batchExists   = batches.some((b) => String(b.id) === batchIdStr);
+    const resolvedBatch = batchExists ? batchIdStr : 'all';
+    batchSelect.value   = resolvedBatch;
+
+    if (resolvedBatch === 'all') {
+      renderPhrasalVerbsTable(allVerbs, null);
+    } else {
+      if (tableHost) tableHost.innerHTML = '<div class="notice">Loading batch…</div>';
+      const bRes  = await fetch(`${API_PHRASAL_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}&id=${encodeURIComponent(resolvedBatch)}`);
+      const bData = await bRes.json().catch(() => ({}));
+      if (!bRes.ok || !bData.ok) throw new Error(bData.error || `HTTP ${bRes.status}`);
+      renderPhrasalVerbsTable(bData.batch.verbs, bData.batch);
+    }
+  } catch (e) {
+    if (batchSelect) batchSelect.innerHTML = '<option value="">Could not load batches</option>';
+    if (tableHost)   tableHost.innerHTML = `<div class="notice">Could not load batches: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function triggerGeneratePhrasalVerbs(level) {
+  const statusEl  = document.getElementById('pverbs-status');
+  const tableHost = document.getElementById('pverbs-table-host');
+  const genBtn    = document.getElementById('pverbs-generate-btn');
+  const category  = document.getElementById('pverbs-category')?.value || 'Movement & Direction';
+
+  if (statusEl)  { statusEl.style.display = 'block'; statusEl.textContent = `Generating 5 phrasal verbs (${category}, ${level})… this may take 20–40 seconds.`; }
+  if (tableHost) tableHost.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--muted);font-size:13px;margin-top:8px">AI is generating phrasal verbs — ${escapeHtml(category)} · ${escapeHtml(level)}…</p></div>`;
+  if (genBtn)    genBtn.disabled = true;
+
+  try {
+    const res  = await fetch(`${API_PHRASAL_VERBS}/generate`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ profileId: FIXED_PROFILE_ID, level, category }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const newCount = data.batch.verbs.length;
+    if (statusEl) statusEl.textContent = `Added ${newCount} new phrasal verb${newCount !== 1 ? 's' : ''} (${category}, ${data.batch.level}, batch #${data.batch.id}). Refreshing…`;
+
+    await loadPhrasalVerbBatches();
+    if (statusEl) statusEl.textContent = statusEl.textContent.replace('Refreshing…', 'Done.');
+  } catch (e) {
+    if (statusEl)  statusEl.textContent = `Generation failed: ${e.message}`;
+    if (tableHost) tableHost.innerHTML = `<div class="notice">Generation failed: ${escapeHtml(e.message)}</div>`;
+  } finally {
+    if (genBtn) genBtn.disabled = false;
+  }
+}
+
+async function triggerGenerateAllPhrasalVerbs(level) {
+  const statusEl  = document.getElementById('pverbs-status');
+  const tableHost = document.getElementById('pverbs-table-host');
+  const genBtn    = document.getElementById('pverbs-generate-btn');
+  const allBtn    = document.getElementById('pverbs-generateall-btn');
+
+  [genBtn, allBtn].forEach((b) => b && (b.disabled = true));
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'Fetching categories…'; }
+
+  let categories = [];
+  try {
+    const r = await fetch(`${API_PHRASAL_VERBS}?profileId=${encodeURIComponent(FIXED_PROFILE_ID)}`);
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok && Array.isArray(d.categories)) categories = d.categories;
+  } catch (_) {}
+
+  if (!categories.length) {
+    if (statusEl) statusEl.textContent = 'Could not reach server.';
+    [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+    return;
+  }
+
+  const total = categories.length;
+  if (tableHost) tableHost.innerHTML = `<div class="card"><div class="loading-dots"><span></span><span></span><span></span></div><p id="pverbs-fill-progress" style="color:var(--muted);font-size:13px;margin-top:8px">Generating one block per category at level ${escapeHtml(level)}… 0 / ${total} done.</p></div>`;
+  if (statusEl) statusEl.textContent = `Generating: 0 / ${total} categories at level ${level}…`;
+
+  let done = 0, consecutiveErrors = 0;
+  const MAX_ERRORS = 3;
+
+  for (const category of categories) {
+    if (consecutiveErrors >= MAX_ERRORS) break;
+    try {
+      const r = await fetch(`${API_PHRASAL_VERBS}/generate`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: FIXED_PROFILE_ID, level, category }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) throw new Error(d.error || `HTTP ${r.status}`);
+      consecutiveErrors = 0;
+    } catch (e) {
+      consecutiveErrors++;
+    }
+    done++;
+    if (statusEl) statusEl.textContent = `Generating: ${done} / ${total} categories at level ${level}…`;
+    const pEl = document.getElementById('pverbs-fill-progress');
+    if (pEl) pEl.textContent = `Generating one block per category at level ${level}… ${done} / ${total} done.`;
+  }
+
+  await loadPhrasalVerbBatches();
+  if (statusEl) statusEl.textContent = consecutiveErrors >= MAX_ERRORS
+    ? `Stopped after ${MAX_ERRORS} consecutive errors (${done} / ${total} categories processed).`
+    : `Done — generated ${done} category blocks at level ${level}.`;
+  [genBtn, allBtn].forEach((b) => b && (b.disabled = false));
+}
+
+function buildPhrasalVerbsSection() {
+  const ws = document.getElementById('workspace');
+  document.getElementById('stage-title').textContent = 'Phrasal Verbs';
+  document.getElementById('stage-meta').textContent  = 'Generate and study English phrasal verbs with all forms, type (separable/inseparable), Spanish translations, IPA, and UK / US audio.';
+  document.getElementById('live-step').textContent   = 'Extra';
+
+  ws.innerHTML = `
+    <div class="card">
+      <h3>Phrasal Verbs</h3>
+      <p style="margin-bottom:12px">Pick a <strong>Category</strong> and <strong>Level</strong>, then <strong>+ 5 more</strong> for one block, or <strong>Generate All Categories (AI)</strong> to fill one block per category in sequence.</p>
+
+      <div class="verbs-toolbar">
+        <label style="font-size:12px;font-weight:700;color:#27323d">Category:</label>
+        <select id="pverbs-category" style="width:auto;max-width:220px">
+          <option value="">Loading…</option>
+        </select>
+        <label style="font-size:12px;font-weight:700;color:#27323d">Level:</label>
+        <select id="pverbs-level" style="width:auto">
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="B1" selected>B1</option>
+          <option value="B2">B2</option>
+          <option value="C1">C1</option>
+        </select>
+        <button class="btn-primary" id="pverbs-generateall-btn" style="background:var(--accent-2);border-color:var(--accent-2)">Generate All Categories (AI)</button>
+        <button class="btn-primary" id="pverbs-generate-btn">+ 5 more</button>
+        <select id="pverbs-batch-select" style="width:auto;flex:1;min-width:160px">
+          <option value="">Loading batches…</option>
+        </select>
+      </div>
+
+      <div id="pverbs-status" class="notice" style="display:none;margin-bottom:10px"></div>
+      <div id="pverbs-table-host"><div class="notice">Loading saved batches…</div></div>
+    </div>
+  `;
+
+  document.getElementById('pverbs-generateall-btn').addEventListener('click', () => {
+    const level = document.getElementById('pverbs-level')?.value || 'B1';
+    triggerGenerateAllPhrasalVerbs(level);
+  });
+
+  document.getElementById('pverbs-generate-btn').addEventListener('click', () => {
+    const level = document.getElementById('pverbs-level')?.value || 'B1';
+    triggerGeneratePhrasalVerbs(level);
+  });
+
+  document.getElementById('pverbs-batch-select').addEventListener('change', (e) => {
+    loadPhrasalVerbBatches(e.target.value);
+  });
+
+  loadPhrasalVerbBatches();
+}
+
+function init() {
+  const profileInput = document.getElementById('profile-id');
+  profileInput.value = FIXED_PROFILE_ID;
+  profileInput.readOnly = true;
+  profileInput.disabled = true;
+  profileInput.title = 'Fixed profile user';
+
+  const nextSession = (Number(state.sessionHistoryCount) || 0) + 1;
+  document.getElementById('session-number').value = String(nextSession);
+
+  setVoiceStatus();
+  renderScores();
+  loadContentPackOptions().catch(() => {});
+
+  const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+  const layoutEl         = document.querySelector('.layout');
+  if (sidebarToggleBtn && layoutEl) {
+    sidebarToggleBtn.addEventListener('click', () => {
+      const open = layoutEl.classList.toggle('sidebar-open');
+      sidebarToggleBtn.textContent = open ? '✕ Close' : '☰ Menu';
+    });
+  }
+
+  document.getElementById('open-irregular-verbs').addEventListener('click', buildIrregularVerbsSection);
+  document.getElementById('open-regular-verbs').addEventListener('click', buildRegularVerbsSection);
+  document.getElementById('open-phrasal-verbs').addEventListener('click', buildPhrasalVerbsSection);
+  document.getElementById('start-session').addEventListener('click', startSession);
+  document.getElementById('load-latest').addEventListener('click', loadLatestState);
+  document.getElementById('open-settings').addEventListener('click', openSettingsScreen);
+  document.getElementById('open-results').addEventListener('click', () => openResultsScreen(false));
+  document.getElementById('refresh-packs').addEventListener('click', () => {
+    loadContentPackOptions().catch(() => {});
+  });
+  document.getElementById('content-pack-select').addEventListener('change', (e) => {
+    state.selectedContentPackId = String(e.target.value || '').trim();
+    previewSelectedContentPack(state.selectedContentPackId).catch(() => {});
+  });
+  // generate-log and save-state buttons removed — auto-handled by openResultsScreen()
+
+  document.getElementById('mic-test').addEventListener('click', () => {
+    startASR((text) => {
+      document.getElementById('setup-notice').textContent = `Mic test transcript: ${text || '(no speech detected)'}`;
+    });
+  });
+
+  document.getElementById('speak-instruction').addEventListener('click', () => {
+    speak('Respond with voice. Speak now.');
+  });
+
+  document.getElementById('recording-stop-btn').addEventListener('click', () => {
+    stopActiveRecording();
+  });
+
+  renderVocabularyCardDeck([], 'No cards yet. They will be generated in the Vocabulary step and saved per session.');
+}
+
+init();
+</script>
+</body>
+</html>

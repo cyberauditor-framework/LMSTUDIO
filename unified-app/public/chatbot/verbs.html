@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<title>Verb Engine — English Chatbot</title>
+<style>
+:root {
+  --bg: var(--vscode-editor-background, #111827);
+  --panel: var(--vscode-sideBar-background, #1f2937);
+  --panel2: var(--vscode-editorWidget-background, #1f2937);
+  --text: var(--vscode-editor-foreground, #e5e7eb);
+  --muted: var(--vscode-descriptionForeground, #94a3b8);
+  --accent: var(--vscode-focusBorder, #60a5fa);
+  --border: var(--vscode-widget-border, #334155);
+  --btnText: var(--vscode-button-foreground, #ffffff);
+  --btnBg: var(--vscode-button-background, #2563eb);
+  --btnBgHover: var(--vscode-button-hoverBackground, #1d4ed8);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 8% -12%, color-mix(in srgb, var(--accent) 20%, transparent) 0%, transparent 48%),
+    radial-gradient(900px 500px at 95% 5%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 50%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--vscode-font-family, 'Segoe UI'), system-ui, sans-serif;
+}
+.hub-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #212a3a;
+  background: #0d1117;
+  font-size: 12px;
+  color: #8b949e;
+}
+.hub-bar a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.hub-bar a:hover { opacity: .85; }
+.container {
+  max-width: 1180px;
+  margin: 16px auto;
+  padding: 0 16px 22px;
+}
+.card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 94%, #000 6%) 0%, var(--panel) 100%);
+  padding: 14px;
+}
+.title { margin: 0 0 6px; font-size: 26px; }
+.subtitle { margin: 0 0 14px; color: var(--muted); }
+.learn-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--panel2) 92%, transparent) 0%, color-mix(in srgb, var(--panel) 88%, transparent) 100%);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.learn-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.learn-top h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.learn-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.learn-controls select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.learn-card {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel2) 92%, transparent);
+  padding: 12px;
+}
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.learn-field {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+}
+.learn-field .k {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.learn-field .v {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.learn-hidden {
+  filter: blur(6px);
+  user-select: none;
+}
+.learn-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.learn-audio-groups {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.learn-audio-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  padding: 8px;
+}
+.learn-audio-title {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.learn-hint {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.learn-reveal-extra {
+  margin-top: 10px;
+  display: none;
+}
+.learn-reveal-extra.visible {
+  display: block;
+}
+.learn-translation {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.learn-translation .k {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.learn-translation .v {
+  font-size: 16px;
+  font-weight: 700;
+}
+.learn-examples {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  padding: 8px 10px;
+}
+.learn-examples .k {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.learn-example-row {
+  margin-bottom: 6px;
+}
+.learn-example-row:last-child {
+  margin-bottom: 0;
+}
+.learn-example-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.learn-example-en {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.learn-example-es {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.controls input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel2);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+.controls input:focus { border-color: var(--accent); }
+.btn {
+  border: 1px solid color-mix(in srgb, var(--btnBg) 80%, #000 20%);
+  border-radius: 10px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--btnBg) 88%, #000 12%) 0%, var(--btnBg) 100%);
+  color: var(--btnText);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover { background: var(--btnBgHover); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.voice-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.voice-row select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.library {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: #101a2b;
+}
+.library h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #c7dcff;
+}
+.library-grid {
+  display: grid;
+  grid-template-columns: 170px 1fr 180px;
+  gap: 8px;
+}
+.library-grid select,
+.library-grid input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.verb-list {
+  margin-top: 8px;
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0d1522;
+  color: var(--text);
+  padding: 8px;
+}
+.library-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.result {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0e1522;
+  padding: 12px;
+}
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.word { font-size: 28px; font-weight: 700; }
+.meta { color: var(--muted); font-size: 13px; }
+.section { margin-top: 10px; }
+.section h3 { margin: 0 0 6px; font-size: 13px; color: #c7dcff; }
+.section ul { margin: 0; padding-left: 18px; }
+.section li { margin: 2px 0; }
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pair {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 8px 10px;
+}
+.pair .k { font-size: 12px; color: #c7dcff; margin-bottom: 4px; }
+.pair .v { font-size: 13px; }
+.pair-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mini-btn {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel2);
+  color: var(--text);
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.mini-btn:hover { border-color: var(--accent); color: var(--accent); }
+.err {
+  margin-top: 10px;
+  border: 1px solid #7f1d1d;
+  background: #3a1414;
+  color: #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 15, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 14px;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal-card {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #16233b 0%, #111927 100%);
+  padding: 14px;
+}
+.modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.modal-title {
+  font-size: 15px;
+  color: #d5e4ff;
+  font-weight: 700;
+}
+.modal-close {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--muted);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.modal-close:hover { color: var(--accent); border-color: var(--accent); }
+.phrase-read {
+  border: 1px solid var(--border);
+  background: #0e1522;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+.modal-tools {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.modal-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.result-box {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0e1522;
+  padding: 12px;
+}
+@media (max-width: 900px) {
+  .controls { grid-template-columns: 1fr; }
+  .btn { width: 100%; }
+  .grid2 { grid-template-columns: 1fr; }
+  .library-grid { grid-template-columns: 1fr; }
+  .learn-grid { grid-template-columns: 1fr; }
+  .learn-audio-groups { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="hub-bar">
+  <a href="/">LM Studio Hub</a>
+  <span>/</span>
+  <a href="/app/chatbot">English Chatbot</a>
+  <span>/</span>
+  <a href="/app/chatbot/dictionary.html">Dictionary</a>
+  <span>/</span>
+  <span>Verb Engine</span>
+</div>
+
+<div class="container">
+  <section class="card">
+    <h1 class="title">Verb Engine</h1>
+    <p class="subtitle">Deep lexical + conjugation analysis for verbs with bilingual EN/ES examples.</p>
+
+    <div class="learn-panel">
+      <div class="learn-top">
+        <h3>Learning Mode (Spaced Repetition)</h3>
+        <div class="learn-controls">
+          <label for="learnDifficulty">Difficulty:</label>
+          <select id="learnDifficulty">
+            <option value="all">All</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+          <button class="mini-btn" type="button" id="nextVerbBtn">Next Random</button>
+          <button class="mini-btn" type="button" id="resetSrsBtn">Reset Progress</button>
+        </div>
+      </div>
+
+      <div class="learn-card">
+        <div class="learn-grid">
+          <div class="learn-field">
+            <div class="k">Base</div>
+            <div class="v" id="learnBase">-</div>
+          </div>
+          <div class="learn-field">
+            <div class="k">Past</div>
+            <div class="v learn-hidden" id="learnPast">Press Reveal</div>
+          </div>
+          <div class="learn-field">
+            <div class="k">Participle</div>
+            <div class="v learn-hidden" id="learnParticiple">Press Reveal</div>
+          </div>
+        </div>
+        <div class="learn-actions">
+          <button class="btn" type="button" id="revealBtn">Reveal</button>
+          <button class="mini-btn" type="button" id="rateAgainBtn">Again</button>
+          <button class="mini-btn" type="button" id="rateGoodBtn">Good</button>
+          <button class="mini-btn" type="button" id="rateEasyBtn">Easy</button>
+        </div>
+        <div class="learn-audio-groups">
+          <div class="learn-audio-box">
+            <div class="learn-audio-title">Base Audio</div>
+            <button class="mini-btn" type="button" id="playBaseUkBtn">UK</button>
+            <button class="mini-btn" type="button" id="playBaseUsBtn">US</button>
+          </div>
+          <div class="learn-audio-box">
+            <div class="learn-audio-title">Past Audio</div>
+            <button class="mini-btn" type="button" id="playPastUkBtn">UK</button>
+            <button class="mini-btn" type="button" id="playPastUsBtn">US</button>
+          </div>
+          <div class="learn-audio-box">
+            <div class="learn-audio-title">Participle Audio</div>
+            <button class="mini-btn" type="button" id="playParticipleUkBtn">UK</button>
+            <button class="mini-btn" type="button" id="playParticipleUsBtn">US</button>
+          </div>
+        </div>
+        <div class="learn-hint" id="learnHint">Choose a difficulty and press Next Random to start.</div>
+        <div class="learn-reveal-extra" id="learnRevealExtra">
+          <div class="learn-translation">
+            <div class="k">Spanish Translation</div>
+            <div class="v" id="learnTranslation">-</div>
+          </div>
+          <div class="learn-examples">
+            <div class="k">Examples of Use</div>
+            <div class="learn-example-row" id="learnExPresent">
+              <div class="learn-example-label">Present</div>
+              <div class="learn-example-en" id="learnExPresentEn">-</div>
+              <div class="learn-example-es" id="learnExPresentEs">-</div>
+            </div>
+            <div class="learn-example-row" id="learnExPast">
+              <div class="learn-example-label">Past Simple</div>
+              <div class="learn-example-en" id="learnExPastEn">-</div>
+              <div class="learn-example-es" id="learnExPastEs">-</div>
+            </div>
+            <div class="learn-example-row" id="learnExParticiple">
+              <div class="learn-example-label">Past Perfect</div>
+              <div class="learn-example-en" id="learnExParticipleEn">-</div>
+              <div class="learn-example-es" id="learnExParticipleEs">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="term" type="text" placeholder="Type an English word or phrase..." />
+      <button id="lookupBtn" class="btn" type="button">Analyze</button>
+    </div>
+
+    <div class="voice-row">
+      <label for="accentSelect">Pronunciation Accent:</label>
+      <select id="accentSelect">
+        <option value="american">American</option>
+        <option value="british">British</option>
+      </select>
+    </div>
+
+    <div class="library">
+      <h3>Verb Library (Regular + Irregular)</h3>
+      <div class="library-grid">
+        <select id="verbTypeFilter">
+          <option value="all">All Verbs</option>
+          <option value="regular">Regular Verbs</option>
+          <option value="irregular">Irregular Verbs</option>
+        </select>
+        <input id="verbSearch" type="text" placeholder="Filter verb list..." />
+        <div class="meta" id="verbCount">0 verbs</div>
+      </div>
+      <select id="verbList" class="verb-list" size="10"></select>
+      <div class="library-actions">
+        <button class="btn" type="button" id="useVerbBtn">Use Selected</button>
+        <button class="btn" type="button" id="analyzeSelectedBtn">Analyze Selected</button>
+      </div>
+    </div>
+
+    <div id="error" class="err" hidden></div>
+    <div id="result" class="result" hidden></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="pron-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-top">
+      <div class="modal-title">Tense Pronunciation Check</div>
+      <button class="modal-close" type="button" id="pron-close">×</button>
+    </div>
+    <div class="phrase-read" id="pron-target"></div>
+    <div class="modal-tools">
+      <button class="btn" type="button" id="pron-record-btn">🎙 Record & Verify</button>
+      <button class="btn" type="button" id="pron-replay-btn">🔊 Listen Again</button>
+    </div>
+    <div class="modal-note" id="pron-status">Read the tense phrase and press Record & Verify.</div>
+    <div class="result-box" id="pron-result" hidden></div>
+  </div>
+</div>
+
+<script>
+async function readJsonResponse(res, contextLabel) {
+  const raw = await res.text();
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    const where = res?.url ? ` (${res.url})` : '';
+    const looksHtml = /^<!DOCTYPE\s+html|^<html/i.test(String(raw || '').trim());
+    if (looksHtml) throw new Error(`${contextLabel}: server returned HTML instead of JSON${where}.`);
+    throw new Error(`${contextLabel}: invalid JSON response (HTTP ${res.status})${where}.`);
+  }
+}
+
+function buildApiBaseCandidates() {
+  const bases = [];
+  const push = (u) => {
+    if (!u || bases.includes(u)) return;
+    bases.push(u.replace(/\/$/, ''));
+  };
+  push(window.location.origin);
+  for (let p = 3000; p <= 3010; p++) {
+    push(`http://localhost:${p}`);
+    push(`http://127.0.0.1:${p}`);
+  }
+  return bases;
+}
+
+async function postJsonWithFallback(path, payload, contextLabel) {
+  const candidates = buildApiBaseCandidates();
+  let lastErr = null;
+  for (const base of candidates) {
+    const url = `${base}${path}`;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await readJsonResponse(res, contextLabel);
+      if (!res.ok || data.error) throw new Error(data?.error || `${contextLabel} failed (HTTP ${res.status}) at ${base}`);
+      return data;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error(`${contextLabel}: no API base responded with JSON.`);
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function escAttr(s) {
+  return esc(s).replace(/'/g, '&#39;');
+}
+
+let REGULAR_VERBS = [];
+let IRREGULAR_VERBS = [];
+const DB_VERB_FORMS = new Map();
+
+const state = {
+  listType: 'all',
+  listQuery: '',
+  learn: {
+    difficulty: 'all',
+    currentVerb: '',
+    revealed: false,
+    forms: null,
+    loading: false,
+  },
+  pron: {
+    target: '',
+    loading: false,
+    result: null,
+    status: 'Read the tense phrase and press Record & Verify.',
+  },
+};
+
+const SRS_STORAGE_KEY = 'verb_engine_srs_v1';
+let srsState = loadSrsState();
+
+let speechReady = false;
+let activeRecognition = null;
+
+function getSelectedAccent() {
+  return document.getElementById('accentSelect')?.value || 'american';
+}
+
+function getSpeechRecognitionCtor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function waitForVoices(timeoutMs = 1200) {
+  return new Promise((resolve) => {
+    const synth = window.speechSynthesis;
+    if (!synth) return resolve([]);
+    const start = Date.now();
+    const tryGet = () => {
+      const voices = synth.getVoices();
+      if (voices.length || Date.now() - start > timeoutMs) resolve(voices);
+    };
+    tryGet();
+    synth.onvoiceschanged = tryGet;
+    setTimeout(tryGet, timeoutMs);
+  });
+}
+
+function pickVoice(accent) {
+  const voices = window.speechSynthesis?.getVoices?.() || [];
+  const wanted = accent === 'british' ? ['en-GB', 'en_GB'] : ['en-US', 'en_US'];
+  const preferred = voices.find(v => wanted.some(code => String(v.lang || '').startsWith(code)));
+  if (preferred) return preferred;
+  return voices.find(v => String(v.lang || '').toLowerCase().startsWith('en')) || null;
+}
+
+function loadSrsState() {
+  try {
+    const raw = localStorage.getItem(SRS_STORAGE_KEY);
+    if (!raw) return { verbs: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return { verbs: {} };
+    return { verbs: parsed.verbs && typeof parsed.verbs === 'object' ? parsed.verbs : {} };
+  } catch (_) {
+    return { verbs: {} };
+  }
+}
+
+function saveSrsState() {
+  try {
+    localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(srsState));
+  } catch (_) {
+    // Ignore localStorage write failures.
+  }
+}
+
+function getVerbProgress(verb) {
+  if (!srsState.verbs[verb]) {
+    srsState.verbs[verb] = {
+      ease: 2.5,
+      intervalDays: 0,
+      repetitions: 0,
+      dueAt: 0,
+      seenCount: 0,
+      successCount: 0,
+      failCount: 0,
+    };
+  }
+  return srsState.verbs[verb];
+}
+
+function classifyDifficulty(verb) {
+  const progress = getVerbProgress(verb);
+  const isIrregular = IRREGULAR_VERBS.includes(verb);
+  const baseline = isIrregular ? 'medium' : 'easy';
+  const totalRated = progress.successCount + progress.failCount;
+
+  if (totalRated >= 3) {
+    const successRate = progress.successCount / totalRated;
+    if (successRate < 0.45 || progress.failCount >= progress.successCount + 2) return 'hard';
+    if (successRate > 0.8 && progress.repetitions >= 3) return 'easy';
+  }
+  if (baseline === 'medium' && progress.repetitions >= 4 && progress.successCount > progress.failCount) return 'easy';
+  return baseline;
+}
+
+function getEligibleLearningPool() {
+  const all = [...new Set([...IRREGULAR_VERBS, ...REGULAR_VERBS])];
+  if (state.learn.difficulty === 'all') return all;
+  return all.filter(v => classifyDifficulty(v) === state.learn.difficulty);
+}
+
+function pickWeightedRandomVerb() {
+  const pool = getEligibleLearningPool();
+  if (!pool.length) return '';
+
+  const now = Date.now();
+  const due = pool.filter((verb) => {
+    const p = getVerbProgress(verb);
+    return !p.dueAt || p.dueAt <= now;
+  });
+
+  const source = due.length ? due : pool;
+  return source[Math.floor(Math.random() * source.length)] || '';
+}
+
+function setLearningVerb(verb) {
+  state.learn.currentVerb = verb;
+  state.learn.revealed = false;
+  state.learn.forms = null;
+  if (verb) {
+    const p = getVerbProgress(verb);
+    p.seenCount += 1;
+    saveSrsState();
+  }
+  renderLearningCard();
+}
+
+function normalizeVerb(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function saveVerbForms(base, past, participle) {
+  const b = normalizeVerb(base);
+  const p = String(past || '').trim().toLowerCase();
+  const pp = String(participle || '').trim().toLowerCase();
+  if (!b || (!p && !pp)) return;
+  DB_VERB_FORMS.set(b, {
+    base: b,
+    past: p || pp,
+    participle: pp || p,
+  });
+}
+
+function collectVerbFormsFromTeacher(allVerbs) {
+  const rows = Array.isArray(allVerbs) ? allVerbs : [];
+  for (const row of rows) {
+    const base = row?.base_form || row?.forms?.base || '';
+    const past = row?.forms?.past_simple || row?.past_simple || '';
+    const participle = row?.forms?.past_participle || row?.past_participle || row?.forms?.past_perfect || '';
+    saveVerbForms(base, past, participle);
+  }
+}
+
+function getStoredVerbForms(base) {
+  return DB_VERB_FORMS.get(normalizeVerb(base)) || null;
+}
+
+function deriveRegularForms(base) {
+  const b = normalizeVerb(base);
+  if (!b) return null;
+
+  let past = '';
+  if (b.endsWith('e')) {
+    past = `${b}d`;
+  } else if (/[^aeiou]y$/.test(b)) {
+    past = `${b.slice(0, -1)}ied`;
+  } else if (/[aeiou][bcdfghjklmnpqrstvz]$/.test(b) && !/[wxy]$/.test(b) && b.length <= 5) {
+    past = `${b}${b.slice(-1)}ed`;
+  } else {
+    past = `${b}ed`;
+  }
+
+  return { past, participle: past };
+}
+
+function toVerbForms(result, fallbackVerb) {
+  const present = String(result?.verb?.present?.en || fallbackVerb || '').trim().toLowerCase();
+  const past = String(result?.verb?.past_simple?.en || '').trim().toLowerCase();
+  const participle = String(result?.verb?.past_perfect?.en || '').trim().toLowerCase();
+  const normalizedBase = normalizeVerb(present || fallbackVerb || '');
+  const stored = getStoredVerbForms(normalizedBase);
+  const regularFallback = REGULAR_VERBS.includes(normalizedBase) ? deriveRegularForms(normalizedBase) : null;
+
+  const finalPast = past || stored?.past || regularFallback?.past || '-';
+  const finalParticiple = participle || stored?.participle || regularFallback?.participle || (finalPast !== '-' ? finalPast : '-');
+
+  if (normalizedBase && finalPast !== '-' && finalParticiple !== '-') {
+    saveVerbForms(normalizedBase, finalPast, finalParticiple);
+  }
+
+  const translation = String(result?.primary_translation || '').trim() || null;
+  const exPresent = result?.verb?.tense_examples?.present || null;
+  const exPast = result?.verb?.tense_examples?.past_simple || null;
+  const exParticiple = result?.verb?.tense_examples?.past_perfect || null;
+
+  return {
+    base: normalizedBase || '-',
+    past: finalPast,
+    participle: finalParticiple,
+    translation,
+    exPresent,
+    exPast,
+    exParticiple,
+  };
+}
+
+function renderLearningCard() {
+  const baseEl = document.getElementById('learnBase');
+  const pastEl = document.getElementById('learnPast');
+  const partEl = document.getElementById('learnParticiple');
+  const hintEl = document.getElementById('learnHint');
+  const revealBtn = document.getElementById('revealBtn');
+  const nextBtn = document.getElementById('nextVerbBtn');
+  const baseUkBtn = document.getElementById('playBaseUkBtn');
+  const baseUsBtn = document.getElementById('playBaseUsBtn');
+  const pastUkBtn = document.getElementById('playPastUkBtn');
+  const pastUsBtn = document.getElementById('playPastUsBtn');
+  const partUkBtn = document.getElementById('playParticipleUkBtn');
+  const partUsBtn = document.getElementById('playParticipleUsBtn');
+  if (!baseEl || !pastEl || !partEl || !hintEl || !revealBtn || !nextBtn) return;
+
+  const verb = state.learn.currentVerb;
+  const forms = state.learn.forms || { base: verb || '-', past: 'Press Reveal', participle: 'Press Reveal' };
+  const noVerb = !verb;
+
+  baseEl.textContent = noVerb ? '-' : forms.base || verb;
+  pastEl.textContent = noVerb ? '-' : (state.learn.revealed ? forms.past : 'Press Reveal');
+  partEl.textContent = noVerb ? '-' : (state.learn.revealed ? forms.participle : 'Press Reveal');
+  pastEl.classList.toggle('learn-hidden', !state.learn.revealed && !noVerb);
+  partEl.classList.toggle('learn-hidden', !state.learn.revealed && !noVerb);
+
+  const dueCount = getEligibleLearningPool().filter((v) => {
+    const p = getVerbProgress(v);
+    return !p.dueAt || p.dueAt <= Date.now();
+  }).length;
+
+  if (noVerb) {
+    hintEl.textContent = 'Choose a difficulty and press Next Random to start.';
+  } else if (!state.learn.revealed) {
+    hintEl.textContent = `Current: ${verb}. Past and participle are hidden until Reveal. Due now: ${dueCount}.`;
+  } else {
+    const p = getVerbProgress(verb);
+    const next = p.dueAt ? new Date(p.dueAt).toLocaleString() : 'now';
+    hintEl.textContent = `Rate your recall to schedule this verb. Next review: ${next}.`;
+  }
+
+  revealBtn.disabled = noVerb || state.learn.loading || state.learn.revealed;
+  nextBtn.disabled = state.learn.loading;
+
+  if (baseUkBtn) baseUkBtn.disabled = noVerb;
+  if (baseUsBtn) baseUsBtn.disabled = noVerb;
+  if (pastUkBtn) pastUkBtn.disabled = noVerb || !state.learn.revealed || forms.past === '-';
+  if (pastUsBtn) pastUsBtn.disabled = noVerb || !state.learn.revealed || forms.past === '-';
+  if (partUkBtn) partUkBtn.disabled = noVerb || !state.learn.revealed || forms.participle === '-';
+  if (partUsBtn) partUsBtn.disabled = noVerb || !state.learn.revealed || forms.participle === '-';
+
+  const extraEl = document.getElementById('learnRevealExtra');
+  if (extraEl) {
+    const show = !noVerb && state.learn.revealed;
+    extraEl.classList.toggle('visible', show);
+    if (show) {
+      const setEx = (enId, esId, pair) => {
+        document.getElementById(enId).textContent = pair?.en || '-';
+        document.getElementById(esId).textContent = pair?.es || '-';
+      };
+      document.getElementById('learnTranslation').textContent = forms.translation || '-';
+      setEx('learnExPresentEn', 'learnExPresentEs', forms.exPresent);
+      setEx('learnExPastEn', 'learnExPastEs', forms.exPast);
+      setEx('learnExParticipleEn', 'learnExParticipleEs', forms.exParticiple);
+    }
+  }
+}
+
+async function chooseNextLearningVerb() {
+  clearError();
+  const picked = pickWeightedRandomVerb();
+  if (!picked) {
+    showError('No verbs available for the selected difficulty.');
+    return;
+  }
+  setLearningVerb(picked);
+}
+
+async function revealCurrentVerb() {
+  const verb = state.learn.currentVerb;
+  if (!verb || state.learn.revealed) return;
+
+  clearError();
+  state.learn.loading = true;
+  renderLearningCard();
+
+  try {
+    const data = await postJsonWithFallback('/api/chatbot/verbs/lookup', { term: verb }, 'Verb lookup');
+    state.learn.forms = toVerbForms(data.result || {}, verb);
+    state.learn.revealed = true;
+  } catch (err) {
+    showError(err.message || 'Could not reveal verb forms.');
+  } finally {
+    state.learn.loading = false;
+    renderLearningCard();
+  }
+}
+
+function scheduleVerb(verb, quality) {
+  if (!verb) return;
+  const p = getVerbProgress(verb);
+  const now = Date.now();
+
+  if (quality < 3) {
+    p.failCount += 1;
+    p.repetitions = 0;
+    p.intervalDays = 0;
+    p.dueAt = now + (10 * 60 * 1000);
+  } else {
+    p.successCount += 1;
+    p.ease = Math.max(1.3, p.ease + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+    p.repetitions += 1;
+    if (p.repetitions === 1) p.intervalDays = 1;
+    else if (p.repetitions === 2) p.intervalDays = 6;
+    else p.intervalDays = Math.max(1, Math.round(p.intervalDays * p.ease));
+    p.dueAt = now + (p.intervalDays * 24 * 60 * 60 * 1000);
+  }
+
+  saveSrsState();
+  renderLearningCard();
+}
+
+function resetSrsProgress() {
+  srsState = { verbs: {} };
+  saveSrsState();
+  renderLearningCard();
+}
+
+async function loadVerbLibraryFromDatabase() {
+  DB_VERB_FORMS.clear();
+
+  const sanitize = (arr) => (Array.isArray(arr) ? arr : [])
+    .map((v) => String(v || '').trim().toLowerCase())
+    .filter(Boolean);
+
+  let regular = [];
+  let irregular = [];
+
+  try {
+    const res = await fetch('/api/chatbot/verbs/library');
+    const data = await readJsonResponse(res, 'Verb library');
+    if (!res.ok || data?.error) throw new Error(data?.error || `Verb library failed (HTTP ${res.status})`);
+
+    regular = [...new Set(sanitize(data.regular))].sort((a, b) => a.localeCompare(b));
+    irregular = [...new Set(sanitize(data.irregular))].sort((a, b) => a.localeCompare(b));
+
+    const formsByBase = data?.formsByBase && typeof data.formsByBase === 'object' ? data.formsByBase : {};
+    for (const [base, forms] of Object.entries(formsByBase)) {
+      saveVerbForms(base, forms?.past, forms?.participle);
+    }
+  } catch (_) {
+    const profileId = 'daniel';
+
+    const [regularRes, irregularRes] = await Promise.all([
+      fetch(`/api/teacher/regular-verbs?profileId=${encodeURIComponent(profileId)}`),
+      fetch(`/api/teacher/irregular-verbs?profileId=${encodeURIComponent(profileId)}`),
+    ]);
+
+    const regularData = await readJsonResponse(regularRes, 'Teacher regular verbs');
+    const irregularData = await readJsonResponse(irregularRes, 'Teacher irregular verbs');
+
+    if (!regularRes.ok || regularData?.error) {
+      throw new Error(regularData?.error || `Teacher regular verbs failed (HTTP ${regularRes.status})`);
+    }
+    if (!irregularRes.ok || irregularData?.error) {
+      throw new Error(irregularData?.error || `Teacher irregular verbs failed (HTTP ${irregularRes.status})`);
+    }
+
+    collectVerbFormsFromTeacher(regularData.allVerbs);
+    collectVerbFormsFromTeacher(irregularData.allVerbs);
+
+    regular = [...new Set(sanitize((regularData.allVerbs || []).map((v) => v?.base_form)))].sort((a, b) => a.localeCompare(b));
+    irregular = [...new Set(sanitize((irregularData.allVerbs || []).map((v) => v?.base_form)))].sort((a, b) => a.localeCompare(b));
+  }
+
+  if (!DB_VERB_FORMS.size) {
+    try {
+      const profileId = 'daniel';
+      const [regularRes, irregularRes] = await Promise.all([
+        fetch(`/api/teacher/regular-verbs?profileId=${encodeURIComponent(profileId)}`),
+        fetch(`/api/teacher/irregular-verbs?profileId=${encodeURIComponent(profileId)}`),
+      ]);
+
+      const regularData = await readJsonResponse(regularRes, 'Teacher regular verbs');
+      const irregularData = await readJsonResponse(irregularRes, 'Teacher irregular verbs');
+      collectVerbFormsFromTeacher(regularData.allVerbs);
+      collectVerbFormsFromTeacher(irregularData.allVerbs);
+    } catch (_) {
+      // Ignore enrichment failures; regular fallback still applies.
+    }
+  }
+
+  REGULAR_VERBS = regular;
+  IRREGULAR_VERBS = irregular;
+
+  if (!regular.length && !irregular.length) {
+    throw new Error('Verb database is empty. Generate verbs in Teacher App first.');
+  }
+}
+
+async function speakText(text, accent = 'american') {
+  if (!text || !window.speechSynthesis) return;
+  if (!speechReady) {
+    await waitForVoices();
+    speechReady = true;
+  }
+  const utterance = new SpeechSynthesisUtterance(String(text));
+  const targetAccent = accent === 'british' ? 'british' : 'american';
+  const voice = pickVoice(targetAccent);
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = targetAccent === 'british' ? 'en-GB' : 'en-US';
+  }
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+function showError(message) {
+  const box = document.getElementById('error');
+  box.hidden = false;
+  box.textContent = message;
+}
+
+function clearError() {
+  const box = document.getElementById('error');
+  box.hidden = true;
+  box.textContent = '';
+}
+
+function pairHtml(label, pair) {
+  const en = String(pair?.en || '').trim();
+  const es = String(pair?.es || '').trim();
+  return `<div class="pair">
+    <div class="k">${esc(label)}</div>
+    <div class="v"><strong>EN:</strong> ${esc(en || '-')}<br><strong>ES:</strong> ${esc(es || '-')}</div>
+    <div class="pair-actions">
+      <button class="mini-btn speak-btn" data-text="${escAttr(en)}" data-accent="british">🔊 UK</button>
+      <button class="mini-btn speak-btn" data-text="${escAttr(en)}" data-accent="american">🔊 US</button>
+      <button class="mini-btn test-btn" data-text="${escAttr(en)}">🎙 Test</button>
+    </div>
+  </div>`;
+}
+
+function renderResult(r) {
+  const box = document.getElementById('result');
+  const list = (arr) => (Array.isArray(arr) && arr.length ? arr.map(x => `<li>${esc(x)}</li>`).join('') : '<li>-</li>');
+
+  box.innerHTML = `
+    <div class="row">
+      <div class="word">${esc(r.term || '-')}</div>
+      <div class="meta">${esc(r.part_of_speech || 'n/a')} | confidence ${Number(r.confidence || 0)}/100</div>
+    </div>
+    <div class="section"><h3>Primary Spanish Translation</h3><div>${esc(r.primary_translation || '-')}</div></div>
+    <div class="section"><h3>Alternative Meanings</h3><ul>${list(r.alternative_meanings)}</ul></div>
+
+    <div class="section"><h3>Lexical Analysis</h3>
+      <div class="grid2">
+        <div><h3>Synonyms</h3><ul>${list(r.synonyms)}</ul></div>
+        <div><h3>Antonyms</h3><ul>${list(r.antonyms)}</ul></div>
+        <div><h3>Phrasal Verbs</h3><ul>${list(r.phrasal_verbs)}</ul></div>
+        <div><h3>Common Expressions</h3><ul>${list(r.common_expressions)}</ul></div>
+        <div><h3>Slang</h3><ul>${list(r.slang)}</ul></div>
+        <div><h3>Related</h3><ul>${list(r.related)}</ul></div>
+      </div>
+    </div>
+
+    <div class="section"><h3>Verb Conjugation & Morphology</h3>
+      <div class="meta">Type: ${esc(r.verb?.type || 'N/A')}</div>
+      <div class="grid2" style="margin-top:8px;">
+        ${pairHtml('Present', r.verb?.present)}
+        ${pairHtml('Past Simple', r.verb?.past_simple)}
+        ${pairHtml('Past Perfect', r.verb?.past_perfect)}
+        ${pairHtml('Past Imperfect (Equivalent)', r.verb?.past_imperfect)}
+      </div>
+    </div>
+
+    <div class="section"><h3>Tense Examples</h3>
+      <div class="grid2">
+        ${pairHtml('Present', r.verb?.tense_examples?.present)}
+        ${pairHtml('Past Simple', r.verb?.tense_examples?.past_simple)}
+        ${pairHtml('Past Perfect', r.verb?.tense_examples?.past_perfect)}
+        ${pairHtml('Imperfect Context', r.verb?.tense_examples?.imperfect_context)}
+      </div>
+    </div>
+
+    <div class="section"><h3>Usage Context</h3>
+      <div class="pair"><div class="k">General Example</div><div class="v"><strong>EN:</strong> ${esc(r.usage?.general_en || '-')}<br><strong>ES:</strong> ${esc(r.usage?.general_es || '-')}</div></div>
+    </div>
+  `;
+
+  box.querySelectorAll('.speak-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.text || '';
+      const accent = btn.dataset.accent || getSelectedAccent();
+      await speakText(text, accent);
+    });
+  });
+
+  box.querySelectorAll('.test-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.text || '';
+      if (!text) return;
+      openPronunciationModal(text);
+    });
+  });
+
+  box.hidden = false;
+}
+
+function getFilteredVerbList() {
+  const q = state.listQuery.trim().toLowerCase();
+  let base = [];
+  if (state.listType === 'regular') base = REGULAR_VERBS;
+  else if (state.listType === 'irregular') base = IRREGULAR_VERBS;
+  else base = [...new Set([...IRREGULAR_VERBS, ...REGULAR_VERBS])].sort((a, b) => a.localeCompare(b));
+
+  return q ? base.filter(v => v.toLowerCase().includes(q)) : base;
+}
+
+function renderVerbLibrary() {
+  const list = document.getElementById('verbList');
+  const count = document.getElementById('verbCount');
+  if (!list || !count) return;
+
+  const verbs = getFilteredVerbList();
+  list.innerHTML = verbs.map(v => `<option value="${escAttr(v)}">${esc(v)}</option>`).join('');
+  count.textContent = `${verbs.length} verbs`;
+}
+
+function useSelectedVerb(analyzeAfter = false) {
+  const selected = document.getElementById('verbList')?.value || '';
+  if (!selected) return;
+  document.getElementById('term').value = selected;
+  if (analyzeAfter) lookup();
+}
+
+function renderPronModal() {
+  const modal = document.getElementById('pron-modal');
+  const target = document.getElementById('pron-target');
+  const status = document.getElementById('pron-status');
+  const result = document.getElementById('pron-result');
+  const record = document.getElementById('pron-record-btn');
+  if (!modal || !target || !status || !result || !record) return;
+
+  modal.hidden = !state.pron.target;
+  target.textContent = state.pron.target || '-';
+  status.textContent = state.pron.status;
+  record.disabled = state.pron.loading;
+  record.textContent = state.pron.loading ? 'Checking...' : '🎙 Record & Verify';
+
+  if (!state.pron.result) {
+    result.hidden = true;
+    result.innerHTML = '';
+    return;
+  }
+
+  const r = state.pron.result;
+  const toList = (arr) => Array.isArray(arr) && arr.length ? `<ul>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<ul><li>-</li></ul>';
+  result.hidden = false;
+  result.innerHTML = `
+    <div><strong>Overall:</strong> ${Number(r.overall_score || 0)}/100 | <strong>Accuracy:</strong> ${Number(r.accuracy_score || 0)}/100 | <strong>Fluency:</strong> ${Number(r.fluency_score || 0)}/100</div>
+    <div style="margin-top:6px"><strong>Verdict:</strong> ${esc(r.verdict || 'n/a')}</div>
+    <div style="margin-top:6px"><strong>Your transcript:</strong> ${esc(r.spoken_transcript || '-')}</div>
+    <div style="margin-top:6px"><strong>Highlights</strong>${toList(r.highlights)}</div>
+    <div style="margin-top:6px"><strong>Issues</strong>${toList(r.issues)}</div>
+    <div style="margin-top:6px"><strong>Advice</strong>${toList(r.advice)}</div>
+  `;
+}
+
+function openPronunciationModal(text) {
+  state.pron.target = String(text || '').trim();
+  state.pron.loading = false;
+  state.pron.result = null;
+  state.pron.status = 'Read the tense phrase and press Record & Verify.';
+  renderPronModal();
+}
+
+function closePronunciationModal() {
+  if (activeRecognition) {
+    try { activeRecognition.stop(); } catch (_) {}
+    activeRecognition = null;
+  }
+  state.pron.target = '';
+  state.pron.loading = false;
+  state.pron.result = null;
+  state.pron.status = 'Read the tense phrase and press Record & Verify.';
+  renderPronModal();
+}
+
+async function startPronunciationCapture() {
+  const SpeechRecognition = getSpeechRecognitionCtor();
+  if (!SpeechRecognition) {
+    showError('Speech recognition is not supported in this browser.');
+    return;
+  }
+  if (!state.pron.target) return;
+
+  state.pron.loading = true;
+  state.pron.status = 'Listening... please pronounce now.';
+  state.pron.result = null;
+  renderPronModal();
+
+  const recognition = new SpeechRecognition();
+  activeRecognition = recognition;
+  recognition.lang = getSelectedAccent() === 'british' ? 'en-GB' : 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = async (event) => {
+    const transcript = String(event?.results?.[0]?.[0]?.transcript || '').trim();
+    if (!transcript) {
+      state.pron.loading = false;
+      state.pron.status = 'No speech recognized. Please try again.';
+      renderPronModal();
+      return;
+    }
+
+    state.pron.status = `Captured: "${transcript}". Verifying...`;
+    renderPronModal();
+
+    try {
+      const data = await postJsonWithFallback('/api/chatbot/pronunciation/check', {
+        phrase: state.pron.target,
+        transcript,
+        accent: getSelectedAccent(),
+      }, 'Pronunciation check');
+      state.pron.result = data.review || null;
+      state.pron.status = 'Review complete.';
+    } catch (e) {
+      state.pron.status = `Verification error: ${e.message}`;
+      showError(e.message);
+    } finally {
+      state.pron.loading = false;
+      renderPronModal();
+    }
+  };
+
+  recognition.onerror = (event) => {
+    state.pron.loading = false;
+    state.pron.status = `Microphone error: ${event?.error || 'unknown'}`;
+    renderPronModal();
+  };
+
+  recognition.onend = () => {
+    activeRecognition = null;
+    if (state.pron.loading && !state.pron.result) {
+      state.pron.loading = false;
+      renderPronModal();
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (e) {
+    state.pron.loading = false;
+    state.pron.status = `Could not start microphone: ${e.message}`;
+    renderPronModal();
+  }
+}
+
+async function lookup() {
+  clearError();
+  const btn = document.getElementById('lookupBtn');
+  const term = document.getElementById('term').value.trim();
+  if (!term) {
+    showError('Please enter a term.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  try {
+    const data = await postJsonWithFallback('/api/chatbot/verbs/lookup', { term }, 'Verb lookup');
+    renderResult(data.result || {});
+  } catch (err) {
+    showError(err.message || 'Verb lookup failed.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Analyze';
+  }
+}
+
+document.getElementById('lookupBtn').addEventListener('click', lookup);
+document.getElementById('term').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') lookup();
+});
+
+document.getElementById('verbTypeFilter').addEventListener('change', (e) => {
+  state.listType = e.target.value;
+  renderVerbLibrary();
+});
+
+document.getElementById('verbSearch').addEventListener('input', (e) => {
+  state.listQuery = String(e.target.value || '');
+  renderVerbLibrary();
+});
+
+document.getElementById('useVerbBtn').addEventListener('click', () => useSelectedVerb(false));
+document.getElementById('analyzeSelectedBtn').addEventListener('click', () => useSelectedVerb(true));
+
+document.getElementById('learnDifficulty').addEventListener('change', (e) => {
+  state.learn.difficulty = String(e.target.value || 'all');
+  renderLearningCard();
+});
+
+document.getElementById('nextVerbBtn').addEventListener('click', chooseNextLearningVerb);
+document.getElementById('revealBtn').addEventListener('click', revealCurrentVerb);
+document.getElementById('playBaseUkBtn').addEventListener('click', async () => {
+  if (!state.learn.currentVerb) return;
+  const text = state.learn.forms?.base || state.learn.currentVerb;
+  await speakText(text, 'british');
+});
+document.getElementById('playBaseUsBtn').addEventListener('click', async () => {
+  if (!state.learn.currentVerb) return;
+  const text = state.learn.forms?.base || state.learn.currentVerb;
+  await speakText(text, 'american');
+});
+document.getElementById('playPastUkBtn').addEventListener('click', async () => {
+  if (!state.learn.revealed) return;
+  const text = state.learn.forms?.past || '';
+  if (!text || text === '-') return;
+  await speakText(text, 'british');
+});
+document.getElementById('playPastUsBtn').addEventListener('click', async () => {
+  if (!state.learn.revealed) return;
+  const text = state.learn.forms?.past || '';
+  if (!text || text === '-') return;
+  await speakText(text, 'american');
+});
+document.getElementById('playParticipleUkBtn').addEventListener('click', async () => {
+  if (!state.learn.revealed) return;
+  const text = state.learn.forms?.participle || '';
+  if (!text || text === '-') return;
+  await speakText(text, 'british');
+});
+document.getElementById('playParticipleUsBtn').addEventListener('click', async () => {
+  if (!state.learn.revealed) return;
+  const text = state.learn.forms?.participle || '';
+  if (!text || text === '-') return;
+  await speakText(text, 'american');
+});
+document.getElementById('rateAgainBtn').addEventListener('click', () => scheduleVerb(state.learn.currentVerb, 1));
+document.getElementById('rateGoodBtn').addEventListener('click', () => scheduleVerb(state.learn.currentVerb, 4));
+document.getElementById('rateEasyBtn').addEventListener('click', () => scheduleVerb(state.learn.currentVerb, 5));
+document.getElementById('resetSrsBtn').addEventListener('click', resetSrsProgress);
+
+document.getElementById('pron-close').addEventListener('click', closePronunciationModal);
+document.getElementById('pron-record-btn').addEventListener('click', startPronunciationCapture);
+document.getElementById('pron-replay-btn').addEventListener('click', async () => {
+  await speakText(state.pron.target, getSelectedAccent());
+});
+
+async function initVerbEngine() {
+  try {
+    await loadVerbLibraryFromDatabase();
+  } catch (err) {
+    showError(err.message || 'Could not load verb library from database.');
+  }
+  renderVerbLibrary();
+  renderLearningCard();
+}
+
+initVerbEngine();
+</script>
+</body>
+</html>

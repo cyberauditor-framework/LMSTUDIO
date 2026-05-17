@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<title>Phrase Bank — English Chatbot</title>
+<style>
+:root {
+  --bg: #0e1117;
+  --panel: #1a1f2b;
+  --panel2: #232a38;
+  --text: #eef3ff;
+  --muted: #9aa6bc;
+  --accent: #58a6ff;
+  --border: #344055;
+  --ok: #21c55d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 20% -10%, #1f2f55 0%, #0e1117 45%), var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hub-bar {
+  display:flex; align-items:center; gap:10px; padding:8px 16px;
+  border-bottom:1px solid #212a3a; background:#0d1117;
+  font-size:12px; color:#8b949e;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+.hub-bar a { color: var(--accent); text-decoration:none; font-weight:600; }
+.hub-bar a:hover { opacity:.8; }
+.container {
+  width: 100%;
+  max-width: none;
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  min-height: 0;
+}
+.pb-layout {
+  display: grid;
+  grid-template-columns: 300px 10px 1fr;
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+}
+.panel-left {
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  background: linear-gradient(180deg, #142033 0%, #101826 100%);
+  padding: 12px;
+  overflow: hidden;
+  min-height: 0;
+}
+.panel-right {
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  background: transparent;
+  padding: 0 0 0 14px;
+  overflow: auto;
+  min-height: 0;
+}
+.pb-splitter {
+  cursor: col-resize;
+  background: linear-gradient(180deg, #2a313e 0%, #1e2532 100%);
+  border-left: 1px solid #30363d;
+  border-right: 1px solid #1b1f28;
+}
+.pb-splitter:hover,
+.pb-splitter.dragging {
+  background: linear-gradient(180deg, #3e5f95 0%, #2f4f84 100%);
+}
+.header {
+  display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:16px;
+}
+.search-wrap {
+  margin-top: 10px;
+  width: min(560px, 100%);
+  position: relative;
+}
+.filter-wrap {
+  margin-top: 10px;
+  width: min(920px, 100%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.filter-wrap label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.filter-wrap select,
+.filter-wrap input[type="datetime-local"] {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.filter-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+.search-input {
+  width: 100%;
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 34px 9px 12px;
+  font-size: 13px;
+  outline: none;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--accent); }
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--border);
+  background: #1a2233;
+  color: var(--muted);
+  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.search-clear:hover { color: var(--accent); border-color: var(--accent); }
+.title h1 { margin:0; font-size:26px; }
+.title p { margin:6px 0 0; color:var(--muted); }
+.left-title { margin:0 0 10px; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:#c7dcff; }
+.controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.chip {
+  border:1px solid var(--border); background:var(--panel2); color:var(--muted);
+  border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer;
+}
+.chip.active { border-color:var(--accent); color:var(--accent); }
+.switch {
+  border:1px solid var(--border); background:var(--panel2); color:var(--text);
+  border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer;
+}
+.btn-generate {
+  border:1px solid #3d7aed; background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 100%); color:#fff;
+  border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer;
+  transition: opacity .15s, transform .1s;
+}
+.btn-generate:hover:not(:disabled) { opacity:.85; }
+.btn-generate:disabled { opacity:.45; cursor:not-allowed; }
+.btn-secondary {
+  border:1px solid var(--border); background:var(--panel2); color:var(--text);
+  border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer;
+}
+.btn-secondary:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+.toolbar {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.voice-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.03);
+}
+.voice-controls label {
+  font-size: 11px;
+  color: var(--muted);
+}
+.voice-controls input[type="range"] {
+  width: 90px;
+}
+.voice-controls .voice-value {
+  font-size: 11px;
+  color: var(--text);
+  min-width: 28px;
+  text-align: right;
+}
+.summary-card {
+  margin-bottom:14px; padding:12px 14px; border:1px solid var(--border); border-radius:12px;
+  background:linear-gradient(180deg, #142033 0%, #101826 100%);
+  resize: vertical;
+  overflow: auto;
+  min-height: 80px;
+}
+.summary-card h2 {
+  margin:0 0 8px; font-size:13px; color:#c7dcff;
+}
+.summary-card p {
+  margin:0; color:var(--muted); font-size:13px; line-height:1.55; white-space:pre-wrap;
+}
+.summary-scroll {
+  margin-top: 8px;
+  max-height: 240px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #0e1522;
+}
+.summary-scroll p {
+  margin: 0;
+  min-width: 700px;
+}
+.summary-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.summary-card textarea {
+  width:100%; min-height:170px; resize:vertical; margin-top:10px;
+  background:#0e1522; color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+  font:12px/1.5 Consolas, 'Courier New', monospace;
+}
+.summary-card.loading p { color:var(--text); }
+.loading-row {
+  display:flex; align-items:center; gap:10px;
+}
+.spinner {
+  width:14px; height:14px; border:2px solid #35507d; border-top-color:var(--accent);
+  border-radius:50%; animation:spin .8s linear infinite;
+}
+@keyframes spin {
+  to { transform:rotate(360deg); }
+}
+.toast {
+  position:fixed; bottom:22px; right:22px; background:var(--panel2); border:1px solid var(--border);
+  border-radius:10px; padding:10px 16px; font-size:13px; color:var(--text);
+  box-shadow:0 4px 18px #00000055; opacity:0; transform:translateY(12px);
+  transition: opacity .25s, transform .25s; pointer-events:none; z-index:99;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+.toast.ok { border-color:var(--ok); color:var(--ok); }
+.toast.err { border-color:#f87171; color:#f87171; }
+.grid {
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap:14px;
+}
+.group {
+  border:1px solid var(--border); border-radius:12px; background:linear-gradient(180deg, #1a2335 0%, #151b28 100%);
+  overflow:hidden;
+  resize: vertical;
+}
+.group-head {
+  padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;
+}
+.group-name { font-weight:700; font-size:14px; color:#c7dcff; }
+.group-count { font-size:12px; color:var(--muted); }
+.group-body { padding:12px; display:flex; flex-direction:column; gap:10px; max-height:620px; overflow:auto; }
+.item {
+  background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px;
+  position:relative;
+}
+.item.is-fav {
+  border-color: #d4a017;
+  background: linear-gradient(180deg, #1e1a0e 0%, #171410 100%);
+}
+.fav-btn {
+  position:absolute; top:10px; right:42px;
+  background:none; border:1px solid transparent; border-radius:6px;
+  color:#4a4f60; cursor:pointer; padding:4px 7px; font-size:13px; line-height:1.4;
+  transition: color .15s, border-color .15s;
+}
+.fav-btn:hover { color:#f5c400; border-color:#8a6d00; }
+.fav-btn.active { color:#f5c400; border-color:#8a6d00; }
+.chip.fav-chip {
+  border-color: #8a6d00;
+  color: #f5c400;
+  background: #1e1a0e;
+}
+.chip.fav-chip.active {
+  border-color: #f5c400;
+  color: #fff;
+  background: #3a2c00;
+}
+.en { font-size:14px; line-height:1.55; padding-right:72px; }
+.es { font-size:13px; line-height:1.55; color:var(--muted); margin-top:6px; }
+.meta { margin-top:8px; font-size:12px; color:#8fb9ff; display:flex; justify-content:space-between; }
+.copy-btn {
+  position:absolute; top:10px; right:10px;
+  background:none; border:1px solid var(--border); border-radius:6px;
+  color:var(--muted); cursor:pointer; padding:4px 8px; font-size:12px; line-height:1.4;
+  transition: color .15s, border-color .15s;
+}
+.copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+.copy-btn.copied { color:var(--ok); border-color:var(--ok); }
+.audio-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.audio-btn {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.audio-btn:hover { border-color: var(--accent); color: var(--accent); }
+.check-btn {
+  border: 1px solid #4169ad;
+  background: #16243f;
+  color: #a8c5ff;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.check-btn:hover { border-color: #6ea8ff; color: #d8e8ff; }
+.empty {
+  border:1px dashed var(--border); border-radius:10px; padding:20px; text-align:center; color:var(--muted);
+}
+.import-actions {
+  margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.helper {
+  margin-top:8px; color:var(--muted); font-size:12px; line-height:1.5;
+}
+.helper code {
+  color:#c7dcff;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 15, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 14px;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal-card {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #16233b 0%, #111927 100%);
+  padding: 14px;
+}
+.modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.modal-title {
+  font-size: 15px;
+  color: #d5e4ff;
+  font-weight: 700;
+}
+.modal-close {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--muted);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.modal-close:hover { color: var(--accent); border-color: var(--accent); }
+.phrase-read {
+  border: 1px solid var(--border);
+  background: #0e1522;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+.modal-tools {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.modal-tools select {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.modal-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.result-box {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0e1522;
+  padding: 12px;
+}
+.score-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.score-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.score-main { border-color: #6ea8ff; color: #d4e6ff; }
+.score-section {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+.score-section h4 {
+  margin: 0 0 5px;
+  font-size: 12px;
+  color: #bcd7ff;
+}
+.score-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #d6deee;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+
+@media (max-width: 900px) {
+  .container {
+    padding: 10px;
+  }
+  .pb-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: 100%;
+    min-height: 0;
+  }
+  .panel-left {
+    border-right: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    max-height: 30vh;
+  }
+  .panel-right {
+    border-left: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 0;
+  }
+  .pb-splitter { display: none; }
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .toolbar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    flex-wrap: nowrap;
+  }
+  .toolbar > * {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .title h1 { font-size: 22px; }
+  .summary-card { padding: 10px 11px; }
+  .summary-card textarea { min-height: 140px; }
+  .group-body { max-height: 420px; }
+  .meta {
+    flex-direction: column;
+    gap: 3px;
+    align-items: flex-start;
+  }
+}
+</style>
+</head>
+<body>
+<div class="hub-bar">
+  <a href="/">LM Studio Hub</a>
+  <span>/</span>
+  <a href="/app/chatbot">English Chatbot</a>
+  <span>/</span>
+  <span>Phrase Bank</span>
+  <span>/</span>
+  <a href="/app/chatbot/dictionary.html">Dictionary</a>
+  <span>/</span>
+  <a href="/app/chatbot/verbs.html">Verb Engine</a>
+</div>
+
+<div class="container">
+  <div class="pb-layout">
+    <aside class="panel-left" id="panel-left">
+      <h3 class="left-title">Tag Cloud</h3>
+      <div class="controls" id="controls"></div>
+    </aside>
+
+    <div class="pb-splitter" id="pb-splitter" title="Resize panels"></div>
+
+    <section class="panel-right" id="panel-right">
+      <div class="header">
+        <div class="title">
+          <h1>Phrase Bank</h1>
+          <p>Catalogo dinamico agrupado por categorias detectadas por el LLM.</p>
+          <div class="search-wrap">
+            <input id="phrase-search" class="search-input" type="text" placeholder="Search phrases by text, category, style or translation..." oninput="onSearchInput(event)">
+            <button id="phrase-search-clear" class="search-clear" type="button" onclick="clearSearch()" title="Clear search">×</button>
+          </div>
+          <div id="phrase-filter-mount"></div>
+        </div>
+        <div class="toolbar">
+          <div class="voice-controls" id="voice-controls">
+            <label for="voice-rate">Rate</label>
+            <input id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="0.95">
+            <span class="voice-value" id="voice-rate-value">0.95</span>
+            <label for="voice-pitch">Pitch</label>
+            <input id="voice-pitch" type="range" min="0.8" max="1.2" step="0.05" value="1.00">
+            <span class="voice-value" id="voice-pitch-value">1.00</span>
+          </div>
+          <button class="btn-generate" id="btn-gen" onclick="generatePhrases()">&#10024; Generate with AI</button>
+          <button class="btn-secondary" onclick="toggleImportPanel()">Import JSON</button>
+          <button class="btn-secondary" onclick="exportJson()">Export JSON</button>
+          <button class="btn-secondary" onclick="exportCsv()">Export CSV</button>
+        </div>
+      </div>
+
+      <div id="summary"></div>
+      <div id="content"></div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<input id="import-file" type="file" accept="application/json,.json" hidden onchange="handleImportFile(event)" />
+
+<div class="modal-backdrop" id="pron-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-top">
+      <div class="modal-title">Pronunciation Verifier</div>
+      <button class="modal-close" type="button" onclick="closePronunciationModal()">×</button>
+    </div>
+    <div class="phrase-read" id="pron-target"></div>
+    <div class="modal-tools">
+      <label for="pron-accent">Accent:</label>
+      <select id="pron-accent" onchange="onPronunciationAccentChange(event)">
+        <option value="american">American</option>
+        <option value="british">British</option>
+      </select>
+      <button class="btn-secondary" type="button" id="pron-record-btn" onclick="startPronunciationCapture()">🎙 Record & Verify</button>
+      <button class="btn-secondary" type="button" onclick="replayTargetPhrase()">🔊 Volver a pronunciarla</button>
+    </div>
+    <div class="modal-note" id="pron-status">Read the phrase and press Record & Verify.</div>
+    <div class="result-box" id="pron-result" hidden></div>
+  </div>
+</div>
+
+<script>
+const API = '/api/chatbot/phrase-bank';
+const VOICE_PREFS_KEY = 'chatbot_voice_settings';
+const TAG_ALIASES = {
+  fast_improver: ['rewrite', 'correction', 'fix', 'improve', 'chat fast'],
+  meeting_protocol: ['meeting', 'agenda', 'standup', 'status update'],
+  executive_communication: ['leadership', 'stakeholder', 'executive', 'management'],
+  customer_support: ['support', 'ticket', 'client issue', 'helpdesk'],
+  negotiation: ['deal', 'pricing', 'agreement', 'terms'],
+  sales: ['prospect', 'pitch', 'closing', 'objection'],
+  presentations: ['presentation', 'demo', 'slides', 'talk'],
+  interviews: ['interview', 'hiring', 'candidate', 'recruiting'],
+};
+const FAVORITES_KEY = 'pb_favorites';
+
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch (_) { return new Set(); }
+}
+
+function saveFavorites() {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...state.favorites]));
+  } catch (_) {}
+}
+
+function favKey(item) {
+  return `${String(item?.category || '').trim()}|${String(item?.phrase_en || '').trim()}`;
+}
+
+function toggleFavorite(item) {
+  const k = favKey(item);
+  if (state.favorites.has(k)) {
+    state.favorites.delete(k);
+  } else {
+    state.favorites.add(k);
+  }
+  saveFavorites();
+  render();
+}
+
+const state = {
+  showSpanish: true,
+  category: 'ALL',
+  favoritesOnly: false,
+  favorites: loadFavorites(),
+  items: [],
+  categories: [],
+  tagSummary: [],
+  generating: false,
+  generationSummary: '',
+  lastGeneratedItems: [],
+  importOpen: false,
+  importText: '',
+  importing: false,
+  speechRate: 0.95,
+  speechPitch: 1.0,
+  searchText: '',
+  sourceFilter: 'ALL',
+  styleFilter: 'ALL',
+  filterField: 'updated_at',
+  filterFrom: '',
+  filterTo: '',
+  pronunciationModal: {
+    open: false,
+    phrase: '',
+    accent: 'american',
+    transcript: '',
+    loading: false,
+    result: null,
+    status: 'Read the phrase and press Record & Verify.',
+  },
+};
+const IMPORT_TEMPLATE = {
+  items: [
+    {
+      category: 'Meeting_Protocol',
+      phrase_en: 'Let\'s move to the next agenda item.',
+      phrase_es: 'Pasemos al siguiente punto del orden del dia.',
+      style: 'Professional Casual'
+    },
+    {
+      category: 'Executive_Communication',
+      phrase_en: 'I would appreciate your feedback before we finalize this decision.',
+      phrase_es: 'Agradeceria tu feedback antes de que cerremos esta decision.',
+      style: 'Formal'
+    }
+  ]
+};
+
+let speechReady = false;
+let activeRecognition = null;
+
+async function readJsonResponse(res, contextLabel) {
+  const raw = await res.text();
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    const trimmed = String(raw || '').trim();
+    const looksHtml = /^<!DOCTYPE\s+html|^<html/i.test(trimmed);
+    const where = res?.url ? ` (${res.url})` : '';
+    if (looksHtml) {
+      throw new Error(`${contextLabel}: server returned HTML instead of JSON${where}. Open Phrase Bank from the same LM Studio Hub URL/port.`);
+    }
+    throw new Error(`${contextLabel}: invalid JSON response (HTTP ${res.status})${where}.`);
+  }
+}
+
+function buildApiBaseCandidates() {
+  const bases = [];
+  const pushBase = (u) => {
+    if (!u || bases.includes(u)) return;
+    bases.push(u.replace(/\/$/, ''));
+  };
+
+  pushBase(window.location.origin);
+  for (let p = 3000; p <= 3010; p++) {
+    pushBase(`http://localhost:${p}`);
+    pushBase(`http://127.0.0.1:${p}`);
+  }
+  return bases;
+}
+
+async function postJsonWithFallback(path, payload, contextLabel) {
+  const candidates = buildApiBaseCandidates();
+  let lastErr = null;
+
+  for (const base of candidates) {
+    const url = `${base}${path}`;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await readJsonResponse(res, contextLabel);
+      if (!res.ok) {
+        throw new Error(data?.error || `${contextLabel} failed (HTTP ${res.status}) at ${base}`);
+      }
+      return data;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+
+  throw lastErr || new Error(`${contextLabel}: no API base responded with JSON.`);
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function loadVoicePreferences() {
+  try {
+    const raw = localStorage.getItem(VOICE_PREFS_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    const rate = Number(saved.rate);
+    const pitch = Number(saved.pitch);
+    if (Number.isFinite(rate)) state.speechRate = clamp(rate, 0.7, 1.3);
+    if (Number.isFinite(pitch)) state.speechPitch = clamp(pitch, 0.8, 1.2);
+  } catch (_) {}
+}
+
+function saveVoicePreferences() {
+  try {
+    localStorage.setItem(VOICE_PREFS_KEY, JSON.stringify({ rate: state.speechRate, pitch: state.speechPitch }));
+  } catch (_) {}
+}
+
+function syncVoiceLabels() {
+  const rateOut = document.getElementById('voice-rate-value');
+  const pitchOut = document.getElementById('voice-pitch-value');
+  if (rateOut) rateOut.textContent = state.speechRate.toFixed(2);
+  if (pitchOut) pitchOut.textContent = state.speechPitch.toFixed(2);
+}
+
+function setupVoiceControls() {
+  loadVoicePreferences();
+  const rateEl = document.getElementById('voice-rate');
+  const pitchEl = document.getElementById('voice-pitch');
+  if (!rateEl || !pitchEl) return;
+
+  rateEl.value = String(state.speechRate);
+  pitchEl.value = String(state.speechPitch);
+  syncVoiceLabels();
+
+  rateEl.addEventListener('input', () => {
+    state.speechRate = clamp(Number(rateEl.value), 0.7, 1.3);
+    syncVoiceLabels();
+    saveVoicePreferences();
+  });
+
+  pitchEl.addEventListener('input', () => {
+    state.speechPitch = clamp(Number(pitchEl.value), 0.8, 1.2);
+    syncVoiceLabels();
+    saveVoicePreferences();
+  });
+}
+
+function waitForVoices(timeoutMs = 1200) {
+  return new Promise((resolve) => {
+    const synth = window.speechSynthesis;
+    if (!synth) return resolve([]);
+    const start = Date.now();
+
+    const tryGet = () => {
+      const voices = synth.getVoices();
+      if (voices.length || Date.now() - start > timeoutMs) {
+        resolve(voices);
+      }
+    };
+
+    tryGet();
+    synth.onvoiceschanged = tryGet;
+    setTimeout(tryGet, timeoutMs);
+  });
+}
+
+function pickVoice(accent) {
+  const voices = window.speechSynthesis?.getVoices?.() || [];
+  const wanted = accent === 'british' ? ['en-GB', 'en_GB'] : ['en-US', 'en_US'];
+  const preferred = voices.find(v => wanted.some(code => String(v.lang || '').startsWith(code)));
+  if (preferred) return preferred;
+  return voices.find(v => String(v.lang || '').toLowerCase().startsWith('en')) || null;
+}
+
+async function speakPhrase(text, accent = 'british') {
+  if (!text || !window.speechSynthesis) return;
+  if (!speechReady) {
+    await waitForVoices();
+    speechReady = true;
+  }
+  const utterance = new SpeechSynthesisUtterance(String(text));
+  const normalized = String(accent || '').toLowerCase();
+  const targetAccent = normalized === 'us' || normalized === 'american' ? 'american' : 'british';
+  const voice = pickVoice(targetAccent);
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = targetAccent === 'american' ? 'en-US' : 'en-GB';
+  }
+  utterance.rate = state.speechRate;
+  utterance.pitch = state.speechPitch;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+async function load() {
+  const res = await fetch(API);
+  const data = await readJsonResponse(res, 'Phrase bank load');
+  state.items = Array.isArray(data.items) ? data.items : [];
+  state.categories = Array.isArray(data.categories) ? data.categories : [];
+  state.tagSummary = buildTagSummary(state.items);
+  render();
+}
+
+function normalizeForSearch(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_\-]+/g, ' ')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeTagKey(category) {
+  const base = normalizeForSearch(category)
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return base || 'uncategorized';
+}
+
+function tagDisplayName(tagKey) {
+  if (!tagKey || tagKey === 'uncategorized') return 'Uncategorized';
+  return tagKey
+    .split('_')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function buildTagSummary(items) {
+  const map = new Map();
+  for (const item of items) {
+    const key = normalizeTagKey(item?.category || '');
+    if (!map.has(key)) {
+      map.set(key, { key, total: 0 });
+    }
+    map.get(key).total += 1;
+  }
+  return Array.from(map.values()).sort((a, b) => {
+    if (b.total !== a.total) return b.total - a.total;
+    return a.key.localeCompare(b.key);
+  });
+}
+
+function buildSearchTokens(queryText) {
+  return normalizeForSearch(queryText)
+    .split(' ')
+    .map((x) => x.trim())
+    .filter((x) => x.length >= 2)
+    .slice(0, 12);
+}
+
+function uniqueNormalizedValues(items, field) {
+  const seen = new Set();
+  const result = [];
+  for (const item of items || []) {
+    const raw = String(item?.[field] || '').trim();
+    if (!raw) continue;
+    const key = normalizeForSearch(raw);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push({ key, label: raw });
+  }
+  result.sort((a, b) => a.label.localeCompare(b.label));
+  return result;
+}
+
+function buildTagSemanticText(item) {
+  const tagKey = normalizeTagKey(item?.category || '');
+  const aliases = TAG_ALIASES[tagKey] || [];
+  return normalizeForSearch(`${tagKey.replace(/_/g, ' ')} ${aliases.join(' ')}`);
+}
+
+function computeMatchScore(item, tokens, fullQuery) {
+  if (!tokens.length) return 0;
+
+  const en = normalizeForSearch(item?.phrase_en || '');
+  const es = normalizeForSearch(item?.phrase_es || '');
+  const style = normalizeForSearch(item?.style || '');
+  const semanticTag = buildTagSemanticText(item);
+  let score = 0;
+
+  for (const tk of tokens) {
+    let tokenScore = 0;
+
+    if (en === tk) tokenScore = Math.max(tokenScore, 40);
+    if (en.startsWith(`${tk} `) || en.startsWith(tk)) tokenScore = Math.max(tokenScore, 28);
+    if (en.includes(tk)) tokenScore = Math.max(tokenScore, 20);
+    if (es.includes(tk)) tokenScore = Math.max(tokenScore, 16);
+    if (semanticTag.includes(tk)) tokenScore = Math.max(tokenScore, 15);
+    if (style.includes(tk)) tokenScore = Math.max(tokenScore, 10);
+
+    if (tokenScore === 0) return -1;
+    score += tokenScore;
+  }
+
+  if (fullQuery) {
+    if (en.includes(fullQuery)) score += 16;
+    if (es.includes(fullQuery)) score += 10;
+    if (semanticTag.includes(fullQuery)) score += 12;
+  }
+
+  return score;
+}
+
+function phraseMatchesSearch(item, tokens) {
+  if (!tokens.length) return true;
+  return computeMatchScore(item, tokens, '') >= 0;
+}
+
+function render() {
+  const controls = document.getElementById('controls');
+  const summary = document.getElementById('summary');
+  const content = document.getElementById('content');
+  const searchInput = document.getElementById('phrase-search');
+  const clearBtn = document.getElementById('phrase-search-clear');
+
+  if (searchInput && searchInput.value !== state.searchText) {
+    searchInput.value = state.searchText;
+  }
+  if (clearBtn) {
+    const hasQuery = Boolean(state.searchText.trim());
+    clearBtn.style.display = hasQuery ? 'inline-flex' : 'none';
+  }
+
+  const favCount = state.items.filter((it) => state.favorites.has(favKey(it))).length;
+  const chips = [{ key: 'ALL', total: state.items.length }, ...state.tagSummary]
+    .map((tag) => {
+      const key = tag.key || 'ALL';
+      const label = key === 'ALL' ? 'ALL' : tagDisplayName(key);
+      return `<button class="chip ${!state.favoritesOnly && state.category===key?'active':''}" onclick="setCategory('${escAttr(key)}')">${esc(label)} (${tag.total || 0})</button>`;
+    })
+    .join('');
+
+  controls.innerHTML = `
+    <button class="chip fav-chip ${state.favoritesOnly ? 'active' : ''}" onclick="toggleFavoritesOnly()">⭐ Favorites (${favCount})</button>
+    ${chips}
+    <button class="switch" onclick="toggleSpanish()">${state.showSpanish ? 'Hide ES' : 'Show ES'}</button>
+  `;
+
+  const filterMount = document.getElementById('phrase-filter-mount');
+  const sourceOptions = uniqueNormalizedValues(state.items, 'source');
+  const styleOptions = uniqueNormalizedValues(state.items, 'style');
+  if (filterMount) {
+    filterMount.innerHTML = `
+      <div class="filter-wrap">
+        <label for="phrase-date-field">Timestamp:</label>
+        <select id="phrase-date-field" onchange="onFilterFieldChange(event)">
+          <option value="updated_at" ${state.filterField === 'updated_at' ? 'selected' : ''}>Updated</option>
+          <option value="created_at" ${state.filterField === 'created_at' ? 'selected' : ''}>Created</option>
+        </select>
+        <label for="phrase-date-from">From:</label>
+        <input id="phrase-date-from" type="datetime-local" value="${escAttr(state.filterFrom)}" onchange="onFilterFromChange(event)">
+        <label for="phrase-date-to">To:</label>
+        <input id="phrase-date-to" type="datetime-local" value="${escAttr(state.filterTo)}" onchange="onFilterToChange(event)">
+        <label for="phrase-source">Source:</label>
+        <select id="phrase-source" onchange="onSourceFilterChange(event)">
+          <option value="ALL" ${state.sourceFilter === 'ALL' ? 'selected' : ''}>All</option>
+          ${sourceOptions.map((opt) => `<option value="${escAttr(opt.key)}" ${state.sourceFilter === opt.key ? 'selected' : ''}>${esc(opt.label)}</option>`).join('')}
+        </select>
+        <label for="phrase-style">Style:</label>
+        <select id="phrase-style" onchange="onStyleFilterChange(event)">
+          <option value="ALL" ${state.styleFilter === 'ALL' ? 'selected' : ''}>All</option>
+          ${styleOptions.map((opt) => `<option value="${escAttr(opt.key)}" ${state.styleFilter === opt.key ? 'selected' : ''}>${esc(opt.label)}</option>`).join('')}
+        </select>
+        <div class="filter-actions">
+          <button class="btn-secondary" type="button" onclick="setLastDaysFilter(1)">Last 24h</button>
+          <button class="btn-secondary" type="button" onclick="setLastDaysFilter(7)">Last 7d</button>
+          <button class="btn-secondary" type="button" onclick="clearDateFilters()">Clear Dates</button>
+          <button class="btn-secondary" type="button" onclick="clearQuickFilters()">Clear Type</button>
+        </div>
+      </div>
+    `;
+  }
+
+  if (state.generating) {
+    summary.innerHTML = `
+      <section class="summary-card loading">
+        <h2>AI Generation Status</h2>
+        <div class="loading-row">
+          <div class="spinner"></div>
+          <p>Generating a new professional phrase library and preparing database entries...</p>
+        </div>
+      </section>
+    `;
+  } else if (state.generationSummary) {
+    summary.innerHTML = `
+      <section class="summary-card">
+        <h2>Last AI Generation Summary</h2>
+        <div class="summary-scroll"><p>${esc(state.generationSummary)}</p></div>
+        <div class="summary-actions">
+          <button class="btn-secondary" onclick="copySummary()">Copy Summary</button>
+          <a class="btn-secondary" style="text-decoration:none" href="/app/chatbot/phrase-bank-summary.html">Open Full Summary Page</a>
+        </div>
+      </section>
+    `;
+  } else {
+    summary.innerHTML = '';
+  }
+
+  if (state.importOpen) {
+    summary.innerHTML += `
+      <section class="summary-card">
+        <h2>Import JSON Into Phrase Bank</h2>
+        <p>Pega un JSON compatible o carga un archivo .json para guardar frases directamente en la base de datos.</p>
+        <textarea id="import-json-text" placeholder='[
+  {
+    "category": "Meeting_Protocol",
+    "phrase_en": "Let\'s move to the next agenda item.",
+    "phrase_es": "Pasemos al siguiente punto del orden del día.",
+    "style": "Professional Casual"
+  }
+]' oninput="syncImportText(event)">${esc(state.importText)}</textarea>
+        <div class="import-actions">
+          <button class="btn-secondary" onclick="fillImportTemplate()" ${state.importing ? 'disabled' : ''}>Use Template</button>
+          <button class="btn-secondary" onclick="clearImportText()" ${state.importing ? 'disabled' : ''}>Clear Text</button>
+          <button class="btn-secondary" onclick="copyImportTemplate()" ${state.importing ? 'disabled' : ''}>Copy Template</button>
+          <button class="btn-secondary" onclick="downloadImportTemplate()" ${state.importing ? 'disabled' : ''}>Download Template</button>
+          <button class="btn-secondary" onclick="openImportFile()" ${state.importing ? 'disabled' : ''}>Load JSON File</button>
+          <button class="btn-generate" onclick="submitImportText()" ${state.importing ? 'disabled' : ''}>${state.importing ? 'Importing...' : 'Save JSON to DB'}</button>
+        </div>
+        <div class="helper">Formato recomendado: <code>{ "items": [ ... ] }</code> con campos <code>category</code>, <code>phrase_en</code>, <code>phrase_es</code> y <code>style</code>. Tambien se aceptan: array directo, <strong>{ data: [...] }</strong>, <strong>{ entries: [...] }</strong> o <strong>{ database_entry: { entries: [...] } }</strong>.</div>
+      </section>
+    `;
+  }
+
+  const fullQuery = normalizeForSearch(state.searchText);
+  const queryTokens = buildSearchTokens(state.searchText);
+  const fromMs = state.filterFrom ? Date.parse(state.filterFrom) : null;
+  const toMs = state.filterTo ? Date.parse(state.filterTo) : null;
+  const hasValidFrom = Number.isFinite(fromMs);
+  const hasValidTo = Number.isFinite(toMs);
+
+  const visibleItems = state.items.map((it) => ({
+    item: it,
+    score: computeMatchScore(it, queryTokens, fullQuery),
+  })).filter((entry) => {
+    const it = entry.item;
+    if (state.favoritesOnly && !state.favorites.has(favKey(it))) return false;
+    if (!state.favoritesOnly) {
+      const itemTag = normalizeTagKey(it?.category || '');
+      if (state.category !== 'ALL' && itemTag !== state.category) return false;
+    }
+    if (!phraseMatchesSearch(it, queryTokens)) return false;
+    if (state.sourceFilter !== 'ALL' && normalizeForSearch(it?.source || '') !== state.sourceFilter) return false;
+    if (state.styleFilter !== 'ALL' && normalizeForSearch(it?.style || '') !== state.styleFilter) return false;
+
+    if (hasValidFrom || hasValidTo) {
+      const rawTs = Number(it?.[state.filterField]);
+      const ts = Number.isFinite(rawTs) ? rawTs : null;
+      if (!ts) return false;
+      if (hasValidFrom && ts < fromMs) return false;
+      if (hasValidTo && ts > toMs) return false;
+    }
+
+    return true;
+  }).sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return Number(b.item?.updated_at || b.item?.created_at || 0) - Number(a.item?.updated_at || a.item?.created_at || 0);
+  });
+
+  if (!visibleItems.length) {
+    const hasQuery = Boolean(queryTokens.length);
+    const hasDateFilters = Boolean(state.filterFrom || state.filterTo);
+    content.innerHTML = state.favoritesOnly
+      ? `<div class="empty">No tienes favoritos todavía. Pulsa ⭐ en cualquier frase para guardarla aquí.</div>`
+      : (hasQuery || hasDateFilters)
+        ? `<div class="empty">No results for current search/date filters.</div>`
+        : `<div class="empty">No hay frases todavia. Envia mensajes en el chatbot para poblar el catalogo.</div>`;
+    return;
+  }
+
+  const byCat = visibleItems.reduce((acc, entry) => {
+    const it = entry.item;
+    const key = normalizeTagKey(it.category || '');
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(entry);
+    return acc;
+  }, {});
+
+  const groups = Object.entries(byCat).sort((a, b) => {
+    if (b[1].length !== a[1].length) return b[1].length - a[1].length;
+    return a[0].localeCompare(b[0]);
+  }).map(([cat, arr]) => `
+    <section class="group">
+      <div class="group-head">
+        <div class="group-name">${esc(tagDisplayName(cat))}</div>
+        <div class="group-count">${arr.length} frases</div>
+      </div>
+      <div class="group-body">
+        ${arr.map((entry, idx) => {
+          const it = entry.item;
+          return `
+          <article class="item ${state.favorites.has(favKey(it)) ? 'is-fav' : ''}" id="item-${escAttr(it.category)}-${idx}">
+            <button class="copy-btn phrase-copy-btn" data-text="${escAttr(it.phrase_en)}" title="Copy EN phrase">Copy</button>
+            <button class="fav-btn phrase-fav-btn ${state.favorites.has(favKey(it)) ? 'active' : ''}" data-en="${escAttr(it.phrase_en)}" data-cat="${escAttr(it.category)}" title="${state.favorites.has(favKey(it)) ? 'Quitar de favoritos' : 'Añadir a favoritos'}">⭐</button>
+            <div class="en">${esc(it.phrase_en)}</div>
+            ${state.showSpanish ? `<div class="es">${esc(it.phrase_es)}</div>` : ''}
+            <div class="audio-actions">
+              <button class="audio-btn phrase-audio-btn" data-text="${escAttr(it.phrase_en)}" data-accent="british">🔊 UK</button>
+              <button class="audio-btn phrase-audio-btn" data-text="${escAttr(it.phrase_en)}" data-accent="american">🔊 US</button>
+              <button class="check-btn phrase-check-btn" data-text="${escAttr(it.phrase_en)}">🎙 Check Pronunciation</button>
+            </div>
+            <div class="meta">
+              <span>${it.style ? 'Style: ' + esc(it.style) : 'Style: n/a'}${it.source ? ' · Source: ' + esc(it.source) : ''}</span>
+              <span>${new Date(it.updated_at || it.created_at).toLocaleString()}</span>
+            </div>
+          </article>
+        `;
+        }).join('')}
+      </div>
+    </section>
+  `).join('');
+
+  content.innerHTML = `<div class="grid">${groups}</div>`;
+  content.querySelectorAll('.phrase-copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await copyPhrase(btn, btn.dataset.text || '');
+    });
+  });
+  content.querySelectorAll('.phrase-fav-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const pseudo = { category: btn.dataset.cat || '', phrase_en: btn.dataset.en || '' };
+      toggleFavorite(pseudo);
+    });
+  });
+  content.querySelectorAll('.phrase-audio-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await speakPhrase(btn.dataset.text || '', btn.dataset.accent || 'british');
+    });
+  });
+  content.querySelectorAll('.phrase-check-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      openPronunciationModal(btn.dataset.text || '');
+    });
+  });
+}
+
+function getSpeechRecognitionCtor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function openPronunciationModal(phrase) {
+  state.pronunciationModal.open = true;
+  state.pronunciationModal.phrase = String(phrase || '').trim();
+  state.pronunciationModal.transcript = '';
+  state.pronunciationModal.result = null;
+  state.pronunciationModal.loading = false;
+  state.pronunciationModal.status = 'Read the phrase and press Record & Verify.';
+  renderPronunciationModal();
+}
+
+function closePronunciationModal() {
+  if (activeRecognition) {
+    try { activeRecognition.stop(); } catch (_) {}
+    activeRecognition = null;
+  }
+  state.pronunciationModal.open = false;
+  document.getElementById('pron-modal').hidden = true;
+}
+
+function onPronunciationAccentChange(event) {
+  state.pronunciationModal.accent = String(event.target.value || 'american');
+}
+
+function replayTargetPhrase() {
+  speakPhrase(state.pronunciationModal.phrase, state.pronunciationModal.accent);
+}
+
+function renderPronunciationModal() {
+  const modal = document.getElementById('pron-modal');
+  const target = document.getElementById('pron-target');
+  const status = document.getElementById('pron-status');
+  const accentSel = document.getElementById('pron-accent');
+  const resultBox = document.getElementById('pron-result');
+  const recordBtn = document.getElementById('pron-record-btn');
+
+  if (!modal || !target || !status || !accentSel || !resultBox || !recordBtn) return;
+
+  modal.hidden = !state.pronunciationModal.open;
+  target.textContent = state.pronunciationModal.phrase || '-';
+  status.textContent = state.pronunciationModal.status;
+  accentSel.value = state.pronunciationModal.accent;
+  recordBtn.disabled = state.pronunciationModal.loading;
+  recordBtn.textContent = state.pronunciationModal.loading ? 'Checking...' : '🎙 Record & Verify';
+
+  if (!state.pronunciationModal.result) {
+    resultBox.hidden = true;
+    resultBox.innerHTML = '';
+    return;
+  }
+
+  const r = state.pronunciationModal.result;
+  const highlights = Array.isArray(r.highlights) ? r.highlights : [];
+  const issues = Array.isArray(r.issues) ? r.issues : [];
+  const advice = Array.isArray(r.advice) ? r.advice : [];
+
+  resultBox.hidden = false;
+  resultBox.innerHTML = `
+    <div class="score-badges">
+      <span class="score-chip score-main">Overall: ${Number(r.overall_score || 0)}/100</span>
+      <span class="score-chip">Accuracy: ${Number(r.accuracy_score || 0)}/100</span>
+      <span class="score-chip">Fluency: ${Number(r.fluency_score || 0)}/100</span>
+      <span class="score-chip">Verdict: ${esc(r.verdict || 'n/a')}</span>
+    </div>
+    <div class="score-section"><strong>Your transcript:</strong> ${esc(r.spoken_transcript || '-')}</div>
+    <div class="score-section"><strong>Target phrase:</strong> ${esc(r.target_phrase || state.pronunciationModal.phrase)}</div>
+    <div class="score-section"><h4>Highlights</h4><ul class="score-list">${highlights.map(x => `<li>${esc(x)}</li>`).join('') || '<li>-</li>'}</ul></div>
+    <div class="score-section"><h4>Issues</h4><ul class="score-list">${issues.map(x => `<li>${esc(x)}</li>`).join('') || '<li>-</li>'}</ul></div>
+    <div class="score-section"><h4>Advice</h4><ul class="score-list">${advice.map(x => `<li>${esc(x)}</li>`).join('') || '<li>-</li>'}</ul></div>
+    <div class="score-section"><strong>Next try:</strong> ${esc(r.next_try || state.pronunciationModal.phrase)}</div>
+  `;
+}
+
+async function startPronunciationCapture() {
+  const SpeechRecognition = getSpeechRecognitionCtor();
+  if (!SpeechRecognition) {
+    showToast('Speech recognition is not supported in this browser.', 'err');
+    return;
+  }
+  if (!state.pronunciationModal.phrase) {
+    showToast('No phrase selected.', 'err');
+    return;
+  }
+
+  state.pronunciationModal.loading = true;
+  state.pronunciationModal.status = 'Listening... please pronounce the phrase now.';
+  state.pronunciationModal.result = null;
+  renderPronunciationModal();
+
+  const recognition = new SpeechRecognition();
+  activeRecognition = recognition;
+  recognition.lang = state.pronunciationModal.accent === 'british' ? 'en-GB' : 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = async (event) => {
+    const transcript = String(event?.results?.[0]?.[0]?.transcript || '').trim();
+    state.pronunciationModal.transcript = transcript;
+    state.pronunciationModal.status = transcript
+      ? `Captured: "${transcript}". Verifying with LLM...`
+      : 'No speech recognized. Try again.';
+    renderPronunciationModal();
+
+    if (!transcript) {
+      state.pronunciationModal.loading = false;
+      renderPronunciationModal();
+      return;
+    }
+
+    try {
+      const data = await postJsonWithFallback('/api/chatbot/pronunciation/check', {
+        phrase: state.pronunciationModal.phrase,
+        transcript,
+        accent: state.pronunciationModal.accent,
+      }, 'Pronunciation check');
+      state.pronunciationModal.result = data.review || null;
+      state.pronunciationModal.status = 'Review complete.';
+    } catch (e) {
+      state.pronunciationModal.status = `Verification error: ${e.message}`;
+      showToast(`Pronunciation error: ${e.message}`, 'err');
+    } finally {
+      state.pronunciationModal.loading = false;
+      renderPronunciationModal();
+    }
+  };
+
+  recognition.onerror = (event) => {
+    state.pronunciationModal.loading = false;
+    state.pronunciationModal.status = `Microphone error: ${event?.error || 'unknown'}`;
+    renderPronunciationModal();
+  };
+
+  recognition.onend = () => {
+    activeRecognition = null;
+    if (state.pronunciationModal.loading && !state.pronunciationModal.result) {
+      state.pronunciationModal.loading = false;
+      if (!state.pronunciationModal.transcript) {
+        state.pronunciationModal.status = 'No speech captured. Please try again.';
+      }
+      renderPronunciationModal();
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (e) {
+    state.pronunciationModal.loading = false;
+    state.pronunciationModal.status = `Could not start microphone: ${e.message}`;
+    renderPronunciationModal();
+  }
+}
+
+function onSearchInput(event) {
+  state.searchText = String(event.target.value || '');
+  render();
+}
+
+function clearSearch() {
+  state.searchText = '';
+  render();
+  document.getElementById('phrase-search')?.focus();
+}
+
+function toDatetimeLocalValue(ms) {
+  const d = new Date(ms);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function onFilterFieldChange(event) {
+  const value = String(event.target.value || 'updated_at');
+  state.filterField = value === 'created_at' ? 'created_at' : 'updated_at';
+  render();
+}
+
+function onFilterFromChange(event) {
+  state.filterFrom = String(event.target.value || '');
+  render();
+}
+
+function onFilterToChange(event) {
+  state.filterTo = String(event.target.value || '');
+  render();
+}
+
+function onSourceFilterChange(event) {
+  state.sourceFilter = String(event.target.value || 'ALL');
+  render();
+}
+
+function onStyleFilterChange(event) {
+  state.styleFilter = String(event.target.value || 'ALL');
+  render();
+}
+
+function setLastDaysFilter(days) {
+  const now = Date.now();
+  const from = now - (Number(days) * 24 * 60 * 60 * 1000);
+  state.filterFrom = toDatetimeLocalValue(from);
+  state.filterTo = toDatetimeLocalValue(now);
+  render();
+}
+
+function clearDateFilters() {
+  state.filterFrom = '';
+  state.filterTo = '';
+  render();
+}
+
+function clearQuickFilters() {
+  state.sourceFilter = 'ALL';
+  state.styleFilter = 'ALL';
+  render();
+}
+
+function setupPhraseBankSplitter() {
+  const splitter = document.getElementById('pb-splitter');
+  const leftPanel = document.getElementById('panel-left');
+  if (!splitter || !leftPanel) return;
+
+  splitter.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 900) return;
+    e.preventDefault();
+    splitter.classList.add('dragging');
+    const startX = e.clientX;
+    const startW = leftPanel.getBoundingClientRect().width;
+
+    const onMove = (ev) => {
+      const next = Math.min(460, Math.max(210, startW + (ev.clientX - startX)));
+      const layout = document.querySelector('.pb-layout');
+      if (layout) layout.style.gridTemplateColumns = `${next}px 10px 1fr`;
+    };
+
+    const onUp = () => {
+      splitter.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+function setCategory(cat) {
+  state.category = String(cat || 'ALL');
+  state.favoritesOnly = false;
+  render();
+}
+
+function toggleFavoritesOnly() {
+  state.favoritesOnly = !state.favoritesOnly;
+  if (state.favoritesOnly) state.category = 'ALL';
+  render();
+}
+
+function toggleSpanish() {
+  state.showSpanish = !state.showSpanish;
+  render();
+}
+
+function toggleImportPanel() {
+  state.importOpen = !state.importOpen;
+  render();
+}
+
+function syncImportText(event) {
+  state.importText = event.target.value;
+}
+
+function getImportTemplateText() {
+  return JSON.stringify(IMPORT_TEMPLATE, null, 2);
+}
+
+function fillImportTemplate() {
+  state.importText = getImportTemplateText();
+  render();
+}
+
+function clearImportText() {
+  state.importText = '';
+  render();
+}
+
+async function copyImportTemplate() {
+  try {
+    await navigator.clipboard.writeText(getImportTemplateText());
+    showToast('Template copied to clipboard', 'ok');
+  } catch (e) {
+    showToast('Copy error: ' + e.message, 'err');
+  }
+}
+
+function downloadImportTemplate() {
+  downloadFile('phrase-bank-import-template.json', getImportTemplateText(), 'application/json;charset=utf-8');
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) { return esc(s).replace(/'/g,'&#39;'); }
+
+async function generatePhrases() {
+  const btn = document.getElementById('btn-gen');
+  state.generating = true;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+  render();
+  try {
+    const res = await fetch('/api/chatbot/phrase-bank/generate', { method: 'POST' });
+    const data = await readJsonResponse(res, 'Phrase generation');
+    if (!res.ok) throw new Error(data.error || 'Server error');
+    state.generationSummary = data.summary || '';
+    state.lastGeneratedItems = Array.isArray(data.generated) ? data.generated : [];
+    persistLastGeneration(data);
+    showToast(`✓ Saved ${data.saved} of ${data.total} phrases`, 'ok');
+    await load();
+  } catch (e) {
+    showToast('Error: ' + e.message, 'err');
+  } finally {
+    state.generating = false;
+    btn.disabled = false;
+    btn.textContent = '✨ Generate with AI';
+    render();
+  }
+}
+
+function persistLastGeneration(data) {
+  try {
+    const payload = {
+      saved: Number(data.saved || 0),
+      total: Number(data.total || 0),
+      summary: String(data.summary || ''),
+      generated: Array.isArray(data.generated) ? data.generated : [],
+      categories: Array.isArray(data.categories) ? data.categories : [],
+      timestamp: Date.now(),
+    };
+    localStorage.setItem('phrase_bank_last_generation', JSON.stringify(payload));
+  } catch (_) {}
+}
+
+async function copySummary() {
+  try {
+    await navigator.clipboard.writeText(state.generationSummary || '');
+    showToast('Summary copied', 'ok');
+  } catch (e) {
+    showToast('Copy error: ' + e.message, 'err');
+  }
+}
+
+function openImportFile() {
+  document.getElementById('import-file').click();
+}
+
+async function handleImportFile(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    state.importText = text;
+    render();
+    await submitImportPayload(JSON.parse(text));
+  } catch (e) {
+    showToast('Invalid JSON file: ' + e.message, 'err');
+  } finally {
+    event.target.value = '';
+  }
+}
+
+async function submitImportText() {
+  try {
+    await submitImportPayload(JSON.parse(state.importText));
+  } catch (e) {
+    showToast('Invalid JSON: ' + e.message, 'err');
+  }
+}
+
+async function submitImportPayload(payload) {
+  state.importing = true;
+  render();
+  try {
+    const res = await fetch('/api/chatbot/phrase-bank/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await readJsonResponse(res, 'Phrase import');
+    if (!res.ok) throw new Error(data.error || 'Import failed');
+    showToast(`✓ Imported ${data.saved} items${data.invalid ? ` (${data.invalid} skipped)` : ''}`, 'ok');
+    state.importOpen = false;
+    await load();
+  } catch (e) {
+    showToast('Import error: ' + e.message, 'err');
+  } finally {
+    state.importing = false;
+    render();
+  }
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+
+function downloadFile(name, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportJson() {
+  const payload = {
+    exported_at: new Date().toISOString(),
+    category: state.category,
+    total: state.items.length,
+    summary: state.generationSummary,
+    items: state.items,
+  };
+  downloadFile(`phrase-bank-${slugify(state.category)}.json`, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+}
+
+function toCsvValue(value) {
+  const text = String(value ?? '');
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function exportCsv() {
+  const header = ['category', 'phrase_en', 'phrase_es', 'style', 'source', 'created_at', 'updated_at'];
+  const rows = state.items.map(item => [
+    item.category,
+    item.phrase_en,
+    item.phrase_es,
+    item.style,
+    item.source,
+    item.created_at,
+    item.updated_at,
+  ]);
+  const csv = [header.join(','), ...rows.map(row => row.map(toCsvValue).join(','))].join('\n');
+  downloadFile(`phrase-bank-${slugify(state.category)}.csv`, csv, 'text/csv;charset=utf-8');
+}
+
+function slugify(value) {
+  return String(value || 'all')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'all';
+}
+
+async function copyPhrase(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+  } catch {
+    btn.textContent = 'Error';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+  }
+}
+
+setupPhraseBankSplitter();
+setupVoiceControls();
+load();
+</script>
+</body>
+</html>

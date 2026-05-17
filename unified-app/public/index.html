@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LM Studio Hub</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:       #080c14;
+  --surface:  #0d1117;
+  --surface2: #161b22;
+  --surface3: #1c2330;
+  --border:   #21262d;
+  --border2:  #30363d;
+  --accent:   #58a6ff;
+  --accent2:  #3fb950;
+  --warn:     #e3b341;
+  --danger:   #f85149;
+  --purple:   #a371f7;
+  --orange:   #f0883e;
+  --text:     #e6edf3;
+  --muted:    #8b949e;
+  --muted2:   #6e7681;
+  --radius:   10px;
+  --sidebar:  240px;
+  --splitter: 10px;
+  --font:     'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:     'JetBrains Mono','Fira Code','Cascadia Code',monospace;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;overflow:hidden}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────────── */
+.shell{display:grid;grid-template-columns:var(--sidebar) var(--splitter) 1fr;grid-template-rows:56px 1fr;height:100vh}
+
+/* ── TOPBAR ─────────────────────────────────────────────────────────────── */
+.topbar{
+  grid-column:1/-1;
+  display:flex;align-items:center;
+  padding:0 20px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  gap:16px;
+  position:relative;z-index:100;
+}
+.topbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.topbar-logo{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#58a6ff,#a371f7);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.topbar-name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.topbar-name span{color:var(--accent)}
+.topbar-sep{width:1px;height:24px;background:var(--border2);margin:0 4px}
+.topbar-right{display:flex;align-items:center;gap:14px;margin-left:auto}
+.status-badge{
+  display:flex;align-items:center;gap:6px;padding:5px 12px;
+  background:var(--surface2);border:1px solid var(--border2);border-radius:20px;
+  font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .2s;
+}
+.status-badge:hover{border-color:var(--border2)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .4s}
+.dot.ok{background:var(--accent2);box-shadow:0 0 8px var(--accent2)}
+.dot.err{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+.dot.checking{background:var(--warn);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.stat-pill{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:20px;background:var(--surface2);border:1px solid var(--border);
+  font-size:12px;color:var(--muted);
+}
+.stat-pill b{color:var(--text)}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+nav.sidebar{
+  grid-column:1;grid-row:2;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;padding:12px 8px;
+}
+.shell-splitter{
+  grid-column:2;grid-row:2;
+  cursor:col-resize;
+  background:linear-gradient(180deg,#2a313e 0%, #1e2532 100%);
+  border-left:1px solid #30363d;
+  border-right:1px solid #1b1f28;
+}
+.shell-splitter:hover,
+.shell-splitter.dragging{background:linear-gradient(180deg,#3e5f95 0%, #2f4f84 100%)}
+.nav-section-label{
+  font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--muted2);padding:8px 10px 4px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
+  text-decoration:none;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .15s;position:relative;border:none;background:none;width:100%;text-align:left;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(88,166,255,.12);color:var(--accent);border-left:2px solid var(--accent);padding-left:8px}
+.nav-item .nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-item .nav-badge{
+  margin-left:auto;font-size:10px;padding:1px 6px;border-radius:10px;
+  background:var(--surface3);color:var(--muted);border:1px solid var(--border2);
+}
+.nav-item.active .nav-badge{background:rgba(88,166,255,.15);color:var(--accent);border-color:rgba(88,166,255,.3)}
+.sidebar-footer{margin-top:auto;padding:8px 0 0;border-top:1px solid var(--border)}
+
+/* ── MAIN ────────────────────────────────────────────────────────────────── */
+main.content{grid-column:3;grid-row:2;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+main.content::-webkit-scrollbar{width:4px}
+main.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── SECTION ─────────────────────────────────────────────────────────────── */
+.section{padding:28px 32px;min-height:0;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-size:18px;font-weight:700;color:var(--text)}
+.section-subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ── CARDS GRID ──────────────────────────────────────────────────────────── */
+.app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:28px}
+
+.app-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;text-decoration:none;display:flex;flex-direction:column;gap:14px;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.app-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.app-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;
+  opacity:0;transition:opacity .2s;
+}
+.app-card:hover::before{opacity:1}
+.app-card.bookmark::before{background:linear-gradient(90deg,var(--warn),var(--orange))}
+.app-card.chatbot::before{background:linear-gradient(90deg,var(--accent),var(--purple))}
+.app-card.teacher::before{background:linear-gradient(90deg,#3fb950,#58a6ff)}
+
+.card-top{display:flex;align-items:center;gap:12px}
+.card-icon{
+  width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.card-icon.bm{background:rgba(227,179,65,.12)}
+.card-icon.cb{background:rgba(88,166,255,.12)}
+.card-meta{flex:1;min-width:0}
+.card-name{font-size:15px;font-weight:700;color:var(--text)}
+.card-desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+.card-arrow{color:var(--muted2);font-size:18px;transition:transform .2s}
+.app-card:hover .card-arrow{transform:translateX(4px);color:var(--accent)}
+
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;
+  background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+}
+.tag.yellow{background:rgba(227,179,65,.1);border-color:rgba(227,179,65,.3);color:var(--warn)}
+.tag.blue  {background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);color:var(--accent)}
+.tag.green {background:rgba(63,185,80,.1);border-color:rgba(63,185,80,.3);color:var(--accent2)}
+.tag.purple{background:rgba(163,113,247,.1);border-color:rgba(163,113,247,.3);color:var(--purple)}
+
+/* ── STATS ROW ───────────────────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;display:flex;flex-direction:column;gap:6px;
+}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.4px;text-transform:uppercase}
+.stat-value{font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.stat-sub{font-size:11px;color:var(--muted2)}
+.stat-card.accent .stat-value{color:var(--accent)}
+.stat-card.green  .stat-value{color:var(--accent2)}
+.stat-card.warn   .stat-value{color:var(--warn)}
+.stat-card.danger .stat-value{color:var(--danger)}
+
+/* ── LOGS TABLE ──────────────────────────────────────────────────────────── */
+.live-badge{
+  display:flex;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;
+  font-size:11px;color:var(--accent2);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);
+}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--accent2);animation:pulse 1.2s infinite}
+.btn-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:7px;border:1px solid var(--border2);
+  background:none;color:var(--muted);cursor:pointer;transition:all .15s;font-size:14px;
+}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent);background:rgba(88,166,255,.08)}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--surface2)}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;
+   color:var(--muted);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;
+   border-bottom:1px solid var(--border)}
+td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.new-row{animation:fadeInRow .4s ease}
+@keyframes fadeInRow{from{background:rgba(88,166,255,.08)}to{background:transparent}}
+tbody tr:hover td{background:var(--surface2)}
+
+.status-chip{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;
+  font-size:11px;font-weight:600;white-space:nowrap;
+}
+.status-chip.pending{background:rgba(227,179,65,.12);color:var(--warn);border:1px solid rgba(227,179,65,.25)}
+.status-chip.success{background:rgba(63,185,80,.12);color:var(--accent2);border:1px solid rgba(63,185,80,.25)}
+.status-chip.error  {background:rgba(248,81,73,.12);color:var(--danger);border:1px solid rgba(248,81,73,.25)}
+.status-chip.pending::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--warn);animation:pulse 1s infinite}
+.status-chip.success::before{content:'✓';margin-right:2px}
+.status-chip.error::before{content:'×';margin-right:2px}
+
+.app-chip{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 7px;
+  border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;
+}
+.app-chip.bookmark{background:rgba(227,179,65,.1);color:var(--warn)}
+.app-chip.chatbot {background:rgba(88,166,255,.1);color:var(--accent)}
+.app-chip.unknown {background:rgba(163,113,247,.1);color:var(--purple)}
+
+.ms-pill{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.token-val{font-family:var(--mono);font-size:11px;color:var(--text)}
+.model-val{font-family:var(--mono);font-size:11px;color:var(--purple);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.preview-val{color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty-row td{text-align:center;padding:32px;color:var(--muted)}
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media(max-width:768px){
+  :root{--sidebar:0;--splitter:0}
+  nav.sidebar{display:none}
+  .shell-splitter{display:none}
+  .section{padding:20px 16px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── TOP BAR ── -->
+  <header class="topbar">
+    <a class="topbar-brand" href="/">
+      <div class="topbar-logo">🧠</div>
+      <span class="topbar-name">LM Studio <span>Hub</span></span>
+    </a>
+    <div class="topbar-sep"></div>
+    <div class="topbar-right">
+      <div class="stat-pill"><b id="hdr-reqs">0</b>&nbsp;requests</div>
+      <div class="stat-pill"><b id="hdr-tokens">0</b>&nbsp;tokens</div>
+      <div class="status-badge" id="status-badge" title="Click para verificar conexión" onclick="checkStatus()">
+        <span class="dot checking" id="status-dot"></span>
+        <span id="status-text">Verificando…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="nav-section-label">Navegación</div>
+    <button class="nav-item active" data-view="dashboard">
+      <span class="nav-icon">⊞</span> Dashboard
+    </button>
+    <a class="nav-item" href="/app/bookmark">
+      <span class="nav-icon">🔖</span> Bookmark Manager
+      <span class="nav-badge">SPA</span>
+    </a>
+    <a class="nav-item" href="/app/chatbot">
+      <span class="nav-icon">💬</span> English Chatbot
+      <span class="nav-badge">Chat</span>
+    </a>
+    <a class="nav-item" href="/app/chatbot-fast">
+      <span class="nav-icon">⚡</span> Chatbot Fast
+      <span class="nav-badge">Quick</span>
+    </a>
+    <a class="nav-item" href="/app/teacher">
+      <span class="nav-icon">🎓</span> Teacher App
+      <span class="nav-badge">B2 Coach</span>
+    </a>
+
+    <div class="nav-section-label" style="margin-top:16px">Monitoreo</div>
+    <button class="nav-item" data-view="logs">
+      <span class="nav-icon">📋</span> Logs LLM
+      <span class="nav-badge" id="nav-log-count">0</span>
+    </button>
+    <button class="nav-item" data-view="stats">
+      <span class="nav-icon">📊</span> Estadísticas
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="nav-section-label">Sistema</div>
+      <button class="nav-item" onclick="checkStatus()">
+        <span class="nav-icon">⟳</span> Check LM Studio
+      </button>
+    </div>
+  </nav>
+
+  <div class="shell-splitter" id="hub-splitter" title="Resize panels"></div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="content" id="main-content">
+
+    <!-- ═══ VIEW: DASHBOARD ═══════════════════════════════════════════════ -->
+    <div id="view-dashboard" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Dashboard</div>
+          <div class="section-subtitle">Centro de control unificado de LM Studio</div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card accent">
+          <div class="stat-label">Total Peticiones</div>
+          <div class="stat-value" id="s-total">—</div>
+          <div class="stat-sub">desde inicio</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Exitosas</div>
+          <div class="stat-value" id="s-ok">—</div>
+          <div class="stat-sub" id="s-ok-pct">—</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Errores</div>
+          <div class="stat-value" id="s-err">—</div>
+          <div class="stat-sub">fallos de LLM</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Tokens Usados</div>
+          <div class="stat-value" id="s-tokens">—</div>
+          <div class="stat-sub">total acumulado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Latencia Media</div>
+          <div class="stat-value" id="s-avg">—</div>
+          <div class="stat-sub">ms por petición</div>
+        </div>
+      </div>
+
+      <!-- App cards -->
+      <div class="section-header">
+        <div class="section-title" style="font-size:15px">Aplicaciones</div>
+      </div>
+      <div class="app-grid">
+        <a class="app-card bookmark" href="/app/bookmark">
+          <div class="card-top">
+            <div class="card-icon bm">🔖</div>
+            <div class="card-meta">
+              <div class="card-name">Bookmark Manager</div>
+              <div class="card-desc">Gestiona y organiza tus favoritos con IA</div>
+            </div>
+            <span class="card-arrow">→</span>
+          </div>
+          <div class="card-tags">
+            <span class="tag yellow">IndexedDB</span>
+            <span class="tag yellow">Browser-side AI</span>
+            <span class="tag">LM Proxy</span>
+          </div>
+        </a>
+
+        <a class="app-card chatbot" href="/app/chatbot">
+          <div class="card-top">
+            <div class="card-icon cb">💬</div>
+            <div class="card-meta">
+              <div class="card-name">English Chatbot</div>
+              <div class="card-desc">Coach de inglés y traductor inteligente</div>
+            </div>
+            <span class="card-arrow">→</span>
+          </div>
+          <div class="card-tags">
+            <span class="tag blue">SQLite</span>
+            <span class="tag blue">Server-side AI</span>
+            <span class="tag">Conversacional</span>
+          </div>
+        </a>
+
+        <a class="app-card chatbot" href="/app/chatbot-fast">
+          <div class="card-top">
+            <div class="card-icon cb">⚡</div>
+            <div class="card-meta">
+              <div class="card-name">Chatbot Fast</div>
+              <div class="card-desc">Mejora inglés + traducción al castellano en una sola pasada</div>
+            </div>
+            <span class="card-arrow">→</span>
+          </div>
+          <div class="card-tags">
+            <span class="tag blue">1 llamada LLM</span>
+            <span class="tag blue">Baja latencia</span>
+            <span class="tag">Solo resultado</span>
+          </div>
+        </a>
+
+        <a class="app-card teacher" href="/app/teacher">
+          <div class="card-top">
+            <div class="card-icon cb">🎓</div>
+            <div class="card-meta">
+              <div class="card-name">English Teacher App</div>
+              <div class="card-desc">Sesiones guiadas B2 con speaking/listening y Learning Log persistente</div>
+            </div>
+            <span class="card-arrow">→</span>
+          </div>
+          <div class="card-tags">
+            <span class="tag green">Audio-ready</span>
+            <span class="tag green">SESSION_STATE</span>
+            <span class="tag">SQLite</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Recent logs mini -->
+      <div class="section-header">
+        <div class="section-title" style="font-size:15px">Actividad reciente</div>
+        <div style="display:flex;gap:8px">
+          <div class="live-badge"><div class="live-dot"></div> EN VIVO</div>
+          <button class="btn-icon" title="Ver todos los logs" onclick="switchView('logs')">⊞</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>App</th><th>Estado</th><th>Modelo</th>
+              <th>Tokens</th><th>Latencia</th><th>Tiempo</th><th>Preview</th>
+            </tr>
+          </thead>
+          <tbody id="mini-log-body">
+            <tr class="empty-row"><td colspan="7">Sin actividad — esperando peticiones LLM…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ VIEW: LOGS ════════════════════════════════════════════════════ -->
+    <div id="view-logs" class="section" style="display:none">
+      <div class="section-header">
+        <div>
+          <div class="section-title">📋 Logs de uso LLM</div>
+          <div class="section-subtitle">Historial completo de peticiones al modelo de lenguaje</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="live-badge"><div class="live-dot"></div> EN VIVO</div>
+          <select id="filter-app" onchange="applyFilter()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;outline:none">
+            <option value="">Todas las apps</option>
+            <option value="bookmark">bookmark</option>
+            <option value="chatbot">chatbot</option>
+            <option value="chatbot_fast">chatbot_fast</option>
+          </select>
+          <select id="filter-status" onchange="applyFilter()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;outline:none">
+            <option value="">Todos</option>
+            <option value="success">success</option>
+            <option value="error">error</option>
+            <option value="pending">pending</option>
+          </select>
+          <button class="btn-icon" title="Refrescar" onclick="loadLogs()">⟳</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>App</th><th>Estado</th><th>Modelo</th>
+              <th>Endpoint</th><th>P.Tokens</th><th>C.Tokens</th><th>Total</th>
+              <th>Latencia</th><th>Timestamp</th><th>Preview</th>
+            </tr>
+          </thead>
+          <tbody id="full-log-body">
+            <tr class="empty-row"><td colspan="11">Cargando logs…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ VIEW: STATS ═══════════════════════════════════════════════════ -->
+    <div id="view-stats" class="section" style="display:none">
+      <div class="section-header">
+        <div>
+          <div class="section-title">📊 Estadísticas de uso</div>
+          <div class="section-subtitle">Métricas agregadas por aplicación</div>
+        </div>
+        <button class="btn-icon" onclick="loadStats()">⟳</button>
+      </div>
+
+      <!-- Global stats -->
+      <div class="stats-row" id="stats-detail-row" style="margin-bottom:28px"></div>
+
+      <!-- Per-app breakdown -->
+      <div class="section-header">
+        <div class="section-title" style="font-size:15px">Desglose por aplicación</div>
+      </div>
+      <div class="table-wrap" style="margin-bottom:28px">
+        <table>
+          <thead>
+            <tr><th>Aplicación</th><th>Peticiones</th><th>Exitosas</th><th>Errores</th><th>Tokens totales</th><th>Latencia media</th></tr>
+          </thead>
+          <tbody id="app-stats-body">
+            <tr class="empty-row"><td colspan="6">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Model info -->
+      <div class="section-header">
+        <div class="section-title" style="font-size:15px">Configuración LM Studio</div>
+      </div>
+      <div id="lm-info-box" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px">
+        <div style="color:var(--muted);font-size:13px">Verificando conexión…</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Navigation ──────────────────────────────────────────────────────────────
+const views = ['dashboard','logs','stats'];
+function switchView(v) {
+  views.forEach(id => {
+    document.getElementById(`view-${id}`).style.display = id === v ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === v);
+  });
+  if (v === 'logs')  loadLogs();
+  if (v === 'stats') loadStats();
+}
+document.querySelectorAll('.nav-item[data-view]').forEach(el =>
+  el.addEventListener('click', () => switchView(el.dataset.view))
+);
+
+// ── Stats ────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const data = await fetch('/api/stats').then(r=>r.json());
+    const g = data.global || {};
+    const total = g.total_requests || 0;
+    const ok    = g.successful     || 0;
+    const err   = g.errors         || 0;
+    const pct   = total > 0 ? Math.round(ok/total*100) : 0;
+    const tokens = g.total_tokens   || 0;
+    const avg    = g.avg_duration_ms ? Math.round(g.avg_duration_ms) : 0;
+
+    // update topbar pills
+    document.getElementById('hdr-reqs').textContent   = total;
+    document.getElementById('hdr-tokens').textContent = fmtNum(tokens);
+
+    // dashboard stats
+    document.getElementById('s-total').textContent  = total;
+    document.getElementById('s-ok').textContent     = ok;
+    document.getElementById('s-ok-pct').textContent = `${pct}% tasa de éxito`;
+    document.getElementById('s-err').textContent    = err;
+    document.getElementById('s-tokens').textContent = fmtNum(tokens);
+    document.getElementById('s-avg').textContent    = avg ? `${avg}ms` : '—';
+
+    // stats view detail row
+    const detailRow = document.getElementById('stats-detail-row');
+    detailRow.innerHTML = `
+      <div class="stat-card accent"><div class="stat-label">Total</div><div class="stat-value">${total}</div><div class="stat-sub">peticiones</div></div>
+      <div class="stat-card green"><div class="stat-label">Exitosas</div><div class="stat-value">${ok}</div><div class="stat-sub">${pct}%</div></div>
+      <div class="stat-card danger"><div class="stat-label">Errores</div><div class="stat-value">${err}</div><div class="stat-sub">fallos</div></div>
+      <div class="stat-card warn"><div class="stat-label">Tokens</div><div class="stat-value">${fmtNum(tokens)}</div><div class="stat-sub">acumulados</div></div>
+      <div class="stat-card"><div class="stat-label">Latencia</div><div class="stat-value">${avg ? avg+'ms' : '—'}</div><div class="stat-sub">promedio</div></div>
+    `;
+
+    // per-app table
+    const appBody = document.getElementById('app-stats-body');
+    const by = data.by_app || [];
+    if (!by.length) {
+      appBody.innerHTML = '<tr class="empty-row"><td colspan="6">Sin datos por aplicación aún</td></tr>';
+    } else {
+      appBody.innerHTML = by.map(a => {
+        const pct = a.requests > 0 ? Math.round(a.successful/a.requests*100) : 0;
+        return `<tr>
+          <td><span class="app-chip ${a.app}">${appIcon(a.app)} ${a.app}</span></td>
+          <td class="token-val">${a.requests}</td>
+          <td class="token-val" style="color:var(--accent2)">${a.successful} <span style="color:var(--muted2)">(${pct}%)</span></td>
+          <td class="token-val" style="color:var(--danger)">${a.errors}</td>
+          <td class="token-val">${fmtNum(a.tokens || 0)}</td>
+          <td class="ms-pill">${a.avg_ms ? Math.round(a.avg_ms)+'ms' : '—'}</td>
+        </tr>`;
+      }).join('');
+    }
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+// ── LLM Status ──────────────────────────────────────────────────────────────
+async function checkStatus() {
+  const dot  = document.getElementById('status-dot');
+  const txt  = document.getElementById('status-text');
+  dot.className = 'dot checking';
+  txt.textContent = 'Verificando…';
+
+  try {
+    const data = await fetch('/api/status').then(r=>r.json());
+    if (data.connected) {
+      dot.className = 'dot ok';
+      const model = data.models?.[0] || 'modelo desconocido';
+      txt.textContent = `${model.split('/').pop().slice(0,22)} · ${data.latency_ms}ms`;
+
+      // Update LM info box
+      const box = document.getElementById('lm-info-box');
+      if (box) {
+        box.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+            <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">URL LM Studio</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--accent)">${data.lm_url}</div></div>
+            <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Estado</div>
+              <span class="status-chip success">Conectado</span></div>
+            <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Latencia</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--accent2)">${data.latency_ms}ms</div></div>
+            <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Modelos disponibles</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--purple)">${(data.models||[]).join('<br/>')}</div></div>
+          </div>`;
+      }
+    } else {
+      dot.className = 'dot err';
+      txt.textContent = 'LM Studio offline';
+      const box = document.getElementById('lm-info-box');
+      if (box) box.innerHTML = `<div style="color:var(--danger);font-size:13px">❌ Sin conexión: ${data.error || 'desconocido'}</div>`;
+    }
+  } catch(e) {
+    dot.className = 'dot err';
+    txt.textContent = 'Error de conexión';
+  }
+}
+
+// ── Logs ─────────────────────────────────────────────────────────────────────
+let allLogs = [];
+
+async function loadLogs() {
+  try {
+    allLogs = await fetch('/api/logs?limit=200').then(r=>r.json());
+    document.getElementById('nav-log-count').textContent = allLogs.length;
+    applyFilter();
+  } catch(e) { console.error('Logs error:', e); }
+}
+
+function applyFilter() {
+  const fApp    = document.getElementById('filter-app')?.value    || '';
+  const fStatus = document.getElementById('filter-status')?.value || '';
+  let filtered  = allLogs;
+  if (fApp)    filtered = filtered.filter(l => l.app    === fApp);
+  if (fStatus) filtered = filtered.filter(l => l.status === fStatus);
+  renderFullLogs(filtered);
+}
+
+function renderFullLogs(logs) {
+  const body = document.getElementById('full-log-body');
+  if (!body) return;
+  if (!logs.length) {
+    body.innerHTML = '<tr class="empty-row"><td colspan="11">Sin logs que mostrar</td></tr>';
+    return;
+  }
+  body.innerHTML = logs.map(l => `
+    <tr>
+      <td style="color:var(--muted2);font-family:var(--mono);font-size:11px">${l.id}</td>
+      <td><span class="app-chip ${l.app}">${appIcon(l.app)} ${l.app}</span></td>
+      <td><span class="status-chip ${l.status}">${l.status}</span></td>
+      <td class="model-val" title="${l.model||''}">${shortModel(l.model)}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${l.endpoint||'—'}</td>
+      <td class="token-val">${l.prompt_tokens||0}</td>
+      <td class="token-val">${l.completion_tokens||0}</td>
+      <td class="token-val" style="color:var(--warn)">${l.total_tokens||0}</td>
+      <td class="ms-pill">${l.duration_ms ? l.duration_ms+'ms' : '—'}</td>
+      <td style="font-size:11px;color:var(--muted2);white-space:nowrap">${fmtTime(l.created_at)}</td>
+      <td class="preview-val" title="${esc(l.request_preview||'')}">${esc((l.request_preview||'').slice(0,60)) || '—'}</td>
+    </tr>`).join('');
+}
+
+function renderMiniLogs(logs) {
+  const body = document.getElementById('mini-log-body');
+  if (!body) return;
+  const recent = logs.slice(0, 8);
+  if (!recent.length) {
+    body.innerHTML = '<tr class="empty-row"><td colspan="7">Sin actividad — esperando peticiones LLM…</td></tr>';
+    return;
+  }
+  body.innerHTML = recent.map(l => `
+    <tr>
+      <td><span class="app-chip ${l.app}">${appIcon(l.app)} ${l.app}</span></td>
+      <td><span class="status-chip ${l.status}">${l.status}</span></td>
+      <td class="model-val">${shortModel(l.model)}</td>
+      <td class="token-val">${l.total_tokens||0}</td>
+      <td class="ms-pill">${l.duration_ms ? l.duration_ms+'ms' : '—'}</td>
+      <td style="font-size:11px;color:var(--muted2)">${fmtTime(l.created_at)}</td>
+      <td class="preview-val">${esc((l.request_preview||'').slice(0,55)) || '—'}</td>
+    </tr>`).join('');
+}
+
+// ── SSE stream ───────────────────────────────────────────────────────────────
+function connectSSE() {
+  const es = new EventSource('/api/logs/stream');
+
+  es.addEventListener('snapshot', e => {
+    allLogs = JSON.parse(e.data);
+    document.getElementById('nav-log-count').textContent = allLogs.length;
+    renderMiniLogs(allLogs);
+    if (document.getElementById('view-logs').style.display !== 'none') applyFilter();
+    loadStats();
+  });
+
+  es.addEventListener('log:pending', e => {
+    const entry = JSON.parse(e.data);
+    allLogs = [entry, ...allLogs.filter(l => l.id !== entry.id)];
+    document.getElementById('nav-log-count').textContent = allLogs.length;
+    renderMiniLogs(allLogs);
+    if (document.getElementById('view-logs').style.display !== 'none') applyFilter();
+    loadStats();
+  });
+
+  es.addEventListener('log:update', e => {
+    const entry = JSON.parse(e.data);
+    allLogs = allLogs.map(l => l.id === entry.id ? { ...l, ...entry } : l);
+    renderMiniLogs(allLogs);
+    if (document.getElementById('view-logs').style.display !== 'none') applyFilter();
+    loadStats();
+  });
+
+  es.onerror = () => { setTimeout(connectSSE, 3000); es.close(); };
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtNum(n) {
+  if (!n) return '0';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return String(n);
+}
+function fmtTime(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function shortModel(m) { if (!m) return '—'; const p = m.split('/'); return p[p.length-1].slice(0,22); }
+function appIcon(app) {
+  return { bookmark:'🔖', chatbot:'💬', chatbot_fast:'⚡', unknown:'?' }[app] || '?';
+}
+
+function setupHubSplitter() {
+  const shell = document.querySelector('.shell');
+  const splitter = document.getElementById('hub-splitter');
+  if (!shell || !splitter) return;
+
+  splitter.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 768) return;
+    e.preventDefault();
+    splitter.classList.add('dragging');
+    const startX = e.clientX;
+    const initial = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sidebar')) || 240;
+
+    const onMove = (ev) => {
+      const next = Math.min(420, Math.max(180, initial + (ev.clientX - startX)));
+      document.documentElement.style.setProperty('--sidebar', `${next}px`);
+    };
+    const onUp = () => {
+      splitter.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(async () => {
+  setupHubSplitter();
+  checkStatus();
+  await loadStats();
+  connectSSE();
+  setInterval(checkStatus, 30000);
+  setInterval(loadStats,   10000);
+})();
+</script>
+</body>
+</html>
